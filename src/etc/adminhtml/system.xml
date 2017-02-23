@@ -1,0 +1,233 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="verifone_payment" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Verifone Payment</label>
+                <comment>
+                    <![CDATA[<strong>comment</strong>]]>
+                </comment>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Title</label>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Sort Order</label>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+
+                <!-- CONNECT CONFIGURATION -->
+                <field id="is_live_mode" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Is live mode</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Select if extension is on live mode ("Yes") or test mode ("No")</comment>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="pay_page_url_1" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Pay page URL 1</label>
+                    <comment>Required. URL to the payment system</comment>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="active">1</field>
+                        <field id="is_live_mode">1</field>
+                    </depends>
+                </field>
+                <field id="pay_page_url_2" translate="label" type="text" sortOrder="111" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Pay page URL 2</label>
+                    <comment>Optional. Second redundant URL to the payment system</comment>
+                    <depends>
+                        <field id="active">1</field>
+                        <field id="is_live_mode">1</field>
+                    </depends>
+                </field>
+                <field id="pay_page_url_3" translate="label" type="text" sortOrder="112" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Pay page URL 3</label>
+                    <comment>Optional. Third redundant URL to the payment system</comment>
+                    <depends>
+                        <field id="active">1</field>
+                        <field id="is_live_mode">1</field>
+                    </depends>
+                </field>
+                <field id="validate_url" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Check payment node availability</label>
+                    <comment>Make a check that payment node is available</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                        <field id="is_live_mode">1</field>
+                    </depends>
+                </field>
+
+                <!-- AUTHENTICATION CONFIGURATION -->
+                <field id="merchant_agreement_code" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Verifone Payment merchant agreement code</label>
+                    <comment>Required. Verifone Payment agreement code</comment>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="shop_private_keyfile" translate="label" type="text" sortOrder="205" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Shop private key filename</label>
+                    <comment>Required. Path and filename of shop secret key file generated with Verifone key pair generator</comment>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="pay_page_public_keyfile" translate="label" type="text" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Verifone public key filename</label>
+                    <comment>Required. Path and filename of Verifone public key file</comment>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+
+                <!-- LOGIC CONFIGURATION -->
+                <field id="skip_confirmation_page" translate="label" type="select" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Skip confirmation page</label>
+                    <comment>Return directly to shop after payment</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="disable_rsa_blinding" translate="label" type="select" sortOrder="310" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Disable rsa blinding</label>
+                    <comment>Define CRYPT_RSA_DISABLE_BLINDING as true in case of custom PHP build or PHP7 (experimental)</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="basket_item_sending" translate="label" type="select" sortOrder="320" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Basket Item Sending</label>
+                    <source_model>Verifone\Payment\Model\Config\Source\BasketItemSending</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="combine_invoice_basket_items" translate="label" type="select" sortOrder="330" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Combine Invoice Basket Items</label>
+                    <comment>Currently only available for invoice payment methods</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+
+                <!-- PAYMENTS CONFIGURATION -->
+                <field id="specificpayments_trigger" translate="button_label" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label />
+                    <button_label>Get Available Payment methods</button_label>
+                    <frontend_model>Verifone\Payment\Block\System\Config\Button\RefreshPayments</frontend_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="paymentsgroups_array" translate="label" type="text" sortOrder="410" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Select payment methods and set groups</label>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="cardpaymentsgroup_array" translate="label" type="text" sortOrder="420" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Card payments group</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="allow_to_save_cc" translate="label" type="select" sortOrder="430" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Allow to save Credit Cards</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="expire_card_email_template" translate="label" type="select" sortOrder="440" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Recurring payment failed email notify</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="remember_cc_info" translate="label" type="textarea" sortOrder="450" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Remember me info</label>
+                    <comment>Optional. Note in checkout after "Remember payment method" checkbox - for cards only</comment>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="save_masked_pan_number" translate="label" type="select" sortOrder="460" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Save masked PAN number</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+
+                <!-- ALLOW CONFIGURATION -->
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="700" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="710" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Payment from Specific Countries</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="750" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Minimum Order Total</label>
+                    <can_be_empty>1</can_be_empty>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="760" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Maximum Order Total</label>
+                    <can_be_empty>1</can_be_empty>
+                    <comment>Leave empty to disable limit</comment>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+
+                <!-- ORDER CONFIGURATION -->
+                <field id="order_status_new" translate="label" type="select" sortOrder="800" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>New Payment Order Status</label>
+                    <source_model>Verifone\Payment\Model\Config\Source\Order\Status\PendingPayment</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="order_status_processing" translate="label" type="select" sortOrder="820" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Completed Payment Order Status</label>
+                    <source_model>Verifone\Payment\Model\Config\Source\Order\Status\Processing</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

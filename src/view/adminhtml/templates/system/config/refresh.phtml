@@ -1,0 +1,54 @@
+<?php
+// @codingStandardsIgnoreFile
+/** @var \Verifone\Payment\Block\System\Config\Button\RefreshPayments $block */
+?>
+<script>
+  require(['prototype'], function () {
+
+    //<![CDATA[
+    function refreshPayments() {
+      var validationMessage = $('result');
+      var payments = $('<?php /* @escapeNotVerified */ echo $block->getPaymentsgroupArrayField(); ?>');
+      var cards = $('<?php /* @escapeNotVerified */ echo $block->getCardpaymentsgroupArrayField(); ?>');
+
+      params = {
+        merchant_agreement_code: $('<?php /* @escapeNotVerified */ echo $block->getMerchantAgreementCodeField(); ?>').value,
+        shop_private_keyfile: $('<?php /* @escapeNotVerified */ echo $block->getShopPrivateKeyfileField(); ?>').value,
+        pay_page_public_keyfile: $('<?php /* @escapeNotVerified */ echo $block->getPayPagePublicKeyfileField(); ?>').value
+      };
+
+      new Ajax.Request('<?php /* @escapeNotVerified */ echo $block->getAjaxUrl() ?>', {
+        parameters: params,
+        onSuccess: function (response) {
+          var result = '<?php /* @escapeNotVerified */ echo __('Problem with fetch paymenth methods.') ?>';
+          try {
+            if (response.responseText.isJSON()) {
+              response = response.responseText.evalJSON();
+              var message = response.message;
+              var methods = response.methods;
+            }
+            if (response.valid == 1) {
+              validationMessage.removeClassName('hidden').addClassName('success');
+              payments.value = methods;
+            } else {
+              validationMessage.removeClassName('hidden').addClassName('error')
+            }
+          } catch (e) {
+            validationMessage.removeClassName('hidden').addClassName('error')
+          }
+          validationMessage.update(message);
+        }
+      });
+    }
+
+    window.refreshPayments = refreshPayments;
+    //]]>
+
+  });
+</script>
+<div class="actions actions-refresh-ayments">
+    <div id="result" class="message-validation hidden"></div>
+    <button onclick="javascript:refreshPayments(); return false;" class="action-refresh-ayments" type="button" id="<?php echo $block->getHtmlId() ?>">
+        <span><?php echo $block->escapeHtml($block->getButtonLabel()) ?></span>
+    </button>
+</div>

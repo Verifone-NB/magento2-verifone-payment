@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <verifone_payment>
+                <active>0</active>
+                <title>Verifone</title>
+                <model>Verifone\Payment\Model\Payment</model>
+                <is_live_mode>0</is_live_mode>
+                <pay_page_public_keyfile>keys/pay-page-public-key.pem</pay_page_public_keyfile>
+                <shop_private_keyfile>keys/shop-private-key.pem</shop_private_keyfile>
+                <pay_page_url_1>https://epayment1.point.fi/pw/payment</pay_page_url_1>
+                <pay_page_url_2>https://epayment2.point.fi/pw/payment</pay_page_url_2>
+                <pay_page_url_3>https://epayment3.point.fi/pw/payment</pay_page_url_3>
+                <pay_page_url_demo>https://epayment.test.point.fi/pw/payment</pay_page_url_demo>
+                <server_url_1>https://epayment1.point.fi/pw/serverinterface</server_url_1>
+                <server_url_2>https://epayment2.point.fi/pw/serverinterface</server_url_2>
+                <server_url_3>https://epayment3.point.fi/pw/serverinterface</server_url_3>
+                <server_url_demo>https://epayment.test.point.fi/pw/serverinterface</server_url_demo>
+                <validate_url>1</validate_url>
+                <skip_confirmation_page>1</skip_confirmation_page>
+                <disable_rsa_blinding>0</disable_rsa_blinding>
+                <basket_item_sending>1</basket_item_sending>
+                <combine_invoice_basket_items>1</combine_invoice_basket_items>
+                <allow_to_save_cc>1</allow_to_save_cc>
+                <remember_cc_info>1</remember_cc_info>
+                <save_masked_pan_number>1</save_masked_pan_number>
+                <order_status_new>pending_verifone</order_status_new>
+                <order_status_processing>processing</order_status_processing>
+            </verifone_payment>
+        </payment>
+    </default>
+</config>

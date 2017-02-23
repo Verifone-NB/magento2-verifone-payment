@@ -1,0 +1,11 @@
+<?php
+
+$_data = array(
+    'Place Order and Pay with Verifone' => __('Place Order and Pay with Verifone')
+);
+?>
+<script type="text/javascript">
+  require(["jquery", "mage/translate"], function ($) {
+    $.mage.translate.add(<?php echo Zend_Json::encode($_data) ?>)
+  });
+</script>

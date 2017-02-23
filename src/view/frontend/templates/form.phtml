@@ -1,0 +1,7 @@
+Redirecting to VerifonePayment.
+<form action="https://epayment.test.point.fi/pw/payment" method="POST" id="verifone_form" name="verifone_form">
+    <?php foreach ($this->getOrderCreateData() as $name => $value): ?>
+        <input type="hidden" name="<?php echo $name; ?>" value="<?php echo $value; ?>" />
+    <?php endforeach; ?>
+</form>
+<script type="text/javascript">document.getElementById("verifone_form").submit();</script>
