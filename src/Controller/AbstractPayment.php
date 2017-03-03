@@ -14,6 +14,11 @@ namespace Verifone\Payment\Controller;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Verifone\Core\Converter\Response\CoreResponseConverter;
+use Verifone\Core\DependencyInjection\CoreResponse\PaymentResponseImpl;
+use Verifone\Core\DependencyInjection\Transporter\CoreResponse;
+use Verifone\Core\Exception\ResponseCheckFailedException;
+use Verifone\Payment\Model\Order\Exception;
 
 abstract class AbstractPayment extends Action
 {
@@ -24,50 +29,85 @@ abstract class AbstractPayment extends Action
     protected $_order;
 
     /**
+     * @var \Verifone\Payment\Model\ClientFactory
+     */
+    protected $_clientFactory;
+
+    /**
      * AbstractPayment constructor.
      *
-     * @param Context                         $context
-     * @param \Verifone\Payment\Helper\Order  $order
+     * @param Context                        $context
+     * @param \Verifone\Payment\Helper\Order $order
      */
     public function __construct(
         Context $context,
-        \Verifone\Payment\Helper\Order $order
+        \Verifone\Payment\Helper\Order $order,
+        \Verifone\Payment\Model\ClientFactory $clientFactory
     ) {
         parent::__construct($context);
 
         $this->_order = $order;
+        $this->_clientFactory = $clientFactory;
+
     }
 
     protected function _handleSuccess($delayedSuccess = false)
     {
 
         $_request = $this->_request;
-        $signedFormData = $_request->getParams();
+
+        /** @var \Verifone\Payment\Model\Client\FormClient $client */
+        $client = $this->_clientFactory->create('frontend');
+
+        /** @var string $orderNumber */
+        $orderNumber = $client->getOrderNumber($_request->getParams());
+
+        if (empty($orderNumber)) {
+            return $this->execute();
+        }
 
         /**
          * @var \Magento\Sales\Model\Order $order
          */
-        $order = $this->_order->loadOrderByIncrementId($_request->getParam('s-f-1-36_order-number'));
+        $order = $this->_order->loadOrderByIncrementId($orderNumber);
+
+        try {
+            /** @var CoreResponse $validate */
+            $parsedResponse = $client->validateAndParseResponse($_request->getParams(), $order);
+
+            /** @var PaymentResponseImpl $body */
+            $body = $parsedResponse->getBody();
+
+            $validate = true;
+        } catch (ResponseCheckFailedException $e) {
+            $validate = false;
+            $parsedResponse = null;
+            $body = null;
+        } catch (Exception $e) {
+            $validate = false;
+            $parsedResponse = null;
+            $body = null;
+        }
 
         if ($order->getId()
-            && $_request->getParam('l-f-1-20_transaction-number')
-            && abs($_request->getParam('l-f-1-20_order-gross-amount') - (round($order->getGrandTotal(), 2) * 100)) < 1
-            && !$_request->getParam('s-t-1-30_cancel-reason')
+            && $validate
+            && $parsedResponse->getStatusCode() == CoreResponseConverter::STATUS_OK
+            && empty($body->getCancelMessage())
         ) {
 
             $resultRedirect = $this->resultRedirectFactory->create();
 
             if ($order->getBaseTotalDue()) {
-                $trans_id = preg_replace("/[^0-9]+/", "", $_request->getParam('l-f-1-20_transaction-number'));
-                $_transactionId = $_request->getParam('l-f-1-20_transaction-number');
+                $trans_id = preg_replace("/[^0-9]+/", "", $body->getTransactionNUmber());
+                $_transactionId = $body->getTransactionNUmber();
 
                 $this->_order->addNewOrderTransaction(
                     $order,
                     $_transactionId,
                     $trans_id,
                     \Magento\Sales\Model\Order::STATE_PROCESSING,
-                    $_request->getParam('l-f-1-20_order-gross-amount') / 100,
-                    $_request->getParam('s-f-1-30_payment-method-code')
+                    $body->getOrderGrossAmount() / 100,
+                    $body->getPaymentMethodCode()
                 );
 
                 $this->_order->sendEmail($order);
@@ -91,26 +131,49 @@ abstract class AbstractPayment extends Action
     public function execute()
     {
         $resultRedirect = $this->resultRedirectFactory->create();
-        $redirectUrl = 'checkout/onepage';
+        $redirectUrl = 'checkout/cart';
         $resultRedirect->setPath($redirectUrl);
 
         $_request = $this->_request;
-        $signedFormData = $_request->getParams();
+
+        /** @var \Verifone\Payment\Model\Client\FormClient $client */
+        $client = $this->_clientFactory->create('frontend');
+
+        /** @var string $orderNumber */
+        $orderNumber = $client->getOrderNumber($_request->getParams());
+
+        if (empty($orderNumber)) {
+            return $resultRedirect;
+        }
 
         /**
          * @var \Magento\Sales\Model\Order $order
          */
-        $order = $this->_order->loadOrderByIncrementId($_request->getParam('s-f-1-36_order-number'));
+        $order = $this->_order->loadOrderByIncrementId($orderNumber);
 
-        $_signatureValid = true;
-        /**
-         * @todo: add validation
-         */
-        if (!$_signatureValid) {
+        try {
+            /** @var CoreResponse $validate */
+            $parsedResponse = $client->validateAndParseResponse($_request->getParams(), $order);
+
+            /** @var PaymentResponseImpl $body */
+            $body = $parsedResponse->getBody();
+
+            $validate = true;
+        } catch (ResponseCheckFailedException $e) {
+            $validate = false;
+            $parsedResponse = null;
+            $body = null;
+        } catch (Exception $e) {
+            $validate = false;
+            $parsedResponse = null;
+            $body = null;
+        }
+
+        if (!$validate) {
             return $resultRedirect;
         }
 
-        $_transactionId = $_request->getParam('l-f-1-20_transaction-number');
+        $_transactionId = $body->getTransactionNUmber();
         if ($_transactionId) {
 
             $payment = $order->getPayment();
@@ -130,7 +193,7 @@ abstract class AbstractPayment extends Action
         if (!in_array($order->getState(), array(\Magento\Sales\Model\Order::STATE_CANCELED))) {
             $order->cancel();
 
-            $history = sprintf(__('Payment was canceled. Cancel reason: ') . $_request->getParam('s-t-1-30_cancel-reason'));
+            $history = __('Payment was canceled. Cancel reason: %1$s', $body->getCancelMessage());
             $order->addStatusHistoryComment($history, $order->getStatus());
         }
 
@@ -138,4 +201,5 @@ abstract class AbstractPayment extends Action
 
         return $resultRedirect;
     }
+
 }

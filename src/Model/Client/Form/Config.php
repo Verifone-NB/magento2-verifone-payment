@@ -13,6 +13,7 @@
 namespace Verifone\Payment\Model\Client\Form;
 
 use Verifone\Core\DependencyInjection\Configuration\Frontend\RedirectUrlsImpl;
+use Verifone\Payment\Helper\Path;
 
 class Config extends \Verifone\Payment\Model\Client\Config
 {
@@ -47,6 +48,16 @@ class Config extends \Verifone\Payment\Model\Client\Config
 
         return $this;
 
+    }
+
+    public function prepareConfig()
+    {
+        parent::prepareConfig();
+
+        $this->_config['skip-confirmation'] = (string)$this->_scopeConfig->getValue(Path::XML_PATH_SKIP_CONFIRMATION_PAGE);
+        $this->_config['payment-url'] = $this->_prepareUrls(Path::XML_PATH_PAYMENT_URL);
+
+        return true;
     }
 
     public function getRedirectUrlsObject()

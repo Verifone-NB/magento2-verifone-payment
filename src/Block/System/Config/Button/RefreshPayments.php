@@ -22,7 +22,14 @@ class RefreshPayments extends Field
     protected $_paymentsgroupArray = 'payment_us_verifone_payment_paymentsgroups_array';
     protected $_cardpaymentsgroupArray = 'payment_us_verifone_payment_cardpaymentsgroup_array';
 
-    protected $_buttonLabel = 'Get Available Payment methods';
+    protected $_buttonLabel = '';
+
+    public function __construct(\Magento\Backend\Block\Template\Context $context, array $data = [])
+    {
+        parent::__construct($context, $data);
+
+        $this->_buttonLabel = __('Get Available Payment Methods');
+    }
 
     /**
      * @return null

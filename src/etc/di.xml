@@ -30,4 +30,13 @@
     <type name="Magento\Checkout\Model\PaymentInformationManagement">
         <plugin name="verifone_payment_checkout_model_paymentinformationmanagement" type="Verifone\Payment\Model\Checkout\PaymentInformationManagement\Plugin" sortOrder="1" disabled="false" />
     </type>
+
+    <virtualType name="Magento\Sales\Model\ResourceModel\Order\Grid">
+        <arguments>
+            <argument name="columns">
+                <item name="payment_method_code" xsi:type="string">sales_order.payment_method_code</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
 </config>

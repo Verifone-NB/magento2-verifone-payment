@@ -42,6 +42,11 @@ class Form extends Action
     protected $_logger;
 
     /**
+     * @var \Verifone\Payment\Model\Sales\Order\Config
+     */
+    protected $_orderConfig;
+
+    /**
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Verifone\Payment\Model\Session       $session
      */
@@ -51,7 +56,8 @@ class Form extends Action
         \Verifone\Payment\Model\ClientFactory $clientFactory,
         \Magento\Framework\View\Result\PageFactory $resultPageFactory,
         \Verifone\Payment\Helper\Order $orderHelper,
-        \Verifone\Payment\Logger\VerifoneLogger $logger
+        \Verifone\Payment\Logger\VerifoneLogger $logger,
+        \Verifone\Payment\Model\Sales\Order\Config $orderConfig
     ) {
         parent::__construct($context);
         $this->_session = $session;
@@ -59,6 +65,7 @@ class Form extends Action
         $this->_resultPageFactory = $resultPageFactory;
         $this->_orderHelper = $orderHelper;
         $this->_logger = $logger;
+        $this->_orderConfig = $orderConfig;
     }
 
     /**
@@ -79,10 +86,13 @@ class Form extends Action
         if ($orderId) {
             $order = $this->_orderHelper->loadOrderById($orderId);
             try {
+                $paymentMethod = $this->_session->getPaymentMethod();
 
                 /** @var \Verifone\Payment\Model\Client\FormClient $client */
                 $client = $this->_clientFactory->create('frontend');
                 $orderData = $client->getDataForOrderCreate($order);
+                $this->_session->setPaymentMethod(null);
+
                 $orderCreateData = $client->orderCreate($orderData);
 
                 $resultPage = $this->_resultPageFactory->create(true,
@@ -93,14 +103,17 @@ class Form extends Action
 
                 $order
                     ->setState(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT)
-                    ->addStatusToHistory(true);
+                    ->addStatusToHistory($this->_orderConfig->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT));
+
+                $order->setData('payment_method_code', $paymentMethod);
+
                 $order->getResource()->save($order);
 
                 return $resultPage;
 
             } catch (Exception $e) {
                 $this->_logger->critical($e);
-                $redirectUrl = 'verifone_payment/payment/end';
+                $redirectUrl = 'verifone_payment/payment/cancel';
                 $redirectParams = ['exception' => '1'];
             }
         }

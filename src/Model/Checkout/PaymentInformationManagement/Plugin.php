@@ -42,7 +42,7 @@ class Plugin
 
         if ($paymentMethod->getMethod() === \Verifone\Payment\Model\Payment::CODE) {
             $additionalData = $paymentMethod->getAdditionalData();
-            $this->_session->setPaytype(isset($additionalData['paytype']) ? $additionalData['paytype'] : null);
+            $this->_session->setPaymentMethod(isset($additionalData['payment-method']) ? $additionalData['payment-method'] : null);
         }
 
     }

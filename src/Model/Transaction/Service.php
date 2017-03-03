@@ -53,7 +53,7 @@ class Service
          */
         $id = $this->_transactionResource->getIdByTransactionId($transactionId);
         if (!$id) {
-            throw new LocalizedException(new Phrase('Transaction ' . $transactionId . ' not found.'));
+            throw new LocalizedException(new Phrase('Transaction %1 not found.', $transactionId));
         }
         $transaction = $this->_transactionRepository->get($id);
         if ($close) {

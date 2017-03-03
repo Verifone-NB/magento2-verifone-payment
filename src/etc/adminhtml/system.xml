@@ -28,9 +28,9 @@
 
                 <!-- CONNECT CONFIGURATION -->
                 <field id="is_live_mode" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Is live mode</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Select if extension is on live mode ("Yes") or test mode ("No")</comment>
+                    <label>Module on live mode</label>
+                    <source_model>Verifone\Payment\Model\Config\Source\LiveMode</source_model>
+                    <comment>Select if extension is on live mode ("Production") or test mode ("Test")</comment>
                     <validate>required-entry</validate>
                     <depends>
                         <field id="active">1</field>
@@ -133,7 +133,7 @@
                 <!-- PAYMENTS CONFIGURATION -->
                 <field id="specificpayments_trigger" translate="button_label" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label />
-                    <button_label>Get Available Payment methods</button_label>
+                    <button_label>Get Available Payment Methods</button_label>
                     <frontend_model>Verifone\Payment\Block\System\Config\Button\RefreshPayments</frontend_model>
                     <depends>
                         <field id="active">1</field>
@@ -155,13 +155,6 @@
                 <field id="allow_to_save_cc" translate="label" type="select" sortOrder="430" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Allow to save Credit Cards</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <depends>
-                        <field id="active">1</field>
-                    </depends>
-                </field>
-                <field id="expire_card_email_template" translate="label" type="select" sortOrder="440" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Recurring payment failed email notify</label>
-                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
                     <depends>
                         <field id="active">1</field>
                     </depends>

@@ -19,8 +19,8 @@ namespace Verifone\Payment\Model;
  * @method Session setLastOrderId(int)
  * @method array getOrderCreateData()
  * @method Session setOrderCreateData(array)
- * @method string getPaytype()
- * @method Session setPaytype(string)
+ * @method string getPaymentMethod()
+ * @method Session setPaymentMethod(string)
  * @method int getLastOrderIncrementId()
  * @method Session setLastOrderIncrementId()
  */

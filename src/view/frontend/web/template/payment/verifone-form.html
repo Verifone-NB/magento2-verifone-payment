@@ -8,11 +8,17 @@
     </div>
 
     <div class="payment-method-content">
-        <div class="verifone-paytypes">
-            <!-- ko foreach: getPaytypes() -->
-            <div class="verifone-paytype">
-                <input type="radio" name="payment[additional_data][paytype]" class="radio" data-bind="value: $data.code, attr: {'id': $data.id}" />
-                <label data-bind="attr: {'for': $data.id}" class="label"><span data-bind="text: $data.label"></span></label>
+        <div class="verifone-payment-methods">
+            <!-- ko foreach: getPaymentMethods() -->
+            <div class="verifone-payment-group">
+                <h2><span data-bind="text: $data.name"></span></h2>
+                <strong><span data-bind="text: $data.description"></span></strong>
+                <!-- ko foreach: $data.methods -->
+                <div class="verifone-payment-method">
+                    <input type="radio" name="payment[additional_data][payment-method]" class="radio" data-bind="value: $data.value, attr: {'id': $data.id}" />
+                    <label data-bind="attr: {'for': $data.id}" class="label"><span data-bind="text: $data.label"></span></label>
+                </div>
+                <!--/ko-->
             </div>
             <!--/ko-->
         </div>
@@ -32,7 +38,7 @@
                         type="submit"
                         data-bind="
                         click: placeOrder,
-                        attr: {'title': $t('Place Order')},
+                        attr: {'title': $t('Place Order and Pay with Verifone')},
                         enable: (getCode() == isChecked()),
                         css: {disabled: !isPlaceOrderActionAllowed()}
                         "

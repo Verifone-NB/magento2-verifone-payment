@@ -12,14 +12,19 @@
 
 namespace Verifone\Payment\Model\Client;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
 use Verifone\Core\DependencyInjection\Configuration\Frontend\FrontendConfigurationImpl;
 use Verifone\Core\DependencyInjection\Service\CustomerImpl;
 use Verifone\Core\DependencyInjection\Service\OrderImpl;
 use Verifone\Core\DependencyInjection\Service\PaymentInfoImpl;
 use Verifone\Core\DependencyInjection\Service\ProductImpl;
 use Verifone\Core\DependencyInjection\Service\TransactionImpl;
+use Verifone\Core\DependencyInjection\Transporter\CoreResponse;
+use Verifone\Core\Exception\ResponseCheckFailedException;
 use Verifone\Core\ExecutorContainer;
 use Verifone\Core\Service\Frontend\CreateNewOrderService;
+use Verifone\Core\Service\FrontendResponse\FrontendResponseService;
 use Verifone\Core\ServiceFactory;
 use Verifone\Payment\Helper\Path;
 
@@ -68,13 +73,13 @@ class FormClient extends \Verifone\Payment\Model\Client
     public function orderCreate(array $data = [])
     {
         if (!$this->validateCreate($data)) {
-            throw new \Exception('Order request data array is invalid.');
+            throw new LocalizedException(new Phrase('Order request data array is invalid.'));
         }
 
         $result = $this->createOrder($data);
 
         if (!$result) {
-            throw new \Exception('There was a problem while processing order create request.');
+            throw new LocalizedException(new Phrase('There was a problem while processing order create request.'));
         }
         return $result;
     }
@@ -100,11 +105,6 @@ class FormClient extends \Verifone\Payment\Model\Client
             $data['customer'] = $customerData;
         }
 
-        $shippingData = $this->_dataGetter->getShippingData($order);
-        if ($shippingData) {
-            $data['products'][] = $shippingData;
-        }
-
         return $data;
     }
 
@@ -115,7 +115,6 @@ class FormClient extends \Verifone\Payment\Model\Client
         $publicKey = $config['public-key'];
         $privateKey = $config['private-key'];
 
-        $publicKeyFile = $this->_config->getFileContent($publicKey);
         $privateKeyFile = $this->_config->getFileContent($privateKey);
 
         $urls = $this->_config->getRedirectUrlsObject();
@@ -125,7 +124,8 @@ class FormClient extends \Verifone\Payment\Model\Client
             $privateKeyFile,
             $config['merchant'],
             $config['software'],
-            $config['software-version']
+            $config['software-version'],
+            $config['skip-confirmation']
         );
 
         $order = new OrderImpl(
@@ -159,13 +159,13 @@ class FormClient extends \Verifone\Payment\Model\Client
 
         $paymentInfo = new PaymentInfoImpl('fi_FI', '');
 
-        $paytype = '';
-        if (isset($data['pay_type'])) {
-            $paytype = $data['pay_type'];
+        $paymentMethod = '';
+        if (isset($data['payment_method'])) {
+            $paymentMethod = $data['payment_method'];
         }
 
         $transactionInfo = new TransactionImpl(
-            $paytype,
+            $paymentMethod,
             !is_null($data['ext_order_id']) ? $data['ext_order_id'] : '');
 
         /** @var CreateNewOrderService $service */
@@ -179,8 +179,9 @@ class FormClient extends \Verifone\Payment\Model\Client
             $service->insertProduct($product);
         }
 
+        // for json: new ExecutorContainer(array('requestConversion.class' => ExecutorContainer::REQUEST_CONVERTER_TYPE_JSON));
         $container = new ExecutorContainer();
-        $exec = $container->getExecutor('frontend');
+        $exec = $container->getExecutor(ExecutorContainer::EXECUTOR_TYPE_FRONTEND);
 
         $form = $exec->executeService($service, $config['payment-url']);
 
@@ -190,23 +191,72 @@ class FormClient extends \Verifone\Payment\Model\Client
     }
 
     /**
+     * @param array $requestData
+     *
+     * @return string
+     */
+    public function getOrderNumber(array $requestData)
+    {
+
+        $config = $this->_config->getConfig();
+
+        /** @var FrontendResponseService $service */
+        $service = ServiceFactory::createResponseService($requestData);
+
+        return $service->getOrderNumber();
+
+    }
+
+    /**
+     * @param array                      $requestData
+     * @param \Magento\Sales\Model\Order $order
+     *
+     * @return CoreResponse
+     * @throws ResponseCheckFailedException
+     */
+    public function validateAndParseResponse(array $requestData, \Magento\Sales\Model\Order $order)
+    {
+        $data = $this->_dataGetter->getOrderData($order);
+
+        $config = $this->_config->getConfig();
+        $publicKey = $config['public-key'];
+
+        $publicKeyFile = $this->_config->getFileContent($publicKey);
+
+        $orderImpl = new OrderImpl(
+            (string)$data['order_id'],
+            $data['time'],
+            (string)$data['currency_code'],
+            (string)$data['total_incl_amount'],
+            (string)$data['total_excl_amount'],
+            (string)$data['total_vat']
+        );
+
+        /** @var FrontendResponseService $service */
+        $service = ServiceFactory::createResponseService($requestData);
+        $service->insertOrder($orderImpl);
+        $container = new ExecutorContainer(array('responseConversion.class' => 'Converter\Response\FrontendServiceResponseConverter'));
+        $exec = $container->getExecutor(ExecutorContainer::EXECUTOR_TYPE_FRONTEND_RESPONSE);
+
+        /** @var CoreResponse $parseResponse */
+        $parseResponse = $exec->executeService($service, $publicKeyFile);
+
+        return $parseResponse;
+    }
+
+    /**
      * Returns available Payment Methods
      *
      * @return array
      */
     public function getPaymentMethods()
     {
-        $methods = explode(',', $this->_scopeConfig->getValue(Path::XML_PATH_PAYMENT_METHODS));
+        $paymentMethods = explode(',', $this->_scopeConfig->getValue(Path::XML_PATH_PAYMENT_METHODS));
+        $cardMethods = explode(',', $this->_scopeConfig->getValue(Path::XML_PATH_CARD_METHODS));
 
-        $paymentMethods = [];
-
-        foreach ($methods as $method) {
-            $paymentMethods[] = [
-                'code' => $method,
-                'label' => $method,
-            ];
-        }
-
-        return $paymentMethods;
+        return [
+            'card' => $cardMethods,
+            'bank' => $paymentMethods
+        ];
     }
 }

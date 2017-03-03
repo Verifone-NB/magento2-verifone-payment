@@ -11,7 +11,7 @@
                 <shop_private_keyfile>keys/shop-private-key.pem</shop_private_keyfile>
                 <pay_page_url_1>https://epayment1.point.fi/pw/payment</pay_page_url_1>
                 <pay_page_url_2>https://epayment2.point.fi/pw/payment</pay_page_url_2>
-                <pay_page_url_3>https://epayment3.point.fi/pw/payment</pay_page_url_3>
+                <pay_page_url_3/>
                 <pay_page_url_demo>https://epayment.test.point.fi/pw/payment</pay_page_url_demo>
                 <server_url_1>https://epayment1.point.fi/pw/serverinterface</server_url_1>
                 <server_url_2>https://epayment2.point.fi/pw/serverinterface</server_url_2>

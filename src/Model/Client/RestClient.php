@@ -12,6 +12,8 @@
 
 namespace Verifone\Payment\Model\Client;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
 use Verifone\Core\DependencyInjection\Configuration\Backend\BackendConfigurationImpl;
 use Verifone\Core\DependencyInjection\Configuration\Backend\GetAvailablePaymentMethodsConfigurationImpl;
 use Verifone\Core\DependencyInjection\Service\TransactionImpl;
@@ -39,7 +41,7 @@ class RestClient extends \Verifone\Payment\Model\Client
         $result = $this->refund($order, $payment, $amount);
 
         if (!$result) {
-            throw new \Exception('There was a problem while processing order refund request.');
+            throw new LocalizedException(new Phrase('There was a problem while processing order refund request.'));
         }
 
         return $result;
@@ -143,7 +145,7 @@ class RestClient extends \Verifone\Payment\Model\Client
                 return true;
             }
         } catch (\Exception $e) {
-            var_dump($e->getMessage());
+            throw $e;
         }
 
         return false;

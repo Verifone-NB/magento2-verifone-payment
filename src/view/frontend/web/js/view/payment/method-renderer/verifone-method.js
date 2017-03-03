@@ -20,10 +20,10 @@ define(
         };
       },
       getAdditionalData: function() {
-        var paytypeRadio = $("input[name=payment\\[additional_data\\]\\[paytype\\]]:checked");
-        if (paytypeRadio.length) {
+        var paymentMethodRadio = $("input[name=payment\\[additional_data\\]\\[payment-method\\]]:checked");
+        if (paymentMethodRadio.length) {
           return {
-            "paytype": paytypeRadio.val()
+            "payment-method": paymentMethodRadio.val()
           }
         }
         return null;
@@ -52,8 +52,8 @@ define(
         }
         return false;
       },
-      getPaytypes: function() {
-        return window.checkoutConfig.payment.verifonePayment.paytypes;
+      getPaymentMethods: function() {
+        return window.checkoutConfig.payment.verifonePayment.paymentMethods;
       }
 
     });

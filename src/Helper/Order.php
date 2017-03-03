@@ -124,7 +124,7 @@ class Order
         $transaction->getResource()->save($transaction);
 
         $order->setExtOrderId($extOrderId);
-        $order->addStatusHistoryComment(sprintf(__('Payment %s captured'), $transactionId), $status);
+        $order->addStatusHistoryComment(__('Payment %1$s captured', $transactionId), $status);
         $order->setState($status);
 
         $this->completePayment($order, $amount, $transactionId);
@@ -219,6 +219,7 @@ class Order
             return null;
         }
 
+        /** @var \Magento\Sales\Model\Order $item */
         foreach ($orderList->getItems() as $item) {
             return $item;
         }

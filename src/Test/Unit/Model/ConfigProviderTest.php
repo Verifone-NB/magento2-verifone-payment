@@ -70,7 +70,7 @@ class ConfigProviderTest extends \PHPUnit_Framework_TestCase
             'payment' => [
                 'verifonePayment' => [
                     'redirectUrl' => $redirectUrl,
-                    'paytypes' => null
+                    'paymentMethods' => null
                 ]
             ]
         ];

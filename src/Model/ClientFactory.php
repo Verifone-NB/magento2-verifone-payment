@@ -12,6 +12,9 @@
 
 namespace Verifone\Payment\Model;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
+
 class ClientFactory
 {
     /**
@@ -46,7 +49,7 @@ class ClientFactory
                 $class = \Verifone\Payment\Model\Client\RestClient::class;
                 break;
             default:
-                throw new \Exception('COULD NOT FIND CLIENT CLASS');
+                throw new LocalizedException(new Phrase('There was a problem while processing order refund request.'));
         }
 
         return $this->_objectManager->create($class, []);

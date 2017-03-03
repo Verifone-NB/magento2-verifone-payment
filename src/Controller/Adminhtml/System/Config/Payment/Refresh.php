@@ -13,6 +13,7 @@
 namespace Verifone\Payment\Controller\Adminhtml\System\Config\Payment;
 
 use Magento\Framework\App\ResponseInterface;
+use Verifone\Payment\Model\Db\Payment\Method;
 
 /**
  * Class Refresh
@@ -37,7 +38,7 @@ class Refresh extends \Magento\Backend\App\Action
      *
      * @param \Magento\Backend\App\Action\Context              $context
      * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
-     * @param \Verifone\Payment\Model\Order\PaymentMethod            $paytypeHelper
+     * @param \Verifone\Payment\Model\Order\PaymentMethod      $paymentMethod
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
@@ -65,26 +66,41 @@ class Refresh extends \Magento\Backend\App\Action
 
         $request = $this->getRequest();
 
-        $paytypes = $this->_paymentMethodHelper->refreshPaymentMethods(
+        $paymentMethods = $this->_paymentMethodHelper->refreshPaymentMethods(
             $request->getParam('merchant_agreement_code', null),
             $request->getParam('shop_private_keyfile', null),
             $request->getParam('pay_page_public_keyfile', null)
         );
 
-        if (!$paytypes) {
+        if (is_string($paymentMethods)) {
             return $resultJson->setData(
                 [
                     'valid' => 0,
-                    'message' => 'Problem with retrieve payment methods',
+                    'message' => __('Problem with retrieve payment methods. %1$s' . $paymentMethods),
                 ]
             );
+        }
+
+        $banks = [];
+        $cards = [];
+
+        /** @var \Verifone\Payment\Model\Db\Payment\Method $paymentMethod */
+        foreach ($paymentMethods as $paymentMethod) {
+            if($paymentMethod->getType() == Method::TYPE_CARD) {
+                $cards[] = $paymentMethod->getCode();
+            } else {
+                $banks[] = $paymentMethod->getCode();
+            }
         }
 
         return $resultJson->setData(
             [
                 'valid' => 1,
-                'message' => 'Payment methods retrieved correctly',
-                'methods' => $paytypes
+                'message' => __('Payment methods retrieved correctly. Please save configuration for apply.'),
+                'methods' => [
+                    'bank' => $banks,
+                    'card' => $cards
+                ]
             ]
         );
 

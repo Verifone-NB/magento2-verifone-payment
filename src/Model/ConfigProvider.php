@@ -53,7 +53,7 @@ class ConfigProvider implements ConfigProviderInterface
                 'payment' => [
                     'verifonePayment' => [
                         'redirectUrl' => $redirectUrl,
-                        'paytypes' => $this->_payentMethodHelper->getPaymentMethods()
+                        'paymentMethods' => $this->_payentMethodHelper->getPaymentMethods()
                     ]
                 ]
             ];

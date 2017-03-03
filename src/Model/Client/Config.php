@@ -113,8 +113,6 @@ class Config implements ConfigInterface
 
             $currency = $this->_helper->convertCountryToISO4217($currencyCode);
 
-            $urls = $this->_prepareUrls();
-
             $this->_config = [
                 'private-key' => $privateKeyPath,
                 'public-key' => $publicKeyPath,
@@ -122,8 +120,6 @@ class Config implements ConfigInterface
                 'software' => $software,
                 'software-version' => $softwareVersion,
                 'currency' => $currency,
-                'payment-url' => $urls['payment'],
-                'server-url' => $urls['server']
             ];
 
             $this->_isConfigSet = true;
@@ -157,18 +153,27 @@ class Config implements ConfigInterface
     }
 
     /**
+     * @param $path
+     *
      * @return array
      */
-    protected function _prepareUrls()
+    protected function _prepareUrls($path)
     {
         if ($this->_scopeConfig->getValue(Path::XML_PATH_IS_LIVE_MODE)) {
-            return [];
+            $urls = [];
+
+            for ($i = 1; $i <= self::SERVERS_AMOUNT; $i++) {
+                $urlPayment = $this->_scopeConfig->getValue($path . $i);
+                if (!empty($urlPayment)) {
+                    $urls[] = $urlPayment;
+                }
+            }
+
+            return $urls;
         } else {
-            return [
-                'payment' => [$this->_scopeConfig->getValue(Path::XML_PATH_PAYMENT_URL . self::TEST_SUFFIX)],
-                'server' => [$this->_scopeConfig->getValue(Path::XML_PATH_SERVER_URL . self::TEST_SUFFIX)]
-            ];
+            return [$this->_scopeConfig->getValue($path . self::TEST_SUFFIX)];
         }
     }
+
 
 }

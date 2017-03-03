@@ -12,12 +12,12 @@
 
 namespace Verifone\Payment\Model\Order;
 
+use Verifone\Payment\Model\Db\Payment\Method;
+
 class PaymentMethod
 {
-    /**
-     * @var \Verifone\Payment\Model\ClientFactory
-     */
-    protected $_clientFactory;
+
+    const DEFAULT_CODE = 'VerifonePayment';
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -25,22 +25,34 @@ class PaymentMethod
     protected $_scopeConfig;
 
     /**
-     * Paytype constructor.
+     * @var \Verifone\Payment\Model\ClientFactory
+     */
+    protected $_clientFactory;
+
+    /**
+     * @var \Verifone\Payment\Model\Db\Payment\MethodFactory
+     */
+    protected $_methodFactory;
+
+    /**
+     * PaymentMethod constructor.
      *
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Verifone\Payment\Model\ClientFactory              $clientFactory
+     * @param \Verifone\Payment\Model\Db\Payment\MethodFactory   $methodFactory
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Verifone\Payment\Model\ClientFactory $clientFactory
+        \Verifone\Payment\Model\ClientFactory $clientFactory,
+        \Verifone\Payment\Model\Db\Payment\MethodFactory $methodFactory
     ) {
         $this->_scopeConfig = $scopeConfig;
         $this->_clientFactory = $clientFactory;
+        $this->_methodFactory = $methodFactory;
     }
 
     /**
-     * Returns false if paytypes are disabled in checkout or there is no method for paytypes in current API.
-     * Returns array of paytypes otherwise.
+     * Returns array of payment methods.
      *
      * @return array
      */
@@ -50,14 +62,43 @@ class PaymentMethod
         $client = $this->_clientFactory->create('frontend');
         $methods = $client->getPaymentMethods();
 
-        foreach ($methods as $key => $method) {
-            //if (!$paytype['active']) {
-            //    unset($paytypes[$key]);
-            //} else {
-            $methods[$key]['id'] = 'verifone-payment-paytype-' . $method['code'];
-            //}
+        $model = $this->_methodFactory->create();
+
+        $returnMethods = [];
+
+        $i = 0;
+        foreach ($methods as $type => $codes) {
+
+            $returnMethods[$i] = [
+                'name' => $type,
+                'description' => 'Description ' . $type,
+                'methods' => []
+            ];
+
+            foreach ($codes as $code) {
+
+                /** @var Method $method */
+                $method = $model->loadByCode($code);
+
+                if (!$method->isActive()) {
+                    continue;
+                }
+
+                $tmp = [];
+
+                $tmp['id'] = 'verifone-payment-method-' . $code;
+                $tmp['value'] = $code;
+                $tmp['label'] = $method->getName();
+
+                $returnMethods[$i]['methods'][] = $tmp;
+
+            }
+
+            $i++;
+
         }
-        return $methods;
+
+        return $returnMethods;
     }
 
     /**
@@ -65,14 +106,18 @@ class PaymentMethod
      * @param string|null $privateKey
      * @param string|null $publicKey
      *
-     * @return array|null
+     * @return \Verifone\Payment\Model\ResourceModel\Db\Payment\Method\Collection|string
      */
     public function refreshPaymentMethods($merchant = null, $privateKey = null, $publicKey = null)
     {
-        /** @var \Verifone\Payment\Model\Client\Rest $client */
+        /** @var \Verifone\Payment\Model\Client\RestClient $client */
         $client = $this->_clientFactory->create('backend');
         $paymentMethods = $client->getPaymentMethods($merchant, $privateKey, $publicKey);
 
-        return $paymentMethods;
+        array_push($paymentMethods, self::DEFAULT_CODE);
+
+        $result = $this->_methodFactory->create()->refreshMethods($paymentMethods);
+
+        return $result;
     }
 }

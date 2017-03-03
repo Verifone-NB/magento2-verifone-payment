@@ -70,6 +70,12 @@ class Payment extends AbstractMethod
     protected $_clientFactory;
 
     /**
+     * @var \Verifone\Payment\Model\Db\Payment\MethodFactory
+     */
+    protected $_methodFactory;
+
+
+    /**
      * Verifone constructor.
      *
      * @param \Magento\Framework\Model\Context                   $context
@@ -92,6 +98,7 @@ class Payment extends AbstractMethod
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Framework\UrlInterface $urlBuilder,
         ClientFactory $clientFactory,
+        \Verifone\Payment\Model\Db\Payment\MethodFactory $methodFactory,
         array $data = array()
     ) {
         parent::__construct(
@@ -109,6 +116,7 @@ class Payment extends AbstractMethod
 
         $this->_urlBuilder = $urlBuilder;
         $this->_clientFactory = $clientFactory;
+        $this->_methodFactory = $methodFactory;
     }
 
     /**
@@ -152,8 +160,11 @@ class Payment extends AbstractMethod
         if (is_null($quote)) {
             return parent::isAvailable($quote);
         } else {
-            return parent::isAvailable($quote);
-                // check available payments methods;
+
+            /** @var  $model */
+            $model = $this->_methodFactory->create();
+
+            return $model->getActiveMethods()->getSize() > 0 && parent::isAvailable($quote);
         }
     }
 
