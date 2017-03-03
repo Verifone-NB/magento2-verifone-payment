@@ -40,7 +40,7 @@
 "Title","Otsikko"
 "Enabled","Käytössä"
 "Module on live mode","Module on live mode"
-"Select if extension is on live mode (\"Production\") or test mode (\"Test\")","Select if extension is on live mode (\"Production\") or test mode (\"Test\")"
+"Select if extension is on live mode (Production) or test mode (Test)","Select if extension is on live mode (Production) or test mode (Test)"
 "Verifone Payment merchant agreement code","Verifonen kauppiasnumero"
 "Required. Verifone Payment agreement code","Pakollinen tieto. Kauppiasnumero, jolla Verifonen tili on avattu"
 "Shop private key filename","Kaupan private key -avaintiedoston nimi"

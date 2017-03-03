@@ -30,7 +30,7 @@
                 <field id="is_live_mode" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Module on live mode</label>
                     <source_model>Verifone\Payment\Model\Config\Source\LiveMode</source_model>
-                    <comment>Select if extension is on live mode ("Production") or test mode ("Test")</comment>
+                    <comment>Select if extension is on live mode (Production) or test mode (Test)</comment>
                     <validate>required-entry</validate>
                     <depends>
                         <field id="active">1</field>

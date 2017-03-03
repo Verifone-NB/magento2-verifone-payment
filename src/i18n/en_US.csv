@@ -40,7 +40,7 @@
 "Title","Title"
 "Enabled","Enabled"
 "Module on live mode","Module on live mode"
-"Select if extension is on live mode (\"Production\") or test mode (\"Test\")","Select if extension is on live mode (\"Production\") or test mode (\"Test\")"
+"Select if extension is on live mode (Production) or test mode (Test)","Select if extension is on live mode (Production) or test mode (Test)"
 "Verifone Payment merchant agreement code","Verifone Payment merchant agreement code"
 "Required. Verifone Payment agreement code","Required. Verifone Payment agreement code"
 "Shop private key filename","Shop private key filename"
