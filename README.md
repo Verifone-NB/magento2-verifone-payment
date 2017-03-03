@@ -4,7 +4,7 @@ Version: alpha
 Verifone Payment plugin for Magento2
 
 ## Install with Composer ##
-composer require verifone/module-payment:0.0.1
+composer require verifone/module-payment:0.0.2
 
 ## Manual ##
 
