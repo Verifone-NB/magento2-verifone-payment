@@ -6,7 +6,6 @@
     "verifone/core": "1.0.*"
   },
   "type": "magento2-module",
-  "version": "0.0.1",
   "autoload": {
     "files": [
       "src/registration.php"
