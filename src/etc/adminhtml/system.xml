@@ -139,15 +139,18 @@
                         <field id="active">1</field>
                     </depends>
                 </field>
-                <field id="paymentsgroups_array" translate="label" type="text" sortOrder="410" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="paymentsgroups_array" translate="label" sortOrder="410" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Select payment methods and set groups</label>
+                    <frontend_model>Verifone\Payment\Block\System\Config\Group\PaymentArray</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
                     <depends>
                         <field id="active">1</field>
                     </depends>
                 </field>
-                <field id="cardpaymentsgroup_array" translate="label" type="text" sortOrder="420" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="cardpaymentsgroup_array" translate="label" sortOrder="420" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Card payments group</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <frontend_model>Verifone\Payment\Block\System\Config\Group\CardArray</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
                     <depends>
                         <field id="active">1</field>
                     </depends>

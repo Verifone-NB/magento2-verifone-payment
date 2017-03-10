@@ -8,19 +8,17 @@
     //<![CDATA[
     function refreshPayments() {
       var validationMessage = $('result');
-      var payments = $('<?php /* @escapeNotVerified */ echo $block->getPaymentsgroupArrayField(); ?>');
-      var cards = $('<?php /* @escapeNotVerified */ echo $block->getCardpaymentsgroupArrayField(); ?>');
 
       params = {
-        merchant_agreement_code: $('<?php /* @escapeNotVerified */ echo $block->getMerchantAgreementCodeField(); ?>').value,
-        shop_private_keyfile: $('<?php /* @escapeNotVerified */ echo $block->getShopPrivateKeyfileField(); ?>').value,
-        pay_page_public_keyfile: $('<?php /* @escapeNotVerified */ echo $block->getPayPagePublicKeyfileField(); ?>').value
+        merchant_agreement_code: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getMerchantAgreementCodeField(); ?>"]').first().value,
+        shop_private_keyfile: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getShopPrivateKeyfileField(); ?>"]').first().value,
+        pay_page_public_keyfile: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getPayPagePublicKeyfileField(); ?>"]').first().value
       };
 
       new Ajax.Request('<?php /* @escapeNotVerified */ echo $block->getAjaxUrl() ?>', {
         parameters: params,
         onSuccess: function (response) {
-          var result = '<?php /* @escapeNotVerified */ echo __('Problem with fetch paymenth methods.') ?>';
+          var result = '<?php /* @escapeNotVerified */ echo __('Problem with fetch payment methods.') ?>';
           try {
             if (response.responseText.isJSON()) {
               response = response.responseText.evalJSON();
@@ -29,8 +27,6 @@
             }
             if (response.valid == 1) {
               validationMessage.removeClassName('hidden').addClassName('success');
-              payments.value = methods.bank;
-              cards.value = methods.card;
             } else {
               validationMessage.removeClassName('hidden').addClassName('error')
             }

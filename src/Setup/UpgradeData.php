@@ -12,29 +12,44 @@
 
 namespace Verifone\Payment\Setup;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
+use Verifone\Payment\Helper\Path;
 
 class UpgradeData implements UpgradeDataInterface
 {
     /**
      * @var \Magento\Sales\Model\Order\StatusFactory
      */
-    protected $statusFactory;
+    protected $_statusFactory;
+
+    /**
+     * @var \Magento\Framework\App\Config\ConfigResource\ConfigInterface
+     */
+    protected $_resourceConfig;
+
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    protected $_scopeConfig;
 
     /**
      * @param \Magento\Sales\Model\Order\StatusFactory $statusFactory
      */
     public function __construct(
-        \Magento\Sales\Model\Order\StatusFactory $statusFactory
+        \Magento\Sales\Model\Order\StatusFactory $statusFactory,
+        \Magento\Framework\App\Config\ConfigResource\ConfigInterface  $resourceConfig,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
-        $this->statusFactory = $statusFactory;
+        $this->_statusFactory = $statusFactory;
+        $this->_resourceConfig = $resourceConfig;
+        $this->_scopeConfig = $scopeConfig;
     }
 
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
-
         $setup->startSetup();
 
         if (!$context->getVersion()) {
@@ -49,6 +64,10 @@ class UpgradeData implements UpgradeDataInterface
             $this->upgrade003($setup);
         }
 
+        if (version_compare($context->getVersion(), '0.0.5') < 0) {
+            $this->upgrade005($setup);
+        }
+
         $setup->endSetup();
 
     }
@@ -56,7 +75,7 @@ class UpgradeData implements UpgradeDataInterface
     public function upgrade002()
     {
         /** @var \Magento\Sales\Model\Order\Status $status */
-        $status = $this->statusFactory->create();
+        $status = $this->_statusFactory->create();
         $status->setData([
             'status' => 'pending_verifone',
             'label' => 'Pending Verifone'
@@ -108,5 +127,37 @@ class UpgradeData implements UpgradeDataInterface
                 $setup->getConnection()->insert($tableName, $item);
             }
         }
+    }
+
+    public function upgrade005($setup)
+    {
+        $payment = $this->_scopeConfig->getValue(Path::XML_PATH_PAYMENT_METHODS);
+
+        if(empty($payment) || !$this->_isJson($payment)) {
+            $this->_resourceConfig->saveConfig(
+                Path::XML_PATH_PAYMENT_METHODS,
+                'a:1:{s:18:"_1450878527843_843";a:3:{s:8:"position";s:3:"100";s:10:"group_name";s:16:"verifone-default";s:8:"payments";a:1:{i:0;s:15:"VerifonePayment";}}}',
+                ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                0
+            );
+        }
+
+        $cards = $this->_scopeConfig->getValue(Path::XML_PATH_CARD_METHODS);
+
+        if(empty($cards) || !$this->_isJson($cards)) {
+            $this->_resourceConfig->saveConfig(
+                Path::XML_PATH_CARD_METHODS,
+                'a:1:{s:18:"_1452514030822_822";a:3:{s:8:"position";s:2:"10";s:10:"group_name";s:21:"Verifone Credit Cards";s:8:"payments";a:4:{i:0;s:4:"amex";i:1;s:4:"visa";i:2;s:11:"master-card";i:3;s:6:"diners";}}}',
+                ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                0
+            );
+        }
+
+    }
+
+    protected function _isJson($string)
+    {
+        json_decode($string);
+        return (json_last_error() == JSON_ERROR_NONE);
     }
 }

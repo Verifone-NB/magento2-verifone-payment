@@ -96,7 +96,7 @@ class Refresh extends \Magento\Backend\App\Action
         return $resultJson->setData(
             [
                 'valid' => 1,
-                'message' => __('Payment methods retrieved correctly. Please save configuration for apply.'),
+                'message' => __('Payment methods retrieved correctly. Please refresh page.'),
                 'methods' => [
                     'bank' => $banks,
                     'card' => $cards

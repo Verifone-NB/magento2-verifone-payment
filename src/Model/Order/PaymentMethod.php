@@ -64,18 +64,9 @@ class PaymentMethod
 
         $model = $this->_methodFactory->create();
 
-        $returnMethods = [];
+        foreach ($methods as $key => $method) {
 
-        $i = 0;
-        foreach ($methods as $type => $codes) {
-
-            $returnMethods[$i] = [
-                'name' => $type,
-                'description' => 'Description ' . $type,
-                'methods' => []
-            ];
-
-            foreach ($codes as $code) {
+            foreach ($method['payments'] as $i => $code) {
 
                 /** @var Method $method */
                 $method = $model->loadByCode($code);
@@ -90,15 +81,13 @@ class PaymentMethod
                 $tmp['value'] = $code;
                 $tmp['label'] = $method->getName();
 
-                $returnMethods[$i]['methods'][] = $tmp;
+                $methods[$key]['methods'][] = $tmp;
 
             }
 
-            $i++;
-
         }
 
-        return $returnMethods;
+        return $methods;
     }
 
     /**

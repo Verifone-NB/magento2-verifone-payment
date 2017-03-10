@@ -43,13 +43,20 @@ class Test extends Action
      */
     protected $_orderConfig;
 
+    /**
+     * @var Order\PaymentMethod
+     */
+    protected $_payentMethodHelper;
+
+
     public function __construct(
         Context $context,
         \Verifone\Payment\Model\Db\Payment\MethodFactory $methodFactory,
         \Verifone\Payment\Model\Session $session,
         \Verifone\Payment\Model\ClientFactory $clientFactory,
         \Verifone\Payment\Helper\Order $orderHelper,
-        \Verifone\Payment\Model\Sales\Order\Config $orderConfig
+        \Verifone\Payment\Model\Sales\Order\Config $orderConfig,
+        \Verifone\Payment\Model\Order\PaymentMethod $paymentMethod
 
     ) {
         parent::__construct($context);
@@ -58,6 +65,7 @@ class Test extends Action
         $this->_clientFactory = $clientFactory;
         $this->_orderHelper = $orderHelper;
         $this->_orderConfig = $orderConfig;
+        $this->_payentMethodHelper = $paymentMethod;
     }
 
     public function execute()
@@ -66,7 +74,10 @@ class Test extends Action
 
         //var_dump($this->_orderConfig->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT));
 
-        //$model = $this->_methodFactory->create();
+        $this->_payentMethodHelper->getPaymentMethods();
+
+        die();
+
         //
         //var_dump($model->getActiveMethods()->getSize() > 0);die();
         //
@@ -79,22 +90,22 @@ class Test extends Action
         //    var_dump($item->getData());
         //}
 
-        $orderId = 37;
-
-        $this->_session->setPaymentMethod('invoice-collector');
-
-        if ($orderId) {
-            $order = $this->_orderHelper->loadOrderById($orderId);
-
-            /** @var \Verifone\Payment\Model\Client\FormClient $client */
-            $client = $this->_clientFactory->create('frontend');
-            $orderData = $client->getDataForOrderCreate($order);
-
-            var_dump($orderData);die();
-
-            $orderCreateData = $client->orderCreate($orderData);
-
-            var_dump($orderCreateData);die();
-        }
+//        $orderId = 37;
+//
+//        $this->_session->setPaymentMethod('invoice-collector');
+//
+//        if ($orderId) {
+//            $order = $this->_orderHelper->loadOrderById($orderId);
+//
+//            /** @var \Verifone\Payment\Model\Client\FormClient $client */
+//            $client = $this->_clientFactory->create('frontend');
+//            $orderData = $client->getDataForOrderCreate($order);
+//
+//            var_dump($orderData);die();
+//
+//            $orderCreateData = $client->orderCreate($orderData);
+//
+//            var_dump($orderCreateData);die();
+//        }
     }
 }

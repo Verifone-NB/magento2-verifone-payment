@@ -16,11 +16,9 @@ use Magento\Config\Block\System\Config\Form\Field;
 class RefreshPayments extends Field
 {
 
-    protected $_merchantAgreementCode = 'payment_us_verifone_payment_merchant_agreement_code';
-    protected $_shopPrivateKeyfile = 'payment_us_verifone_payment_shop_private_keyfile';
-    protected $_payPagePublicKeyfile = 'payment_us_verifone_payment_pay_page_public_keyfile';
-    protected $_paymentsgroupArray = 'payment_us_verifone_payment_paymentsgroups_array';
-    protected $_cardpaymentsgroupArray = 'payment_us_verifone_payment_cardpaymentsgroup_array';
+    protected $_merchantAgreementCode = 'verifone_payment_merchant_agreement_code';
+    protected $_shopPrivateKeyfile = 'verifone_payment_shop_private_keyfile';
+    protected $_payPagePublicKeyfile = 'verifone_payment_pay_page_public_keyfile';
 
     protected $_buttonLabel = '';
 
@@ -89,38 +87,6 @@ class RefreshPayments extends Field
     }
 
     /**
-     * @return string
-     */
-    public function getPaymentsgroupArrayField()
-    {
-        return $this->_paymentsgroupArray;
-    }
-
-    /**
-     * @param string $paymentsgroupArray
-     */
-    public function setPaymentsgroupArrayField(string $paymentsgroupArray)
-    {
-        $this->_paymentsgroupArray = $paymentsgroupArray;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCardpaymentsgroupArrayField()
-    {
-        return $this->_cardpaymentsgroupArray;
-    }
-
-    /**
-     * @param string $cardpaymentsgroupArray
-     */
-    public function setCardpaymentsgroupArrayField(string $cardpaymentsgroupArray)
-    {
-        $this->_cardpaymentsgroupArray = $cardpaymentsgroupArray;
-    }
-
-    /**
      * Set Button Label
      *
      * @param string $buttonLabel
@@ -173,7 +139,7 @@ class RefreshPayments extends Field
         $buttonLabel = !empty($originalData['button_label']) ? $originalData['button_label'] : $this->_buttonLabel;
         $this->addData(
             [
-                'button_label' => __($buttonLabel),
+                'button_label' => $buttonLabel,
                 'html_id' => $element->getHtmlId(),
                 'ajax_url' => $this->_urlBuilder->getUrl('verifone_payment/system_config_payment/refresh'),
             ]

@@ -251,12 +251,60 @@ class FormClient extends \Verifone\Payment\Model\Client
      */
     public function getPaymentMethods()
     {
-        $paymentMethods = explode(',', $this->_scopeConfig->getValue(Path::XML_PATH_PAYMENT_METHODS));
-        $cardMethods = explode(',', $this->_scopeConfig->getValue(Path::XML_PATH_CARD_METHODS));
+        $paymentMethods = $this->_scopeConfig->getValue(Path::XML_PATH_PAYMENT_METHODS);
+        $cardMethods = $this->_scopeConfig->getValue(Path::XML_PATH_CARD_METHODS);
 
+        $groups = $this->_parseGroups($paymentMethods);
+        $groups = array_merge($groups, $this->_parseGroups($cardMethods));
+
+        usort($groups, array("self", "sortGroups"));
+
+        return $groups;
+    }
+
+    /**
+     * @param $string
+     * @return array
+     */
+    protected function _parseGroups($string)
+    {
+        $groups = unserialize($string);
+
+        $parsed = [];
+
+        foreach($groups as $group) {
+            $parsed[] = $this->_parseGroup($group);
+        }
+
+        return $parsed;
+
+    }
+
+    /**
+     * @param $group
+     * @return array
+     */
+    protected function _parseGroup($group)
+    {
         return [
-            'card' => $cardMethods,
-            'bank' => $paymentMethods
+            'position' => isset($group['position']) ? $group['position'] : 0,
+            'name' => isset($group['group_name']) ? $group['group_name'] : '',
+            'description' => isset($group['group_description']) ? $group['group_description'] : '',
+            'payments' => $group['payments']
         ];
+    }
+
+    /**
+     * @param $group1
+     * @param $group2
+     * @return int
+     */
+    static function sortGroups($group1, $group2)
+    {
+        if($group1['position'] == $group2['position']) {
+            return 0;
+        }
+
+        return ($group1['position'] < $group2['position']) ? -1 : 1;
     }
 }

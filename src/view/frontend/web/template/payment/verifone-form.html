@@ -12,7 +12,7 @@
             <!-- ko foreach: getPaymentMethods() -->
             <div class="verifone-payment-group">
                 <h2><span data-bind="text: $data.name"></span></h2>
-                <strong><span data-bind="text: $data.description"></span></strong>
+                <span data-bind="html: $data.description"></span>
                 <!-- ko foreach: $data.methods -->
                 <div class="verifone-payment-method">
                     <input type="radio" name="payment[additional_data][payment-method]" class="radio" data-bind="value: $data.value, attr: {'id': $data.id}" />

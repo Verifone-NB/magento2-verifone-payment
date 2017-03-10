@@ -33,6 +33,9 @@ class Method extends AbstractModel implements \Magento\Framework\DataObject\Iden
     const TYPE_CARD = 'CARD';
     const TYPE_INVOICE = 'INVOICE';
 
+    protected $_toArray  = null;
+    protected $_cardToArray = null;
+
     protected function _construct()
     {
         $this->_init('Verifone\Payment\Model\ResourceModel\Db\Payment\Method');
@@ -101,5 +104,49 @@ class Method extends AbstractModel implements \Magento\Framework\DataObject\Iden
         }
 
         return $this->getActiveMethods();
+    }
+
+    public function toOptionArray($cards = false)
+    {
+        if(is_null($this->_toArray)) {
+            $collection = $this->getCollection()
+                ->addFieldToFilter('active', array('eq' => 1));
+            if(!$cards) {
+                $collection->addFieldToFilter('type', array('neq' => self::TYPE_CARD));
+            }
+
+            /** @var Method $item */
+            foreach ($collection as $item) {
+                $this->_toArray[] = [
+                    'value' => $item->getCode(),
+                    'label' => $item->getName()
+                ];
+            }
+        }
+
+        if($cards) {
+            return array_merge($this->_toArray, $this->_cardToArray);
+        }
+
+        return $this->_toArray;
+    }
+
+    public function cardsToOptionArray()
+    {
+        if(is_null($this->_cardToArray)) {
+            $collection = $this->getCollection()
+                ->addFieldToFilter('active', array('eq' => 1))
+                ->addFieldToFilter('type', array('eq' => self::TYPE_CARD));
+
+            /** @var Method $item */
+            foreach ($collection as $item) {
+                $this->_cardToArray[] = [
+                    'value' => $item->getCode(),
+                    'label' => $item->getName()
+                ];
+            }
+        }
+
+        return $this->_cardToArray;
     }
 }
