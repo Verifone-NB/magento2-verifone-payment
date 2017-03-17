@@ -86,8 +86,10 @@ class PaymentArray extends \Magento\Config\Block\System\Config\Form\Field\FieldA
 
             $rendered = '<select name="' . $inputName . '[]" id="select_' . $columnName . '#{_id}" size="' . $column['size'] . '" multiple="multiple">';
 
-            foreach ($payments as $_option) {
-                $rendered .= '<option value="' . $_option['value'] . '">' . $_option['label'] . '</option>';
+            if(!is_null($payments)) {
+                foreach ($payments as $_option) {
+                    $rendered .= '<option value="' . $_option['value'] . '">' . $_option['label'] . '</option>';
+                }
             }
 
             $rendered .= '</select>';
