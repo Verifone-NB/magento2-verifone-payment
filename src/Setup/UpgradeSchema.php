@@ -34,6 +34,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->upgrade004($setup);
         }
 
+        if (version_compare($context->getVersion(), '0.0.6') < 0) {
+            $this->upgrade006($setup);
+        }
+
         $setup->endSetup();
     }
 
@@ -81,6 +85,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $setup->getConnection()->createTable($table);
     }
 
+    /**
+     * @param SchemaSetupInterface $setup
+     */
     public function upgrade004(SchemaSetupInterface $setup)
     {
         $setup->getConnection()->addColumn(
@@ -100,6 +107,86 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                 'length' => 50,
                 'comment' => 'Payment method'
+            ]
+        );
+    }
+
+    public function upgrade006(SchemaSetupInterface $setup)
+    {
+        $tableName = $setup->getTable('verifone_payment_saved');
+
+        $table = $setup->getConnection()->newTable(
+            $tableName
+        )->addColumn(
+            'entity_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+            null,
+            ['identity' => true, 'unsigned' => true, 'nullable' => false, 'primary' => true],
+            'Id'
+        )->addColumn(
+            'customer_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+            null,
+            ['unsigned' => true],
+            'Customer Id'
+        )->addColumn(
+            'order_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            255,
+            ['nullable' => true],
+            'Order Id'
+        )->addColumn(
+            'serialized_data',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            null,
+            ['nullable' => false],
+            'Serialized Verifone Request Data (address)'
+        )->addColumn(
+            'active',
+            \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+            null,
+            ['nullable' => true, 'default' => 0],
+            'Is Active'
+        )->addColumn(
+            'gate_method_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            255,
+            ['nullable' => true, 'default' => null],
+            'Gate Method'
+        )->addColumn(
+            'save_method',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            255,
+            ['nullable' => true, 'default' => null],
+            'Save Method'
+        )->addIndex(
+            $setup->getIdxName('verifone_payment_saved', ['customer_id']),
+            ['customer_id']
+        )->addForeignKey(
+            $setup->getFkName(
+                'verifone_payment_saved',
+                'customer_id',
+                'customer_entity',
+                'entity_id'
+            ),
+            'customer_id',
+            $setup->getTable('customer_entity'),
+            'entity_id',
+            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+        )->setComment(
+            'Verifone Payment Saved'
+        );
+
+        $setup->getConnection()->createTable($table);
+
+        // Create card number
+        $setup->getConnection()->addColumn(
+            $setup->getTable('sales_order'),
+            'masked_pan_number',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'length' => 50,
+                'comment' => 'Masked Pan Number'
             ]
         );
     }

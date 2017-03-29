@@ -176,6 +176,21 @@
                         <field id="active">1</field>
                     </depends>
                 </field>
+                <field id="external_customer_id" translate="label comment" type="select" sortOrder="430" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Use external customer id.</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>If no, then telephone from billing address will be use as identificator. If yes, please select field from list below.</comment>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="external_customer_id_field" translate="label" type="select" sortOrder="430" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Field for external customer id</label>
+                    <source_model>Verifone\Payment\Model\Config\Source\ExternalId</source_model>
+                    <depends>
+                        <field id="external_customer_id">1</field>
+                    </depends>
+                </field>
 
                 <!-- ALLOW CONFIGURATION -->
                 <field id="allowspecific" translate="label" type="allowspecific" sortOrder="700" showInDefault="1" showInWebsite="1" showInStore="0">

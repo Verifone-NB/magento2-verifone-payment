@@ -24,6 +24,7 @@ class Path
 
     const XML_PATH_PAYMENT_METHODS = 'payment/verifone_payment/paymentsgroups_array';
     const XML_PATH_CARD_METHODS = 'payment/verifone_payment/cardpaymentsgroup_array';
+    const XML_PATH_PAYMENT_DEFAULT_GROUP ='payment/verifone_payment/group_for_default_view';
 
     const XML_PATH_VALIDATE_URL = 'payment/verifone_payment/validate_url';
     const XML_PATH_SKIP_CONFIRMATION_PAGE = 'payment/verifone_payment/skip_confirmation_page';
@@ -37,5 +38,8 @@ class Path
 
     const XML_PATH_ORDER_STATUS_NEW = 'payment/verifone_payment/order_status_new';
     const XML_PATH_ORDER_STATUS_PROCESSING = 'payment/verifone_payment/order_status_processing';
+
+    const XML_PATH_EXTERNAL_CUSTOMER_ID = 'payment/verifone_payment/external_customer_id';
+    const XML_PATH_EXTERNAL_CUSTOMER_ID_FIELD = 'payment/verifone_payment/external_customer_id_field';
 
 }

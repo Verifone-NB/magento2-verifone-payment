@@ -34,27 +34,40 @@ abstract class AbstractPayment extends Action
     protected $_clientFactory;
 
     /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    protected $_session;
+
+    /**
      * AbstractPayment constructor.
-     *
-     * @param Context                        $context
+     * @param Context $context
      * @param \Verifone\Payment\Helper\Order $order
+     * @param \Verifone\Payment\Model\ClientFactory $clientFactory
      */
     public function __construct(
         Context $context,
         \Verifone\Payment\Helper\Order $order,
-        \Verifone\Payment\Model\ClientFactory $clientFactory
+        \Verifone\Payment\Model\ClientFactory $clientFactory,
+        \Magento\Checkout\Model\Session $session
     ) {
         parent::__construct($context);
 
         $this->_order = $order;
         $this->_clientFactory = $clientFactory;
+        $this->_session = $session;
 
     }
 
     protected function _handleSuccess($delayedSuccess = false)
     {
 
-        $_request = $this->_request;
+        $_request = $this->getRequest();
+        $_signedFormData = $_request->getParams();
+
+        $this->_eventManager->dispatch('verifone_paymentinterface_send_request_after', [
+            '_class' => get_class($this),
+            '_response' => $_signedFormData
+        ]);
 
         /** @var \Verifone\Payment\Model\Client\FormClient $client */
         $client = $this->_clientFactory->create('frontend');
@@ -110,6 +123,9 @@ abstract class AbstractPayment extends Action
                     $body->getPaymentMethodCode()
                 );
 
+                $session = $this->_session;
+                $session->getQuote()->setIsActive(false)->getResource()->save($session->getQuote());
+
                 $this->_order->sendEmail($order);
 
                 if ($delayedSuccess) {
@@ -134,7 +150,13 @@ abstract class AbstractPayment extends Action
         $redirectUrl = 'checkout/cart';
         $resultRedirect->setPath($redirectUrl);
 
-        $_request = $this->_request;
+        $_request = $this->getRequest();
+        $_signedFormData = $_request->getParams();
+
+        $this->_eventManager->dispatch('verifone_paymentinterface_send_request_after', [
+            '_class' => get_class($this),
+            '_response' => $_signedFormData
+        ]);
 
         /** @var \Verifone\Payment\Model\Client\FormClient $client */
         $client = $this->_clientFactory->create('frontend');
@@ -191,9 +213,14 @@ abstract class AbstractPayment extends Action
         }
 
         if (!in_array($order->getState(), array(\Magento\Sales\Model\Order::STATE_CANCELED))) {
+
+            $session = $this->_session;
+            // restore the quote
+            $session->restoreQuote();
+
             $order->cancel();
 
-            $history = __('Payment was canceled. Cancel reason: %1$s', $body->getCancelMessage());
+            $history = __('Payment was canceled. Cancel reason: %1', $body->getCancelMessage());
             $order->addStatusHistoryComment($history, $order->getStatus());
         }
 

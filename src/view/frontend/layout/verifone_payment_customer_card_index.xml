@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="customer_account"/>
+    <head>
+        <title>Payment Cards</title>
+        <css src="Verifone_Payment::css/styles.css"/>
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block class="Verifone\Payment\Block\Customer\PaymentCards" name="verifonepayment.customer.paymentcards" template="Verifone_Payment::customer/paymentcards.phtml" />
+        </referenceContainer>
+    </body>
+</page>

@@ -43,6 +43,7 @@ class Plugin
         if ($paymentMethod->getMethod() === \Verifone\Payment\Model\Payment::CODE) {
             $additionalData = $paymentMethod->getAdditionalData();
             $this->_session->setPaymentMethod(isset($additionalData['payment-method']) ? $additionalData['payment-method'] : null);
+            $this->_session->setSavePaymentMethod(isset($additionalData['save-payment-method']) && $additionalData['save-payment-method'] ? true : false);
         }
 
     }

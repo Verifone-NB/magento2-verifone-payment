@@ -3,7 +3,7 @@
         <input type="radio"
                name="payment[method]"
                class="radio"
-               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
         <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
     </div>
 
@@ -13,12 +13,31 @@
             <div class="verifone-payment-group">
                 <h2><span data-bind="text: $data.name"></span></h2>
                 <span data-bind="html: $data.description"></span>
+                <!-- ko if: $data.isCard && $parent.hasSavedPaymentsMethods() -->
+                    <div class="verifone-payment-method-saved">
+                        <!-- ko foreach: $parent.getSavedPaymentsMethods() -->
+                        <div class="verifone-payment-method">
+                            <input type="radio" name="payment[additional_data][payment-method]" class="radio"
+                                   data-bind="value: $data.card-method-id, attr: {'id': $data.card-method-id}"/>
+                            <label data-bind="attr: {'for': $data.card-method-id}" class="label"><span data-bind="text: $data.card-method-title"></span></label>
+                        </div>
+                        <!--/ko-->
+                    </div>
+                <!--/ko-->
                 <!-- ko foreach: $data.methods -->
                 <div class="verifone-payment-method">
-                    <input type="radio" name="payment[additional_data][payment-method]" class="radio" data-bind="value: $data.value, attr: {'id': $data.id}" />
+                    <input type="radio" name="payment[additional_data][payment-method]" class="radio"
+                           data-bind="value: $data.value, attr: {'id': $data.id}"/>
                     <label data-bind="attr: {'for': $data.id}" class="label"><span data-bind="text: $data.label"></span></label>
                 </div>
                 <!--/ko-->
+                <!-- ko if: $data.isCard && $parent.getAllowSaveCC() -->
+                <input type="checkbox" name="payment[additional_data][save-payment-method]"
+                       id="payment[additional_data][save-payment-method]"/>
+                <label style="float: none"
+                       for="payment[additional_data][save-payment-method]"
+                       data-bind="text: $t('Remember payment method.')"></label>
+                <!-- /ko -->
             </div>
             <!--/ko-->
         </div>

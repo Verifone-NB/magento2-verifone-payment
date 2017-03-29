@@ -12,7 +12,9 @@
 
 namespace Verifone\Payment\Model\Config\Source;
 
-class LiveMode
+use Magento\Framework\Option\ArrayInterface;
+
+class LiveMode implements ArrayInterface
 {
     const LIVE = 1;
     const TEST = 0;

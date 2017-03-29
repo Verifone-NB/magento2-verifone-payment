@@ -12,6 +12,7 @@
 
 namespace Verifone\Payment\Model\Order;
 
+use Verifone\Payment\Helper\Path;
 use Verifone\Payment\Model\Db\Payment\Method;
 
 class PaymentMethod
@@ -88,6 +89,11 @@ class PaymentMethod
         }
 
         return $methods;
+    }
+
+    public function allowSaveCC()
+    {
+        return $this->_scopeConfig->getValue(Path::XML_PATH_ALLOW_TO_SAVE_CC);
     }
 
     /**

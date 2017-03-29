@@ -58,7 +58,8 @@ class DataGetter
         \Verifone\Payment\Helper\Payment $helper,
         \Verifone\Payment\Model\Session $session,
         \Verifone\Payment\Model\Db\Payment\Method $paymentMethod
-    ) {
+    )
+    {
         $this->_dateTime = $dateTime;
         $this->_scopeConfig = $scopeConfig;
         $this->_objectManager = $objectManager;
@@ -86,6 +87,11 @@ class DataGetter
         $paymentMethod = $this->_session->getPaymentMethod();
         if ($paymentMethod) {
             $data['payment_method'] = $paymentMethod;
+        }
+
+        $savePaymentMethod = $this->_session->isSavePaymentMethod();
+        if ($savePaymentMethod) {
+            $data['save_payment_method'] = true;
         }
 
         return $data;
@@ -164,6 +170,10 @@ class DataGetter
                 'email' => $billingAddress->getEmail()
             ];
 
+            if ($this->_scopeConfig->getValue(Path::XML_PATH_EXTERNAL_CUSTOMER_ID)) {
+                $customer['external_id'] = $order->getCustomer()->getData($this->_scopeConfig->getValue(Path::XML_PATH_EXTERNAL_CUSTOMER_ID_FIELD));
+            }
+
             return $customer;
         }
 
@@ -210,7 +220,7 @@ class DataGetter
     {
         $itemCount = $orderItem->getQtyToInvoice() ? (int)$orderItem->getQtyToInvoice() : (int)$orderItem->getQtyOrdered();
 
-        if($orderItem->getProductType() == \Magento\Bundle\Model\Product\Type::TYPE_CODE) {
+        if ($orderItem->getProductType() == \Magento\Bundle\Model\Product\Type::TYPE_CODE) {
             $children = $orderItem->getChildrenItems();
             $taxes = [];
             /** @var \Magento\Sales\Model\Order\Item $child */
@@ -239,7 +249,8 @@ class DataGetter
         $itemsGrossPrice,
         $orderNetAmount,
         $itemsNetPrice
-    ) {
+    )
+    {
 
 
         return [
@@ -380,7 +391,7 @@ class DataGetter
 
         $method = $this->_paymentMethod->loadByCode($paymentMethodCode);
 
-        if(!$method->getId()) {
+        if (!$method->getId()) {
             return false;
         }
 
@@ -390,7 +401,7 @@ class DataGetter
     protected function _getDiscountName(\Magento\Sales\Model\Order $order)
     {
 
-        if($order->getDiscountDescription()) {
+        if ($order->getDiscountDescription()) {
             return $order->getDiscountDescription();
         }
 

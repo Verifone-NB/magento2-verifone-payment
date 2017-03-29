@@ -124,7 +124,7 @@ class Order
         $transaction->getResource()->save($transaction);
 
         $order->setExtOrderId($extOrderId);
-        $order->addStatusHistoryComment(__('Payment %1$s captured', $transactionId), $status);
+        $order->addStatusHistoryComment(__('Payment %1 captured', $transactionId), $status);
         $order->setState($status);
 
         $this->completePayment($order, $amount, $transactionId);

@@ -76,7 +76,7 @@ class Refresh extends \Magento\Backend\App\Action
             return $resultJson->setData(
                 [
                     'valid' => 0,
-                    'message' => __('Problem with retrieve payment methods. %1$s' . $paymentMethods),
+                    'message' => __('Problem with retrieve payment methods. %1' . $paymentMethods),
                 ]
             );
         }

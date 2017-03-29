@@ -9,6 +9,8 @@
  */
 namespace Verifone\Payment\Block\System\Config\Group;
 
+use Verifone\Payment\Helper\Path;
+
 class PaymentArray extends \Magento\Config\Block\System\Config\Form\Field\FieldArray\AbstractFieldArray
 {
     /**
@@ -41,7 +43,6 @@ class PaymentArray extends \Magento\Config\Block\System\Config\Form\Field\FieldA
         \Magento\Framework\Data\Form\Element\Factory $elementFactory,
         array $data = [])
     {
-
         $this->_wysiwygConfig = $wysiwygConfig;
         $this->_paymentMethod = $method;
         $this->_elementFactory = $elementFactory;
@@ -72,6 +73,11 @@ class PaymentArray extends \Magento\Config\Block\System\Config\Form\Field\FieldA
         parent::__construct($context, $data);
     }
 
+    public function getDefaultGroupName()
+    {
+        return $this->_scopeConfig->getValue(Path::XML_PATH_PAYMENT_DEFAULT_GROUP);
+    }
+
     public function renderCellTemplate($columnName)
     {
         if (empty($this->_columns[$columnName])) {
@@ -91,7 +97,6 @@ class PaymentArray extends \Magento\Config\Block\System\Config\Form\Field\FieldA
                     $rendered .= '<option value="' . $_option['value'] . '">' . $_option['label'] . '</option>';
                 }
             }
-
             $rendered .= '</select>';
             return $rendered;
         } elseif ($columnName == 'group_name') {
@@ -101,7 +106,7 @@ class PaymentArray extends \Magento\Config\Block\System\Config\Form\Field\FieldA
                 (isset($column['class']) ? $column['class'] : 'input-text') . '"' .
                 (isset($column['style']) ? ' style="' . $column['style'] . '"' : '') . '/>';
 
-            $rendered .= '<input type="checkbox" name="' . $inputName . '" id="checkbox_' . $columnName . '#{_id}" value="' . 'verifone-default' . '" />';
+            $rendered .= '<input type="checkbox" name="' . $inputName . '" id="checkbox_' . $columnName . '#{_id}" value="' . $this->_scopeConfig->getValue(Path::XML_PATH_PAYMENT_DEFAULT_GROUP) . '" />';
             $rendered .= '<label for="checkbox_' . $columnName . '#{_id}"">' . __('Show those without groups') . '</label>';
 
             return $rendered;

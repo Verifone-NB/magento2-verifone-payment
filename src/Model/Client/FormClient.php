@@ -15,6 +15,7 @@ namespace Verifone\Payment\Model\Client;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Verifone\Core\DependencyInjection\Configuration\Frontend\FrontendConfigurationImpl;
+use Verifone\Core\DependencyInjection\CoreResponse\PaymentResponseImpl;
 use Verifone\Core\DependencyInjection\Service\CustomerImpl;
 use Verifone\Core\DependencyInjection\Service\OrderImpl;
 use Verifone\Core\DependencyInjection\Service\PaymentInfoImpl;
@@ -46,26 +47,34 @@ class FormClient extends \Verifone\Payment\Model\Client
     protected $_session;
 
     /**
+     * @var \Magento\Framework\Event\ManagerInterface
+     */
+    protected $_eventManager;
+
+    /**
      * Form constructor.
      *
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface      $scopeConfig
-     * @param \Verifone\Payment\Model\Client\Form\Config              $config
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param \Verifone\Payment\Model\Client\Form\Config $config
      * @param \Verifone\Payment\Model\Client\Form\Order\DataValidator $dataValidator
-     * @param \Verifone\Payment\Model\Client\Form\Order\DataGetter    $dataGetter
-     * @param \Verifone\Payment\Model\Session                         $session
+     * @param \Verifone\Payment\Model\Client\Form\Order\DataGetter $dataGetter
+     * @param \Verifone\Payment\Model\Session $session
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Verifone\Payment\Model\Client\Form\Config $config,
         \Verifone\Payment\Model\Client\Form\Order\DataValidator $dataValidator,
         \Verifone\Payment\Model\Client\Form\Order\DataGetter $dataGetter,
-        \Verifone\Payment\Model\Session $session
-    ) {
+        \Verifone\Payment\Model\Session $session,
+        \Magento\Framework\Event\ManagerInterface $eventManager
+    )
+    {
         parent::__construct($scopeConfig, $config);
 
         $this->_dataValidator = $dataValidator;
         $this->_dataGetter = $dataGetter;
         $this->_session = $session;
+        $this->_eventManager = $eventManager;
 
         $this->_config->prepareConfig();
     }
@@ -125,7 +134,8 @@ class FormClient extends \Verifone\Payment\Model\Client
             $config['merchant'],
             $config['software'],
             $config['software-version'],
-            $config['skip-confirmation']
+            $config['skip-confirmation'],
+            $config['rsa-blinding']
         );
 
         $order = new OrderImpl(
@@ -141,7 +151,8 @@ class FormClient extends \Verifone\Payment\Model\Client
             (string)$data['customer']['firstname'],
             (string)$data['customer']['lastname'],
             (string)$data['customer']['phone'],
-            (string)$data['customer']['email']
+            (string)$data['customer']['email'],
+            isset($data['customer']['external_id']) && $data['customer']['external_id'] ? (string)$data['customer']['external_id'] : ''
         );
 
         $products = [];
@@ -157,7 +168,11 @@ class FormClient extends \Verifone\Payment\Model\Client
             );
         }
 
-        $paymentInfo = new PaymentInfoImpl('fi_FI', '');
+        $savePaymentMethod = PaymentInfoImpl::SAVE_METHOD_AUTO_NO_SAVE;
+        if (isset($data['save_payment_method']) && $data['save_payment_method'] == true) {
+            $savePaymentMethod = PaymentInfoImpl::SAVE_METHOD_AUTO_SAVE;
+        }
+        $paymentInfo = new PaymentInfoImpl('fi_FI', $savePaymentMethod);
 
         $paymentMethod = '';
         if (isset($data['payment_method'])) {
@@ -187,6 +202,10 @@ class FormClient extends \Verifone\Payment\Model\Client
 
         $this->_session->setOrderCreateData($form);
 
+        $this->_eventManager->dispatch('verifone_paymentinterface_send_request_before', [
+            '_requestData' => $form
+        ]);
+
         return $form;
     }
 
@@ -208,7 +227,7 @@ class FormClient extends \Verifone\Payment\Model\Client
     }
 
     /**
-     * @param array                      $requestData
+     * @param array $requestData
      * @param \Magento\Sales\Model\Order $order
      *
      * @return CoreResponse
@@ -255,7 +274,7 @@ class FormClient extends \Verifone\Payment\Model\Client
         $cardMethods = $this->_scopeConfig->getValue(Path::XML_PATH_CARD_METHODS);
 
         $groups = $this->_parseGroups($paymentMethods);
-        $groups = array_merge($groups, $this->_parseGroups($cardMethods));
+        $groups = array_merge($groups, $this->_parseGroups($cardMethods, true));
 
         usort($groups, array("self", "sortGroups"));
 
@@ -266,14 +285,14 @@ class FormClient extends \Verifone\Payment\Model\Client
      * @param $string
      * @return array
      */
-    protected function _parseGroups($string)
+    protected function _parseGroups($string, $isCard = false)
     {
         $groups = unserialize($string);
 
         $parsed = [];
 
-        foreach($groups as $group) {
-            $parsed[] = $this->_parseGroup($group);
+        foreach ($groups as $group) {
+            $parsed[] = $this->_parseGroup($group, $isCard);
         }
 
         return $parsed;
@@ -284,12 +303,13 @@ class FormClient extends \Verifone\Payment\Model\Client
      * @param $group
      * @return array
      */
-    protected function _parseGroup($group)
+    protected function _parseGroup($group, $isCard = false)
     {
         return [
             'position' => isset($group['position']) ? $group['position'] : 0,
             'name' => isset($group['group_name']) ? $group['group_name'] : '',
             'description' => isset($group['group_description']) ? $group['group_description'] : '',
+            'isCard' => $isCard,
             'payments' => $group['payments']
         ];
     }
@@ -301,10 +321,71 @@ class FormClient extends \Verifone\Payment\Model\Client
      */
     static function sortGroups($group1, $group2)
     {
-        if($group1['position'] == $group2['position']) {
+        if ($group1['position'] == $group2['position']) {
             return 0;
         }
 
         return ($group1['position'] < $group2['position']) ? -1 : 1;
+    }
+
+    public function createCardRequest()
+    {
+        $customerData = $this->_dataGetter->getCustomerData();
+
+        if (is_null($customerData)) {
+            return null;
+        }
+
+        $config = $this->_config->getConfig();
+
+        $privateKeyFile = $this->_config->getFileContent($config['private-key']);
+
+        $urls = $this->_config->getRedirectCardUrlsObject();
+
+        $configObject = new FrontendConfigurationImpl(
+            $urls,
+            $privateKeyFile,
+            $config['merchant'],
+            $config['software'],
+            $config['software-version'],
+            $config['skip-confirmation'],
+            $config['rsa-blinding']
+        );
+
+        $customer = new CustomerImpl(
+            (string)$customerData['firstname'],
+            (string)$customerData['lastname'],
+            (string)$customerData['phone'],
+            (string)$customerData['email'],
+            isset($data['customer']['external_id']) && $data['customer']['external_id'] ? (string)$data['customer']['external_id'] : ''
+        );
+
+        $order = new OrderImpl(
+            'addNewCard',
+            gmdate('Y-m-d H:i:s'),
+            $config['currency'],
+            '1',
+            '1',
+            '0'
+        );
+
+        $payment = new PaymentInfoImpl('fi_FI', PaymentInfoImpl::SAVE_METHOD_SAVE_ONLY, '', (string)time());
+
+        $service = ServiceFactory::createService($configObject, 'Frontend\AddNewCardService');
+        $service->insertCustomer($customer);
+        $service->insertOrder($order);
+        $service->insertPaymentInfo($payment);
+
+        // for json: new ExecutorContainer(array('requestConversion.class' => ExecutorContainer::REQUEST_CONVERTER_TYPE_JSON));
+        $container = new ExecutorContainer();
+        $exec = $container->getExecutor(ExecutorContainer::EXECUTOR_TYPE_FRONTEND);
+
+        $form = $exec->executeService($service, $config['payment-url']);
+
+        $this->_eventManager->dispatch('verifone_paymentinterface_send_request_before', [
+            '_requestData' => $form
+        ]);
+
+        return $form;
     }
 }

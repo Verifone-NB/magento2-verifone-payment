@@ -1,0 +1,65 @@
+<?php /**@var $this \Verifone\Payment\Block\Customer\Paymentcards */ ?>
+
+<?php $_cards = $this->getSavedPayments();?>
+
+<table class="data table" id="verifone-saved-methods">
+    <?php if (count($_cards)): ?>
+        <thead>
+        <tr>
+            <th colspan="5"><h3><?php echo __('Saved debit cards:'); ?></h3></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($_cards as $_savedMethodId => $_savedMethod) : ?>
+            <tr>
+                <td><span class="payment-method-code <?php echo $_savedMethod['card-method-code'] ?>"></span></td>
+                <td><span class="payment-method-title"><?php echo $this->formatTitle($_savedMethod['card-method-title']) ?></span></td>
+                <td><span class="card-expected-validity"><?php echo $this->getDateFromVerifoneStr($_savedMethod['card-expected-validity']); ?></span>
+                </td>
+                <td>
+                    <a href="<?php echo $this->getUrl('*/*/delete', array('_id' => $_savedMethodId)) ?>">
+                        <span><?php echo __('Remove'); ?></span>
+                    </a>
+                </td>
+                <td>
+                    <?php if ($_savedMethod['is_default']): ?>
+                        <span><strong><?php echo __('Default'); ?></strong></span>
+                    <?php else: ?>
+                        <a href="<?php echo $this->getUrl('*/*/saveDefault', array('_id' => $_savedMethodId)) ?>">
+                            <span><?php echo __('Default'); ?></span>
+                        </a>
+                    <?php endif; ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    <?php endif; ?>
+    <tfoot>
+    <tr>
+        <td colspan="5">
+            <a href="<?php echo $this->getUrl('*/*/add') ?>" class="button btn-verifone-addnewcard">
+                <span><?php echo __('Add a new card') ?></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="5">
+            <p><?php echo __('You will be redirected Verifone service to meet the payment card details.'); ?></p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="5">
+            <h3><?php echo __('Accepted Cards:'); ?></h3>
+
+            <p>
+                <?php $_i = 0; ?>
+                <?php foreach ($this->getAcceptedCards() as $_card): ?>
+                    <?php if ($_i++): ?><span>/</span><?php endif; ?>
+                    <span><?php echo $_card; ?></span>
+                <?php endforeach; ?>
+            </p>
+        </td>
+    </tr>
+
+    </tfoot>
+</table>

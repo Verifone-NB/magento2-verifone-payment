@@ -44,7 +44,7 @@ class Test extends Action
     protected $_orderConfig;
 
     /**
-     * @var Order\PaymentMethod
+     * @var \Verifone\Payment\Model\Order\PaymentMethod
      */
     protected $_payentMethodHelper;
 
@@ -72,11 +72,19 @@ class Test extends Action
     {
         echo '<pre>';
 
-        //var_dump($this->_orderConfig->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT));
+        /** @var \Verifone\Payment\Model\Client\RestClient $client */
+        $client = $this->_clientFactory->create('backend');
 
-        $this->_payentMethodHelper->getPaymentMethods();
+        $cards = $client->getListSavedPaymentMethods();
+        var_dump($cards);
 
         die();
+
+        //var_dump($this->_orderConfig->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT));
+
+//        $this->_payentMethodHelper->getPaymentMethods();
+
+//        die();
 
         //
         //var_dump($model->getActiveMethods()->getSize() > 0);die();
@@ -90,22 +98,21 @@ class Test extends Action
         //    var_dump($item->getData());
         //}
 
-//        $orderId = 37;
-//
-//        $this->_session->setPaymentMethod('invoice-collector');
-//
-//        if ($orderId) {
-//            $order = $this->_orderHelper->loadOrderById($orderId);
-//
-//            /** @var \Verifone\Payment\Model\Client\FormClient $client */
-//            $client = $this->_clientFactory->create('frontend');
-//            $orderData = $client->getDataForOrderCreate($order);
-//
-//            var_dump($orderData);die();
-//
-//            $orderCreateData = $client->orderCreate($orderData);
-//
-//            var_dump($orderCreateData);die();
-//        }
+        $orderId = 37;
+
+        $this->_session->setPaymentMethod('invoice-collector');
+        $this->_session->setSavePaymentMethod(true);
+
+        if ($orderId) {
+            $order = $this->_orderHelper->loadOrderById($orderId);
+
+            /** @var \Verifone\Payment\Model\Client\FormClient $client */
+            $client = $this->_clientFactory->create('frontend');
+            $orderData = $client->getDataForOrderCreate($order);
+
+            $orderCreateData = $client->orderCreate($orderData);
+
+            var_dump($orderCreateData);die('qqqqqqqqqq');
+        }
     }
 }

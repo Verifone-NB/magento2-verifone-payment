@@ -21,10 +21,19 @@ namespace Verifone\Payment\Model;
  * @method Session setOrderCreateData(array)
  * @method string getPaymentMethod()
  * @method Session setPaymentMethod(string)
+ * @method boolean getSavePaymentMethod()
+ * @method Session setSavePaymentMethod(boolean)
  * @method int getLastOrderIncrementId()
  * @method Session setLastOrderIncrementId()
  */
 class Session extends \Magento\Framework\Session\SessionManager
 {
 
+    /**
+     * @return bool
+     */
+    public function isSavePaymentMethod()
+    {
+        return $this->getSavePaymentMethod();
+    }
 }

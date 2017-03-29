@@ -133,7 +133,7 @@ $_colspan = $_colspan > 1 ? 'colspan="' . $_colspan . '"' : '';
                     }
                 });
 
-                if ($_groupNameTextfieldElement && $_groupNameTextfieldElement.value == 'verifone-default') {
+                if ($_groupNameTextfieldElement && $_groupNameTextfieldElement.value === '<?php echo $this->getDefaultGroupName(); ?>') {
                     $_groupNameTextfieldElement.value = '';
                     $_groupNameTextfieldElement.disabled = 'disabled';
                     $_groupNameCheckboxElement.checked = 'checked';

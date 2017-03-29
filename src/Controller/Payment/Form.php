@@ -99,7 +99,7 @@ class Form extends Action
                     ['template' => 'Verifone_Payment::emptyroot.phtml']);
 
                 $resultPage->addHandle($resultPage->getDefaultLayoutHandle());
-                $resultPage->getLayout()->getBlock('verifone.payment.form')->setOrderCreateData($orderCreateData);
+                $resultPage->getLayout()->getBlock('verifone.payment.form')->setCreateData($orderCreateData);
 
                 $order
                     ->setState(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT)

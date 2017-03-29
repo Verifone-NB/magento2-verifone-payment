@@ -112,6 +112,7 @@ class Config implements ConfigInterface
             $currencyCode = $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
 
             $currency = $this->_helper->convertCountryToISO4217($currencyCode);
+            $rsaBlinding = $this->_scopeConfig->getValue(Path::XML_PATH_DISABLE_RSA_BLINDING);
 
             $this->_config = [
                 'private-key' => $privateKeyPath,
@@ -120,6 +121,7 @@ class Config implements ConfigInterface
                 'software' => $software,
                 'software-version' => $softwareVersion,
                 'currency' => $currency,
+                'rsa-blinding' => $rsaBlinding
             ];
 
             $this->_isConfigSet = true;

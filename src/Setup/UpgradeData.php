@@ -36,16 +36,30 @@ class UpgradeData implements UpgradeDataInterface
     protected $_scopeConfig;
 
     /**
+     * @var \Magento\Customer\Setup\CustomerSetupFactory
+     */
+    protected $_customerSetupFactory;
+
+    /**
+     * @var \Magento\Eav\Model\Entity\Attribute\SetFactory
+     */
+    private $_attributeSetFactory;
+
+    /**
      * @param \Magento\Sales\Model\Order\StatusFactory $statusFactory
      */
     public function __construct(
         \Magento\Sales\Model\Order\StatusFactory $statusFactory,
         \Magento\Framework\App\Config\ConfigResource\ConfigInterface  $resourceConfig,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Customer\Setup\CustomerSetupFactory $customerSetupFactory,
+        \Magento\Eav\Model\Entity\Attribute\SetFactory $attributeSetFactory
     ) {
         $this->_statusFactory = $statusFactory;
         $this->_resourceConfig = $resourceConfig;
         $this->_scopeConfig = $scopeConfig;
+        $this->_customerSetupFactory = $customerSetupFactory;
+        $this->_attributeSetFactory = $attributeSetFactory;
     }
 
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
@@ -66,6 +80,10 @@ class UpgradeData implements UpgradeDataInterface
 
         if (version_compare($context->getVersion(), '0.0.5') < 0) {
             $this->upgrade005($setup);
+        }
+
+        if (version_compare($context->getVersion(), '0.0.6') < 0) {
+            $this->upgrade006($setup);
         }
 
         $setup->endSetup();
@@ -159,5 +177,41 @@ class UpgradeData implements UpgradeDataInterface
     {
         json_decode($string);
         return (json_last_error() == JSON_ERROR_NONE);
+    }
+
+    public function upgrade006(ModuleDataSetupInterface $setup)
+    {
+        /** @var \Magento\Customer\Setup\CustomerSetup $customerSetup */
+        $customerSetup = $this->_customerSetupFactory->create(['setup' => $setup]);
+
+        $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
+        $attributeSetId = $customerEntity->getDefaultAttributeSetId();
+
+        /** @var \Magento\Eav\Model\Entity\Attribute\Set $attributeSet */
+        $attributeSet = $this->_attributeSetFactory->create();
+        $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
+
+        $customerSetup->addAttribute(\Magento\Customer\Model\Customer::ENTITY, 'verifone_default_card_id', [
+            'type' => 'varchar',
+            'label' => 'Default Credit Card saved in Verifone API',
+            'input' => 'text',
+            'required' => false,
+            'visible' => true,
+            'user_defined' => false,
+            'sort_order' => 1000,
+            'position' => 1000,
+            'system' => 0,
+            'default_value' => ''
+        ]);
+
+        //add attribute to attribute set
+        $attribute = $customerSetup->getEavConfig()->getAttribute(\Magento\Customer\Model\Customer::ENTITY, 'verifone_default_card_id')
+            ->addData([
+                'attribute_set_id' => $attributeSetId,
+                'attribute_group_id' => $attributeGroupId,
+                'used_in_forms' => ['adminhtml_customer'],
+            ]);
+
+        $attribute->getResource()->save($attribute);
     }
 }

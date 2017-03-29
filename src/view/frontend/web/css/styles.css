@@ -1,0 +1,79 @@
+#verifone-saved-methods {
+    margin: 0 auto;
+    max-width: 1250px;
+    border: 10px solid #C9EDFF;
+    padding: 40px 60px;
+}
+
+#verifone-saved-methods tbody td {
+    line-height: 60px;
+    vertical-align: middle;
+}
+#verifone-saved-methods button.btn-verifone-addnewcard{
+    margin-top: 20px;
+}
+#verifone-saved-methods button.btn-verifone-addnewcard span {
+    border-color: #1f56b0;
+    background: #1f56b0;
+}
+
+#verifone-saved-methods button.btn-verifone-addnewcard > span {
+    padding: 10px 30px;
+}
+
+#verifone-saved-methods tfoot tr td{
+    padding-top: 20px;
+}
+
+#verifone-saved-methods .payment-method-code {
+    width: 80px;
+    height: 45px;
+    display: block;
+    border: 1px solid black;
+    margin: 0 10px;
+    border-radius: 5px;
+}
+
+#verifone-saved-methods .payment-method-code.visa {
+    background: url("../images/verifone_payment/visa.png");
+}
+
+#verifone-saved-methods .payment-method-code.master-card {
+    background: url("../images/verifone_payment/master-card.png");
+}
+
+#verifone-saved-methods .payment-method-code.amex {
+    background: url("../images/verifone_payment/amex.png");
+}
+
+#verifone-saved-methods .payment-method-code.diners {
+    background: url("../images/verifone_payment/diners.png");
+}
+
+#verifone-saved-methods a{
+    text-decoration: none;
+}
+
+#verifone-saved-methods a span{
+    vertical-align: top;
+    color: #1f56b0;
+}
+#verifone-saved-methods a span.btn-removecard {
+    display: inline-block;
+    width: 35px;
+    height: 35px;
+    background: url("../images/verifone_payment/remove.png");
+    vertical-align: text-bottom;
+    background-position: 0 -42px;
+}
+
+#verifone-saved-methods a:hover span.btn-removecard {
+    background-position: 0 0;
+}
+#verifone-saved-methods a,
+#verifone-saved-methods .payment-method-title,
+#verifone-saved-methods .payment-method-validity,
+#verifone-saved-methods .card-expected-validity{
+    font-size: 1.6em;
+    color: #1f56b0;
+}

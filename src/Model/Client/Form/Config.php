@@ -70,4 +70,15 @@ class Config extends \Verifone\Payment\Model\Client\Config
             $this->_urlBuilder->getUrl('verifone_payment/payment/error')
         );
     }
+
+    public function getRedirectCardUrlsObject()
+    {
+        return new RedirectUrlsImpl(
+            $this->_urlBuilder->getUrl('verifone_payment/customer_card_response/success'),
+            $this->_urlBuilder->getUrl('verifone_payment/customer_card_response/rejected'),
+            $this->_urlBuilder->getUrl('verifone_payment/customer_card_response/cancel'),
+            $this->_urlBuilder->getUrl('verifone_payment/customer_card_response/expired'),
+            $this->_urlBuilder->getUrl('verifone_payment/customer_card_response/error')
+        );
+    }
 }
