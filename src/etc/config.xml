@@ -25,12 +25,13 @@
                 <allow_to_save_cc>1</allow_to_save_cc>
                 <remember_cc_info>1</remember_cc_info>
                 <save_masked_pan_number>1</save_masked_pan_number>
-                <order_status_new>pending_verifone</order_status_new>
+                <order_status_new>pending_payment</order_status_new>
                 <order_status_processing>processing</order_status_processing>
                 <group_for_default_view>verifone-default</group_for_default_view>
                 <cardpaymentsgroup_array>a:1:{s:18:"_1452514030822_822";a:3:{s:8:"position";s:2:"10";s:10:"group_name";s:21:"Verifone Credit Cards";s:8:"payments";a:4:{i:0;s:4:"amex";i:1;s:4:"visa";i:2;s:11:"master-card";i:3;s:6:"diners";}}}</cardpaymentsgroup_array>
                 <paymentsgroups_array>a:1:{s:18:"_1450878527843_843";a:3:{s:8:"position";s:3:"100";s:10:"group_name";s:16:"verifone-default";s:8:"payments";a:1:{i:0;s:15:"VerifonePayment";}}}</paymentsgroups_array>
                 <external_customer_id>0</external_customer_id>
+                <saved_cards_s2s_payment_limit>100.00</saved_cards_s2s_payment_limit>
             </verifone_payment>
         </payment>
     </default>

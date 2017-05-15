@@ -29,7 +29,8 @@ class DataGetter extends \Verifone\Payment\Model\Client\DataGetter
         \Verifone\Payment\Helper\Payment $helper,
         \Verifone\Payment\Model\Session $session,
         \Verifone\Payment\Model\Db\Payment\Method $paymentMethod,
-        \Magento\Customer\Model\Session $customerSession
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Framework\Locale\Resolver $resolver
     )
     {
         parent::__construct(
@@ -38,7 +39,8 @@ class DataGetter extends \Verifone\Payment\Model\Client\DataGetter
             $objectManager,
             $helper,
             $session,
-            $paymentMethod
+            $paymentMethod,
+            $resolver
         );
 
         $this->_customerSession = $customerSession;

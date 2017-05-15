@@ -13,6 +13,11 @@ define(
                 redirectAfterPlaceOrder: false,
                 template: 'Verifone_Payment/payment/verifone-form'
             },
+            initialize: function () {
+                var self = this;
+                this._super();
+                this.observerOnPaymentMethod();
+            },
             getData: function () {
                 return {
                     "method": this.item.method,
@@ -21,10 +26,22 @@ define(
             },
             getAdditionalData: function () {
                 var ret = {};
+                var send = false;
 
-                var paymentMethodRadio = jQuery("input[name=payment\\[additional_data\\]\\[payment-method\\]]:checked");
-                if (paymentMethodRadio.length) {
-                    ret["payment-method"] = paymentMethodRadio.val()
+                var paymentMethod = jQuery("input[name=payment\\[additional_data\\]\\[payment-method\\]]:checked");
+
+                if(!paymentMethod.length) {
+                    paymentMethod = jQuery("select[name=payment\\[additional_data\\]\\[payment-method\\]] option:selected");
+                }
+
+                if (paymentMethod.length) {
+                    if (paymentMethod.is('[data-code]')) {
+                        ret["payment-method"] = paymentMethod.data('code');
+                        ret["payment-method-id"] = paymentMethod.val();
+                    } else {
+                        ret["payment-method"] = paymentMethod.val();
+                    }
+                    send = true;
                 } else {
                     ret["payment-method"] = false;
                 }
@@ -33,11 +50,12 @@ define(
 
                 if (savePaymentMethodRadio.length) {
                     ret["save-payment-method"] = true;
+                    send = true;
                 } else {
                     ret["save-payment-method"] = false;
                 }
 
-                if (ret["save-payment-method"] === true || ret["payment-method"] !== false) {
+                if (send) {
                     return ret;
                 }
 
@@ -81,6 +99,62 @@ define(
             },
             hasSavedPaymentsMethods: function () {
                 return window.checkoutConfig.payment.verifonePayment.hasSavedPaymentMethods;
+            },
+            observerOnPaymentMethod: function () {
+
+                var $obj = this;
+
+                jQuery('#co-payment-form').on('change', '[name=payment\\[additional_data\\]\\[payment-method\\]]', function () {
+
+                    var $this = jQuery(this);
+                    var $group = $this.closest('.verifone-payment-method-group');
+                    var value = $this.val();
+                    var checked = $this.attr('checked');
+                    var saveCC = $group.find('[name=payment\\[additional_data\\]\\[save-payment-method\\]]').attr('checked');
+
+                    $obj.disableMethods();
+
+                    if (checked || value !== '') {
+                        $group.find('.verifone-payment-method-footer').removeClass('hidden');
+                    }
+
+                    if($this.attr('type') === 'radio') {
+                        $this.attr('checked', true);
+                    } else {
+                        // its select and we can reenable group
+                        $this.val(value);
+                        $group.find('select').attr('disabled', false);
+                        $group.find('[id*=verifonepayment-mockup_]').attr('checked', true);
+
+                        if($this.find('option:selected').attr('data-code')) {
+                            $group.find('.verifone-payment-saved-wrapper').addClass('hidden');
+                        } else {
+                            $group.find('.verifone-payment-saved-wrapper').removeClass('hidden');
+                            $group.find('[name=payment\\[additional_data\\]\\[save-payment-method\\]]').attr('checked', saveCC);
+                        }
+                    }
+
+                });
+                jQuery('#co-payment-form').on('change', '[id*=verifonepayment-mockup_]', function () {
+
+                    $obj.disableMethods();
+
+                    var $group = jQuery(this).closest('.verifone-payment-method-group');
+
+                    $group.find('select').attr('disabled', false);
+                    $group.find('.verifone-payment-method-footer').removeClass('hidden');
+                    $group.find('[id*=verifonepayment-mockup_]').attr('checked', true);
+                });
+            },
+            disableMethods: function() {
+                // Show/hide save payment box
+                jQuery('.verifone-payment-method-footer').addClass('hidden');
+                jQuery("input[name=payment\\[additional_data\\]\\[save-payment-method\\]]").attr('checked', false);
+                jQuery('[name=payment\\[additional_data\\]\\[payment-method\\]]').attr('checked', false);
+                jQuery('select[name=payment\\[additional_data\\]\\[payment-method\\]]').val('');
+
+                jQuery('.verifone-payment-method-group select').attr('disabled', true);
+                jQuery('[id*=verifonepayment-mockup_]').attr('checked', false);
             }
 
         });

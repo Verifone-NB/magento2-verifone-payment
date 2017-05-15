@@ -91,7 +91,6 @@ class Form extends Action
                 /** @var \Verifone\Payment\Model\Client\FormClient $client */
                 $client = $this->_clientFactory->create('frontend');
                 $orderData = $client->getDataForOrderCreate($order);
-                $this->_session->setPaymentMethod(null);
 
                 $orderCreateData = $client->orderCreate($orderData);
 
@@ -108,6 +107,9 @@ class Form extends Action
                 $order->setData('payment_method_code', $paymentMethod);
 
                 $order->getResource()->save($order);
+
+                $this->_session->setPaymentMethod(null);
+                $this->_session->setPaymentMethodId(null);
 
                 return $resultPage;
 

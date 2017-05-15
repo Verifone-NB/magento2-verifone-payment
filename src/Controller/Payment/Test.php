@@ -48,6 +48,10 @@ class Test extends Action
      */
     protected $_payentMethodHelper;
 
+    /**
+     * @var \Verifone\Payment\Model\ConfigProvider
+     */
+    protected $_configProvider;
 
     public function __construct(
         Context $context,
@@ -56,7 +60,8 @@ class Test extends Action
         \Verifone\Payment\Model\ClientFactory $clientFactory,
         \Verifone\Payment\Helper\Order $orderHelper,
         \Verifone\Payment\Model\Sales\Order\Config $orderConfig,
-        \Verifone\Payment\Model\Order\PaymentMethod $paymentMethod
+        \Verifone\Payment\Model\Order\PaymentMethod $paymentMethod,
+        \Verifone\Payment\Model\ConfigProvider $configProvider
 
     ) {
         parent::__construct($context);
@@ -66,6 +71,7 @@ class Test extends Action
         $this->_orderHelper = $orderHelper;
         $this->_orderConfig = $orderConfig;
         $this->_payentMethodHelper = $paymentMethod;
+        $this->_configProvider = $configProvider;
     }
 
     public function execute()
@@ -73,10 +79,10 @@ class Test extends Action
         echo '<pre>';
 
         /** @var \Verifone\Payment\Model\Client\RestClient $client */
-        $client = $this->_clientFactory->create('backend');
+//        $client = $this->_clientFactory->create('backend');
 
-        $cards = $client->getListSavedPaymentMethods();
-        var_dump($cards);
+//        $cards = $client->getListSavedPaymentMethods();
+        print_r($this->_configProvider->getConfig()['payment']['verifonePayment']);
 
         die();
 

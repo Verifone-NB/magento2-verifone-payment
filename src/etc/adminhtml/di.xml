@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <type name="Magento\Sales\Block\Adminhtml\Order\View\Tab\Info">
+        <plugin name="verifone_payment_payment_method" type="Verifone\Payment\Model\Adminhtml\Order\Payment\Plugin" sortOrder="1" disabled="false" />
+    </type>
+
+    <type name="\Magento\Sales\Block\Adminhtml\Order\View">
+        <plugin name="Verifone_Payment::pluginBeforeView" type="Verifone\Payment\Plugin\Block\Adminhtml\Order\View" />
+    </type>
+
+    <type name="Verifone\Payment\Helper\Urls">
+        <arguments>
+            <argument name="urlFrontBuilder" xsi:type="object" shared="false">Magento\Framework\Url</argument>
+        </arguments>
+    </type>
+</config>

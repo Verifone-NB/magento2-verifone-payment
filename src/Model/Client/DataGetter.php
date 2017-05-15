@@ -47,6 +47,11 @@ class DataGetter
     protected $_objectManager;
 
     /**
+     * @var \Magento\Framework\Locale\Resolver
+     */
+    protected $_resolver;
+
+    /**
      * @var \Verifone\Payment\Model\Db\Payment\Method
      */
     protected $_paymentMethod;
@@ -57,12 +62,14 @@ class DataGetter
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Verifone\Payment\Helper\Payment $helper,
         \Verifone\Payment\Model\Session $session,
-        \Verifone\Payment\Model\Db\Payment\Method $paymentMethod
+        \Verifone\Payment\Model\Db\Payment\Method $paymentMethod,
+        \Magento\Framework\Locale\Resolver $resolver
     )
     {
         $this->_dateTime = $dateTime;
         $this->_scopeConfig = $scopeConfig;
         $this->_objectManager = $objectManager;
+        $this->_resolver= $resolver;
         $this->_helper = $helper;
         $this->_session = $session;
         $this->_paymentMethod = $paymentMethod;
@@ -82,11 +89,17 @@ class DataGetter
             'order_id' => $incrementId,
             'ext_order_id' => $order->getExtOrderId(),
             'time' => $time,
+            'locale' => $this->_resolver->getLocale()
         ];
 
         $paymentMethod = $this->_session->getPaymentMethod();
         if ($paymentMethod) {
             $data['payment_method'] = $paymentMethod;
+        }
+
+        $paymentMethodId = $this->_session->getPaymentMethodId();
+        if ($paymentMethodId) {
+            $data['payment_method_id'] = $paymentMethodId;
         }
 
         $savePaymentMethod = $this->_session->isSavePaymentMethod();

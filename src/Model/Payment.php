@@ -173,7 +173,7 @@ class Payment extends AbstractMethod
      */
     public function getCheckoutRedirectUrl()
     {
-        return $this->_urlBuilder->getUrl('verifone_payment/payment/form');
+        return $this->_urlBuilder->getUrl('verifone_payment/payment/capture');
     }
 
 }

@@ -16,14 +16,20 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Verifone\Core\DependencyInjection\Configuration\Backend\BackendConfigurationImpl;
 use Verifone\Core\DependencyInjection\Configuration\Backend\GetAvailablePaymentMethodsConfigurationImpl;
+use Verifone\Core\DependencyInjection\CoreResponse\PaymentStatusImpl;
 use Verifone\Core\DependencyInjection\Service\CustomerImpl;
+use Verifone\Core\DependencyInjection\Service\OrderImpl;
 use Verifone\Core\DependencyInjection\Service\PaymentInfoImpl;
 use Verifone\Core\DependencyInjection\Service\TransactionImpl;
 use Verifone\Core\DependencyInjection\Transporter\CoreResponse;
 use Verifone\Core\Executor\BackendServiceExecutor;
 use Verifone\Core\ExecutorContainer;
+use Verifone\Core\Service\Backend\GetPaymentStatusService;
 use Verifone\Core\Service\Backend\GetSavedCreditCardsService;
+use Verifone\Core\Service\Backend\ListTransactionNumbersService;
+use Verifone\Core\Service\Backend\ProcessPaymentService;
 use Verifone\Core\ServiceFactory;
+use Verifone\Payment\Model\Order\Exception;
 
 class RestClient extends \Verifone\Payment\Model\Client
 {
@@ -54,7 +60,8 @@ class RestClient extends \Verifone\Payment\Model\Client
         \Verifone\Payment\Model\Client\Rest\Order\DataValidator $dataValidator,
         \Verifone\Payment\Model\Client\Rest\Order\DataGetter $dataGetter,
         \Verifone\Payment\Model\Session $session
-    ) {
+    )
+    {
         parent::__construct($scopeConfig, $config);
 
         $this->_dataValidator = $dataValidator;
@@ -62,6 +69,11 @@ class RestClient extends \Verifone\Payment\Model\Client
         $this->_session = $session;
 
         $this->_config->prepareConfig();
+    }
+
+    protected function _getExecutor()
+    {
+
     }
 
     public function orderRefund($order, $payment, $amount)
@@ -136,7 +148,8 @@ class RestClient extends \Verifone\Payment\Model\Client
         \Magento\Sales\Model\Order $order,
         \Magento\Payment\Model\InfoInterface $payment,
         $amount
-    ) {
+    )
+    {
         $config = $this->_config->getConfig();
 
         $publicKeyFile = $this->_config->getFileContent($config['public-key']);
@@ -151,12 +164,12 @@ class RestClient extends \Verifone\Payment\Model\Client
             $config['rsa-blinding']
         );
 
-        $refundAmount = $amount*100;
+        $refundAmount = $amount * 100;
 
         $transaction = new TransactionImpl(
             $payment->getAdditionalInformation('payment-method'),
             $order->getExtOrderId(),
-            (string) $refundAmount,
+            (string)$refundAmount,
             $config['currency']
         );
 
@@ -171,7 +184,7 @@ class RestClient extends \Verifone\Payment\Model\Client
             $exec = $container->getExecutor('backend');
             $response = $exec->executeService($service, $publicKeyFile);
 
-            if($response->getStatusCode()) {
+            if ($response->getStatusCode()) {
                 return true;
             }
         } catch (\Exception $e) {
@@ -190,7 +203,7 @@ class RestClient extends \Verifone\Payment\Model\Client
     {
         $customerData = $this->_dataGetter->getCustomerData();
 
-        if(is_null($customerData)) {
+        if (is_null($customerData)) {
             return null;
         }
 
@@ -213,7 +226,7 @@ class RestClient extends \Verifone\Payment\Model\Client
             (string)$customerData['lastname'],
             (string)$customerData['phone'],
             (string)$customerData['email'],
-            isset($data['customer']['external_id']) && $data['customer']['external_id'] ? (string)$data['customer']['external_id'] : ''
+            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : ''
         );
 
         try {
@@ -244,7 +257,7 @@ class RestClient extends \Verifone\Payment\Model\Client
     {
         $customerData = $this->_dataGetter->getCustomerData();
 
-        if(is_null($customerData)) {
+        if (is_null($customerData)) {
             return null;
         }
 
@@ -267,7 +280,7 @@ class RestClient extends \Verifone\Payment\Model\Client
             (string)$customerData['lastname'],
             (string)$customerData['phone'],
             (string)$customerData['email'],
-            isset($data['customer']['external_id']) && $data['customer']['external_id'] ? (string)$data['customer']['external_id'] : ''
+            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : ''
         );
 
         $payment = new PaymentInfoImpl('', '', $gateId);
@@ -290,6 +303,175 @@ class RestClient extends \Verifone\Payment\Model\Client
             return $response;
         } catch (\Exception $e) {
             throw $e;
+        }
+    }
+
+    /**
+     * @param \Magento\Sales\Model\Order $order
+     * @return CoreResponse|null
+     */
+    public function processPayment(\Magento\Sales\Model\Order $order)
+    {
+        $data = $this->_dataGetter->getOrderData($order);
+        $customerData = $this->_dataGetter->getCustomerData($order);
+
+        if (is_null($customerData) || !$this->_session->getPaymentMethodId()) {
+            return null;
+        }
+
+        $config = $this->_config->getConfig();
+
+        $publicKeyFile = $this->_config->getFileContent($config['public-key']);
+        $privateKeyFile = $this->_config->getFileContent($config['private-key']);
+
+
+        $configObject = new BackendConfigurationImpl(
+            $privateKeyFile,
+            $config['merchant'],
+            $config['software'],
+            $config['software-version'],
+            $config['server-url'],
+            $config['rsa-blinding']
+        );
+
+        $order = new OrderImpl(
+            (string)$data['order_id'],
+            $data['time'],
+            (string)$data['currency_code'],
+            (string)$data['total_incl_amount'],
+            (string)$data['total_excl_amount'],
+            (string)$data['total_vat']
+        );
+
+        $customer = new CustomerImpl(
+            (string)$customerData['firstname'],
+            (string)$customerData['lastname'],
+            (string)$customerData['phone'],
+            (string)$customerData['email'],
+            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : ''
+        );
+
+        $paymentInfo = new PaymentInfoImpl(
+            $data['locale'],
+            '',
+            $this->_session->getPaymentMethodId() ? $this->_session->getPaymentMethodId() : '',
+            '',
+            (bool)$config['save-masked-pan']
+        );
+
+        $paymentMethod = '';
+        if (isset($data['payment_method'])) {
+            $paymentMethod = $data['payment_method'];
+        }
+
+        $transactionInfo = new TransactionImpl(
+            $paymentMethod,
+            !is_null($data['ext_order_id']) ? $data['ext_order_id'] : '');
+
+        /** @var ProcessPaymentService $service */
+        $service = ServiceFactory::createService($configObject, 'Backend\ProcessPaymentService');
+        $service->insertCustomer($customer);
+        $service->insertOrder($order);
+        $service->insertPaymentInfo($paymentInfo);
+        $service->insertTransaction($transactionInfo);
+
+        $container = new ExecutorContainer();
+
+        /** @var BackendServiceExecutor $exec */
+        $exec = $container->getExecutor('backend');
+
+        /** @var CoreResponse $response */
+        $response = $exec->executeService($service, $publicKeyFile);
+
+        if ($response->getStatusCode()) {
+            return $response->getBody();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @param string $paymentMethod
+     * @param string $transactionNumber
+     * @return PaymentStatusImpl|null
+     */
+    public function getPaymentStatus(string $paymentMethod, string $transactionNumber)
+    {
+
+        if($paymentMethod == '' || $transactionNumber == '') {
+            return null;
+        }
+
+        $config = $this->_config->getConfig();
+
+        $publicKeyFile = $this->_config->getFileContent($config['public-key']);
+        $privateKeyFile = $this->_config->getFileContent($config['private-key']);
+
+
+        $configObject = new BackendConfigurationImpl(
+            $privateKeyFile,
+            $config['merchant'],
+            $config['software'],
+            $config['software-version'],
+            $config['server-url'],
+            $config['rsa-blinding']
+        );
+
+        $transaction = new TransactionImpl($paymentMethod, $transactionNumber);
+
+        /** @var GetPaymentStatusService $service */
+        $service = ServiceFactory::createService($configObject, 'Backend\GetPaymentStatusService');
+        $service->insertTransaction($transaction);
+
+        $container = new ExecutorContainer();
+
+        /** @var BackendServiceExecutor $exec */
+        $exec = $container->getExecutor('backend');
+
+        /** @var CoreResponse $response */
+        $response = $exec->executeService($service, $publicKeyFile);
+
+        if($response->getStatusCode()) {
+            return $response->getBody();
+        } else {
+            return null;
+        }
+    }
+
+    public function getTransactionsFromGate($orderIncrementId)
+    {
+        $config = $this->_config->getConfig();
+
+        $publicKeyFile = $this->_config->getFileContent($config['public-key']);
+        $privateKeyFile = $this->_config->getFileContent($config['private-key']);
+
+        $configObject = new BackendConfigurationImpl(
+            $privateKeyFile,
+            $config['merchant'],
+            $config['software'],
+            $config['software-version'],
+            $config['server-url'],
+            $config['rsa-blinding']
+        );
+
+        $order = new OrderImpl($orderIncrementId, '', '', '', '', '', '');
+
+        /** @var ListTransactionNumbersService $service */
+        $service = ServiceFactory::createService($configObject, 'Backend\ListTransactionNumbersService');
+        $service->insertOrder($order);
+
+        $container = new ExecutorContainer();
+
+        /** @var BackendServiceExecutor $exec */
+        $exec = $container->getExecutor('backend');
+
+        /** @var CoreResponse $response */
+        $response = $exec->executeService($service, $publicKeyFile);
+
+        if($response->getStatusCode()) {
+            return $response->getBody();
+        } else {
+            return null;
         }
     }
 

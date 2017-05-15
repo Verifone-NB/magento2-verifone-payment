@@ -172,7 +172,19 @@ class FormClient extends \Verifone\Payment\Model\Client
         if (isset($data['save_payment_method']) && $data['save_payment_method'] == true) {
             $savePaymentMethod = PaymentInfoImpl::SAVE_METHOD_AUTO_SAVE;
         }
-        $paymentInfo = new PaymentInfoImpl('fi_FI', $savePaymentMethod);
+
+        $paymentMethodId = '';
+        if (isset($data['payment_method_id'])) {
+            $paymentMethodId = $data['payment_method_id'];
+        }
+
+        $paymentInfo = new PaymentInfoImpl(
+            $data['locale'],
+            $savePaymentMethod,
+            $paymentMethodId,
+            '',
+            (bool)$config['save-masked-pan']
+        );
 
         $paymentMethod = '';
         if (isset($data['payment_method'])) {
@@ -305,10 +317,22 @@ class FormClient extends \Verifone\Payment\Model\Client
      */
     protected function _parseGroup($group, $isCard = false)
     {
+        $isGroup = false;
+        $name = isset($group['group_name']) ? $group['group_name'] : '';
+        if(strlen($name) && $this->_scopeConfig->getValue(Path::XML_PATH_PAYMENT_DEFAULT_GROUP) != $name) {
+            $isGroup = true;
+        }
+
+        $description = __('You will be redirected to Verifone to complete your order.');
+        if(isset($group['group_description']) && strlen($group['group_description'])) {
+            $description = $group['group_description'];
+        }
+
         return [
+            'isGroup' => $isGroup,
             'position' => isset($group['position']) ? $group['position'] : 0,
-            'name' => isset($group['group_name']) ? $group['group_name'] : '',
-            'description' => isset($group['group_description']) ? $group['group_description'] : '',
+            'name' => $name,
+            'description' => $description,
             'isCard' => $isCard,
             'payments' => $group['payments']
         ];
@@ -369,7 +393,7 @@ class FormClient extends \Verifone\Payment\Model\Client
             '0'
         );
 
-        $payment = new PaymentInfoImpl('fi_FI', PaymentInfoImpl::SAVE_METHOD_SAVE_ONLY, '', (string)time());
+        $payment = new PaymentInfoImpl($data['locale'], PaymentInfoImpl::SAVE_METHOD_SAVE_ONLY, '', (string)time());
 
         $service = ServiceFactory::createService($configObject, 'Frontend\AddNewCardService');
         $service->insertCustomer($customer);

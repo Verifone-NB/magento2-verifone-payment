@@ -77,3 +77,7 @@
     font-size: 1.6em;
     color: #1f56b0;
 }
+
+.verifone-payment-methods .hidden {
+    display: none;
+}

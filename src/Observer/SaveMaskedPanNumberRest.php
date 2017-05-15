@@ -8,18 +8,15 @@
  * @author    Szymon Nosal <simon@lamia.fi>
  */
 
+
 namespace Verifone\Payment\Observer;
 
-use Verifone\Core\Converter\Response\CoreResponseConverter;
+
 use Verifone\Core\DependencyInjection\CoreResponse\PaymentResponseImpl;
-use Verifone\Core\DependencyInjection\Transporter\CoreResponse;
-use Verifone\Core\Exception\ResponseCheckFailedException;
 use Verifone\Payment\Helper\Path;
-use Verifone\Payment\Model\Order\Exception;
 
-class SaveMaskedPanNumber implements \Magento\Framework\Event\ObserverInterface
+class SaveMaskedPanNumberRest implements \Magento\Framework\Event\ObserverInterface
 {
-
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
@@ -30,20 +27,13 @@ class SaveMaskedPanNumber implements \Magento\Framework\Event\ObserverInterface
      */
     protected $_order;
 
-    /**
-     * @var \Verifone\Payment\Model\ClientFactory
-     */
-    protected $_clientFactory;
-
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Verifone\Payment\Helper\Order $order,
-        \Verifone\Payment\Model\ClientFactory $clientFactory
+        \Verifone\Payment\Helper\Order $order
     )
     {
         $this->_scopeConfig = $scopeConfig;
         $this->_order = $order;
-        $this->_clientFactory = $clientFactory;
     }
 
     public function execute(\Magento\Framework\Event\Observer $observer)
@@ -53,48 +43,19 @@ class SaveMaskedPanNumber implements \Magento\Framework\Event\ObserverInterface
             return $this;
         }
 
+        /** @var PaymentResponseImpl $_response */
         $_response = $observer->getEvent()->getData('_response');
-
-        /** @var \Verifone\Payment\Model\Client\FormClient $client */
-        $client = $this->_clientFactory->create('frontend');
-
-        /** @var string $orderNumber */
-        $orderNumber = $client->getOrderNumber($_response);
-
-        if(!$orderNumber) {
-            return $this;
-        }
 
         /**
          * @var \Magento\Sales\Model\Order $order
          */
-        $order = $this->_order->loadOrderByIncrementId($orderNumber);
-
-        try {
-            /** @var CoreResponse $validate */
-            $parsedResponse = $client->validateAndParseResponse($_response, $order);
-
-            /** @var PaymentResponseImpl $body */
-            $body = $parsedResponse->getBody();
-
-            $validate = true;
-        } catch (ResponseCheckFailedException $e) {
-            $validate = false;
-            $parsedResponse = null;
-            $body = null;
-        } catch (Exception $e) {
-            $validate = false;
-            $parsedResponse = null;
-            $body = null;
-        }
+        $order = $this->_order->loadOrderById($observer->getEvent()->getData('_orderId'));
 
         if ($order->getId()
-            && $validate
-            && $parsedResponse->getStatusCode() == CoreResponseConverter::STATUS_OK
-            && empty($body->getCancelMessage())
+            && empty($_response->getCancelMessage())
         ) {
             /** @var \Verifone\Core\DependencyInjection\CoreResponse\Interfaces\Card $card */
-            $card = $body->getCard();
+            $card = $_response->getCard();
             if (
                 strlen($card->getFirst6()) &&
                 $card->getFirst6() &&

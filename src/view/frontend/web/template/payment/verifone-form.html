@@ -10,35 +10,65 @@
     <div class="payment-method-content">
         <div class="verifone-payment-methods">
             <!-- ko foreach: getPaymentMethods() -->
-            <div class="verifone-payment-group">
-                <h2><span data-bind="text: $data.name"></span></h2>
-                <span data-bind="html: $data.description"></span>
-                <!-- ko if: $data.isCard && $parent.hasSavedPaymentsMethods() -->
-                    <div class="verifone-payment-method-saved">
-                        <!-- ko foreach: $parent.getSavedPaymentsMethods() -->
-                        <div class="verifone-payment-method">
-                            <input type="radio" name="payment[additional_data][payment-method]" class="radio"
-                                   data-bind="value: $data.card-method-id, attr: {'id': $data.card-method-id}"/>
-                            <label data-bind="attr: {'for': $data.card-method-id}" class="label"><span data-bind="text: $data.card-method-title"></span></label>
-                        </div>
+            <!-- ko if: $data.isGroup -->
+            <div class="verifone-payment-method-group opc-block-summary">
+                <div class="verifone-payment-method-label">
+                    <input type="radio" class="radio" data-bind="attr: {'id': 'verifonepayment-mockup_' + $index()}"/>
+                    <label class="verifone-label" data-bind="attr: {'for': 'verifonepayment-mockup_' + $index()}"><span
+                            data-bind="text: $data.name"></span></label>
+                </div>
+                <select name="payment[additional_data][payment-method]" class="verifone-payment-method-select"
+                        data-bind="attr:{'id': 'payment-method-select_' + $index()}, css: {card: $data.isCard}"
+                        disabled="disabled">
+                    <option data-bind="text: $t('-- Select --'), value: ''"></option>
+                    <!-- ko foreach: $data.methods -->
+                    <option data-bind="text: $data.label, value: $data.value, attr: {'id': $data.id, 'data-code': $data.code}"></option>
+                    <!--/ko-->
+                </select>
+                <div class="verifone-payment-method-footer hidden">
+                    <!-- ko if: $data.isCard && $parent.getAllowSaveCC() -->
+                    <div class="verifone-payment-saved-wrapper">
+                        <input type="checkbox" name="payment[additional_data][save-payment-method]"
+                               data-bind="attr: {'id': 'save-payment-method_' + $index()}"/>
+                        <label style="float: none"
+                               data-bind="text: $t('Remember payment method.'), attr: {'for': 'save-payment-method_' + $index()}">
+                        </label>
+                        <!-- ko if: $parent.getAllowSaveCCInfo().length -->
+                        <span class="verifone-payment-saved-info" data-bind="text: '(' + $parent.getAllowSaveCCInfo() + ')'"></span>
                         <!--/ko-->
                     </div>
-                <!--/ko-->
-                <!-- ko foreach: $data.methods -->
-                <div class="verifone-payment-method">
-                    <input type="radio" name="payment[additional_data][payment-method]" class="radio"
-                           data-bind="value: $data.value, attr: {'id': $data.id}"/>
-                    <label data-bind="attr: {'for': $data.id}" class="label"><span data-bind="text: $data.label"></span></label>
+                    <!-- /ko -->
+                    <div class="description">
+                        <span data-bind="html: $data.description"></span>
+                    </div>
                 </div>
-                <!--/ko-->
-                <!-- ko if: $data.isCard && $parent.getAllowSaveCC() -->
-                <input type="checkbox" name="payment[additional_data][save-payment-method]"
-                       id="payment[additional_data][save-payment-method]"/>
-                <label style="float: none"
-                       for="payment[additional_data][save-payment-method]"
-                       data-bind="text: $t('Remember payment method.')"></label>
-                <!-- /ko -->
             </div>
+            <!--/ko-->
+            <!-- ko ifnot: $data.isGroup -->
+            <!-- ko foreach: $data.methods -->
+            <div class="verifone-payment-method-group opc-block-summary">
+                <div class="verifone-payment-method-label verifone-payment-method-notgroup">
+                    <input type="radio" name="payment[additional_data][payment-method]" class="radio"
+                           data-bind="value: $data.value, attr: {'id': $data.id, 'data-code': $data.code}, css: {card: $parent.isCard}"/>
+                    <label data-bind="attr: {'for': $data.id}" class="label verifone-label"><span
+                            data-bind="text: $data.label"></span></label>
+                </div>
+                <div class="verifone-payment-method-footer hidden">
+                    <!-- ko if: $parent.isCard && $parents[1].getAllowSaveCC() && !$data.code -->
+                    <div class="verifone-payment-saved-wrapper">
+                        <input type="checkbox" name="payment[additional_data][save-payment-method]"
+                               data-bind="attr: {'id': 'save-payment-method_' + $index()}"/>
+                        <label style="float: none"
+                               data-bind="text: $t('Remember payment method.'), attr: {'for': 'save-payment-method_' + $index()}"></label>
+                    </div>
+                    <!-- /ko -->
+                    <div class="description">
+                        <span data-bind="html: $parent.description"></span>
+                    </div>
+                </div>
+            </div>
+            <!--/ko-->
+            <!--/ko-->
             <!--/ko-->
         </div>
         <div class="payment-method-billing-address">

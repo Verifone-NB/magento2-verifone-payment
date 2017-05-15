@@ -1,16 +1,21 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+
     <event name="sales_model_service_quote_submit_success">
         <observer name="Verifone_VerifonePayment_Model_Observer" instance="Verifone\Payment\Observer\SalesModelServiceQuoteSubmitAfter" />
     </event>
-    <event name="sales_quote_payment_import_data_before">
-        <observer name="Verifone_VerifonePayment_Model_Observer" instance="Verifone\Payment\Observer\SalesQuotePaymentImportDataBefore" />
-    </event>
+
     <event name="verifone_paymentinterface_send_request_after">
         <observer name="Verifone_VerifonePayment_Save_Masked_Card_PAN_Number" instance="Verifone\Payment\Observer\SaveMaskedPanNumber" />
         <observer name="Verifone_VerifonePayment_Model_Observer" instance="Verifone\Payment\Observer\updateCreditCard" />
     </event>
+
+    <event name="verifone_server_send_request_after">
+        <observer name="Verifone_VerifonePayment_Save_Masked_Card_PAN_Number_Rest" instance="Verifone\Payment\Observer\SaveMaskedPanNumberRest" />
+    </event>
+
     <event name="verifone_paymentinterface_send_request_before">
         <observer name="Verifone_VerifonePayment_Save_CreditCard" instance="Verifone\Payment\Observer\SaveCreditCard" />
     </event>
+
 </config>

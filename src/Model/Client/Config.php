@@ -114,6 +114,8 @@ class Config implements ConfigInterface
             $currency = $this->_helper->convertCountryToISO4217($currencyCode);
             $rsaBlinding = $this->_scopeConfig->getValue(Path::XML_PATH_DISABLE_RSA_BLINDING);
 
+            $saveMaskedPan = $this->_scopeConfig->getValue(Path::XML_PATH_SAVE_MASKED_PAN_NUMBER);
+
             $this->_config = [
                 'private-key' => $privateKeyPath,
                 'public-key' => $publicKeyPath,
@@ -121,7 +123,8 @@ class Config implements ConfigInterface
                 'software' => $software,
                 'software-version' => $softwareVersion,
                 'currency' => $currency,
-                'rsa-blinding' => $rsaBlinding
+                'rsa-blinding' => $rsaBlinding,
+                'save-masked-pan' => $saveMaskedPan
             ];
 
             $this->_isConfigSet = true;

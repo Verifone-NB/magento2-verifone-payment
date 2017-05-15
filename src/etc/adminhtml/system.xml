@@ -70,6 +70,13 @@
                         <field id="is_live_mode">1</field>
                     </depends>
                 </field>
+                <field id="delayed_success_url" translate="label" type="label" sortOrder="112" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Delayed success url</label>
+                    <frontend_model>Verifone\Payment\Block\System\Config\DelayedSuccessUrl</frontend_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
 
                 <!-- AUTHENTICATION CONFIGURATION -->
                 <field id="merchant_agreement_code" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="0">

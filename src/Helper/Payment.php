@@ -13,9 +13,25 @@
 namespace Verifone\Payment\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
 
 class Payment extends AbstractHelper
 {
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    protected $_scopeConfig;
+
+    public function __construct(
+        Context $context
+    )
+    {
+        parent::__construct($context);
+
+
+        $this->_scopeConfig = $this->scopeConfig;
+    }
+
     public function convertCountryToISO4217($cc)
     {
         $codes = array(
@@ -47,5 +63,42 @@ class Payment extends AbstractHelper
             'YER' => '886', 'ZAR' => '710', 'ZMW' => '967', 'ZWL' => '932');
 
         return isset($codes[$cc]) ? $codes[$cc] : $codes['EUR'];
+    }
+
+    public function getSavedCardsS2sPaymentLimit()
+    {
+        return $this->_scopeConfig->getValue(Path::XML_PATH_SAVED_PAYMENT_REST_LIMIT);
+    }
+
+    public function getTransactionTypeFromMap($_verifoneStatus)
+    {
+        $map = array(
+            'committed' => \Magento\Sales\Model\Order\Payment\Transaction::TYPE_CAPTURE,
+            'settled' => \Magento\Sales\Model\Order\Payment\Transaction::TYPE_CAPTURE,
+            'verified' => \Magento\Sales\Model\Order\Payment\Transaction::TYPE_CAPTURE,
+            'refunded' => \Magento\Sales\Model\Order\Payment\Transaction::TYPE_REFUND,
+            'authorized' => \Magento\Sales\Model\Order\Payment\Transaction::TYPE_AUTH,
+            'cancelled' => \Magento\Sales\Model\Order\Payment\Transaction::TYPE_VOID,
+            'subscribed' => \Magento\Sales\Model\Order\Payment\Transaction::TYPE_PAYMENT,
+            'initialized' => \Magento\Sales\Model\Order\Payment\Transaction::TYPE_ORDER
+        );
+
+        return isset($map[$_verifoneStatus]) ? $map[$_verifoneStatus] : \Magento\Sales\Model\Order\Payment\Transaction::TYPE_PAYMENT;
+    }
+
+    public function getOrderStatusFromMap($_verifoneStatus)
+    {
+        $map = array(
+            'committed' => \Magento\Sales\Model\Order::STATE_PROCESSING,
+            'settled' => \Magento\Sales\Model\Order::STATE_PROCESSING,
+            'verified' => \Magento\Sales\Model\Order::STATE_PROCESSING,
+            //'refunded' => \Magento\Sales\Model\Order::Sta,
+            'authorized' => \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT,
+            'cancelled' => \Magento\Sales\Model\Order::STATE_CANCELED,
+            //'subscribed' => \Magento\Sales\Model\Order::STATE_PROCESSING,
+            //'initialized' => \Magento\Sales\Model\Order::STATE_PROCESSING
+        );
+
+        return isset($map[$_verifoneStatus]) ? $map[$_verifoneStatus] : '';
     }
 }

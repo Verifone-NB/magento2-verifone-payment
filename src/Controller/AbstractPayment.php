@@ -60,14 +60,12 @@ abstract class AbstractPayment extends Action
 
     protected function _handleSuccess($delayedSuccess = false)
     {
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $redirectUrl = 'checkout/cart';
+        $resultRedirect->setPath($redirectUrl);
 
         $_request = $this->getRequest();
         $_signedFormData = $_request->getParams();
-
-        $this->_eventManager->dispatch('verifone_paymentinterface_send_request_after', [
-            '_class' => get_class($this),
-            '_response' => $_signedFormData
-        ]);
 
         /** @var \Verifone\Payment\Model\Client\FormClient $client */
         $client = $this->_clientFactory->create('frontend');
@@ -76,7 +74,7 @@ abstract class AbstractPayment extends Action
         $orderNumber = $client->getOrderNumber($_request->getParams());
 
         if (empty($orderNumber)) {
-            return $this->execute();
+             return self::execute();
         }
 
         /**
@@ -111,8 +109,14 @@ abstract class AbstractPayment extends Action
             $resultRedirect = $this->resultRedirectFactory->create();
 
             if ($order->getBaseTotalDue()) {
-                $trans_id = preg_replace("/[^0-9]+/", "", $body->getTransactionNUmber());
-                $_transactionId = $body->getTransactionNUmber();
+
+                $this->_eventManager->dispatch('verifone_paymentinterface_send_request_after', [
+                    '_class' => get_class($this),
+                    '_response' => $_signedFormData
+                ]);
+
+                $trans_id = preg_replace("/[^0-9]+/", "", $body->getTransactionNumber());
+                $_transactionId = $body->getTransactionNumber();
 
                 $this->_order->addNewOrderTransaction(
                     $order,
@@ -126,7 +130,13 @@ abstract class AbstractPayment extends Action
                 $session = $this->_session;
                 $session->getQuote()->setIsActive(false)->getResource()->save($session->getQuote());
 
-                $this->_order->sendEmail($order);
+                if(!$order->getEmailSent()) {
+                    $this->_order->sendEmail($order);
+                }
+
+                $this->_session->setPaymentMethod(null);
+                $this->_session->setPaymentMethodId(null);
+                $this->_session->setSavePaymentMethod(null);
 
                 if ($delayedSuccess) {
                     // no session, i.e. late POST from the payment system. We must signal 200 OK.
@@ -141,7 +151,7 @@ abstract class AbstractPayment extends Action
         }
 
         // invalid:
-        return $this->execute();
+        return self::execute();
     }
 
     public function execute()
@@ -153,11 +163,6 @@ abstract class AbstractPayment extends Action
         $_request = $this->getRequest();
         $_signedFormData = $_request->getParams();
 
-        $this->_eventManager->dispatch('verifone_paymentinterface_send_request_after', [
-            '_class' => get_class($this),
-            '_response' => $_signedFormData
-        ]);
-
         /** @var \Verifone\Payment\Model\Client\FormClient $client */
         $client = $this->_clientFactory->create('frontend');
 
@@ -167,6 +172,11 @@ abstract class AbstractPayment extends Action
         if (empty($orderNumber)) {
             return $resultRedirect;
         }
+
+        $this->_eventManager->dispatch('verifone_paymentinterface_send_request_after', [
+            '_class' => get_class($this),
+            '_response' => $_signedFormData
+        ]);
 
         /**
          * @var \Magento\Sales\Model\Order $order
@@ -195,7 +205,7 @@ abstract class AbstractPayment extends Action
             return $resultRedirect;
         }
 
-        $_transactionId = $body->getTransactionNUmber();
+        $_transactionId = $body->getTransactionNumber();
         if ($_transactionId) {
 
             $payment = $order->getPayment();

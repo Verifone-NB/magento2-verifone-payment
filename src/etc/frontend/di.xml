@@ -8,4 +8,10 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Verifone\Payment\Helper\Urls">
+        <arguments>
+            <argument name="urlFrontBuilder" xsi:type="object" shared="false">Magento\Framework\Url</argument>
+        </arguments>
+    </type>
 </config>
