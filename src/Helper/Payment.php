@@ -101,4 +101,9 @@ class Payment extends AbstractHelper
 
         return isset($map[$_verifoneStatus]) ? $map[$_verifoneStatus] : '';
     }
+
+    public function sanitize($value)
+    {
+        return str_replace('"', '', str_replace('\\', '', str_replace('-', ' ', $value)));
+    }
 }

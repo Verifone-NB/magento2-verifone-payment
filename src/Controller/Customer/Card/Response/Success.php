@@ -19,7 +19,7 @@ class Success extends \Magento\Framework\App\Action\Action
         $_request = $this->getRequest();
         $_signedFormData = $_request->getParams();
 
-        $this->_eventManager->dispatch('verifone_paymentinterface_send_request_after', [
+        $this->_eventManager->dispatch('verifone_paymentinterface_send_saveCreditCard_after', [
             '_class' => get_class($this),
             '_response' => $_signedFormData
         ]);

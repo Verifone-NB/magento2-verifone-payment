@@ -63,7 +63,8 @@ class DataGetter extends \Verifone\Payment\Model\Client\DataGetter
                 'firstname' => $customer->getFirstname(),
                 'lastname' => $customer->getLastname(),
                 'phone' => $billingAddress->getTelephone(),
-                'email' => $customer->getEmail()
+                'email' => $customer->getEmail(),
+                'locale' => $this->_resolver->getLocale()
             ];
 
             if ($this->_scopeConfig->getValue(Path::XML_PATH_EXTERNAL_CUSTOMER_ID)) {

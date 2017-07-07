@@ -14,6 +14,10 @@
         <observer name="Verifone_VerifonePayment_Save_Masked_Card_PAN_Number_Rest" instance="Verifone\Payment\Observer\SaveMaskedPanNumberRest" />
     </event>
 
+    <event name="verifone_paymentinterface_send_saveCreditCard_after">
+        <observer name="Verifone_VerifonePayment_Model_Observer" instance="Verifone\Payment\Observer\updateCreditCard" />
+    </event>
+
     <event name="verifone_paymentinterface_send_request_before">
         <observer name="Verifone_VerifonePayment_Save_CreditCard" instance="Verifone\Payment\Observer\SaveCreditCard" />
     </event>

@@ -52,6 +52,11 @@ class FormClient extends \Verifone\Payment\Model\Client
     protected $_eventManager;
 
     /**
+     * @var \Verifone\Payment\Helper\Payment
+     */
+    protected $_paymentHelper;
+
+    /**
      * Form constructor.
      *
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
@@ -59,6 +64,7 @@ class FormClient extends \Verifone\Payment\Model\Client
      * @param \Verifone\Payment\Model\Client\Form\Order\DataValidator $dataValidator
      * @param \Verifone\Payment\Model\Client\Form\Order\DataGetter $dataGetter
      * @param \Verifone\Payment\Model\Session $session
+     * @param \Verifone\Payment\Helper\Payment $paymentHelper
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -66,7 +72,8 @@ class FormClient extends \Verifone\Payment\Model\Client
         \Verifone\Payment\Model\Client\Form\Order\DataValidator $dataValidator,
         \Verifone\Payment\Model\Client\Form\Order\DataGetter $dataGetter,
         \Verifone\Payment\Model\Session $session,
-        \Magento\Framework\Event\ManagerInterface $eventManager
+        \Magento\Framework\Event\ManagerInterface $eventManager,
+        \Verifone\Payment\Helper\Payment $paymentHelper
     )
     {
         parent::__construct($scopeConfig, $config);
@@ -75,6 +82,7 @@ class FormClient extends \Verifone\Payment\Model\Client
         $this->_dataGetter = $dataGetter;
         $this->_session = $session;
         $this->_eventManager = $eventManager;
+        $this->_paymentHelper = $paymentHelper;
 
         $this->_config->prepareConfig();
     }
@@ -133,7 +141,7 @@ class FormClient extends \Verifone\Payment\Model\Client
             $privateKeyFile,
             $config['merchant'],
             $config['software'],
-            $config['software-version'],
+            $this->_paymentHelper->sanitize($config['software-version']),
             $config['skip-confirmation'],
             $config['rsa-blinding']
         );
@@ -147,19 +155,13 @@ class FormClient extends \Verifone\Payment\Model\Client
             (string)$data['total_vat']
         );
 
-        $customer = new CustomerImpl(
-            (string)$data['customer']['firstname'],
-            (string)$data['customer']['lastname'],
-            (string)$data['customer']['phone'],
-            (string)$data['customer']['email'],
-            isset($data['customer']['external_id']) && $data['customer']['external_id'] ? (string)$data['customer']['external_id'] : ''
-        );
+        $customer = $this->_createCustomerObject($data['customer']);
 
         $products = [];
 
         foreach ($data['products'] as $product) {
             $products[] = new ProductImpl(
-                (string)$product['name'],
+                $this->_paymentHelper->sanitize($product['name']),
                 (string)$product['unit_cost'],
                 (string)$product['net_amount'],
                 (string)$product['gross_amount'],
@@ -319,12 +321,12 @@ class FormClient extends \Verifone\Payment\Model\Client
     {
         $isGroup = false;
         $name = isset($group['group_name']) ? $group['group_name'] : '';
-        if(strlen($name) && $this->_scopeConfig->getValue(Path::XML_PATH_PAYMENT_DEFAULT_GROUP) != $name) {
+        if (strlen($name) && $this->_scopeConfig->getValue(Path::XML_PATH_PAYMENT_DEFAULT_GROUP) != $name) {
             $isGroup = true;
         }
 
         $description = __('You will be redirected to Verifone to complete your order.');
-        if(isset($group['group_description']) && strlen($group['group_description'])) {
+        if (isset($group['group_description']) && strlen($group['group_description'])) {
             $description = $group['group_description'];
         }
 
@@ -371,18 +373,12 @@ class FormClient extends \Verifone\Payment\Model\Client
             $privateKeyFile,
             $config['merchant'],
             $config['software'],
-            $config['software-version'],
+            $this->_paymentHelper->sanitize($config['software-version']),
             $config['skip-confirmation'],
             $config['rsa-blinding']
         );
 
-        $customer = new CustomerImpl(
-            (string)$customerData['firstname'],
-            (string)$customerData['lastname'],
-            (string)$customerData['phone'],
-            (string)$customerData['email'],
-            isset($data['customer']['external_id']) && $data['customer']['external_id'] ? (string)$data['customer']['external_id'] : ''
-        );
+        $customer = $this->_createCustomerObject($customerData);
 
         $order = new OrderImpl(
             'addNewCard',
@@ -393,7 +389,7 @@ class FormClient extends \Verifone\Payment\Model\Client
             '0'
         );
 
-        $payment = new PaymentInfoImpl($data['locale'], PaymentInfoImpl::SAVE_METHOD_SAVE_ONLY, '', (string)time());
+        $payment = new PaymentInfoImpl($customerData['locale'], PaymentInfoImpl::SAVE_METHOD_SAVE_ONLY, '', (string)time());
 
         $service = ServiceFactory::createService($configObject, 'Frontend\AddNewCardService');
         $service->insertCustomer($customer);
@@ -411,5 +407,16 @@ class FormClient extends \Verifone\Payment\Model\Client
         ]);
 
         return $form;
+    }
+
+    protected function _createCustomerObject($customerData)
+    {
+        return new CustomerImpl(
+            $this->_paymentHelper->sanitize($customerData['firstname']),
+            $this->_paymentHelper->sanitize($customerData['lastname']),
+            $this->_paymentHelper->sanitize($customerData['phone']),
+            $this->_paymentHelper->sanitize($customerData['email']),
+            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : ''
+        );
     }
 }

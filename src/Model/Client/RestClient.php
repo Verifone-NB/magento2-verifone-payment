@@ -54,12 +54,18 @@ class RestClient extends \Verifone\Payment\Model\Client
      */
     protected $_config;
 
+    /**
+     * @var \Verifone\Payment\Helper\Payment
+     */
+    protected $_paymentHelper;
+
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         Rest\Config $config,
         \Verifone\Payment\Model\Client\Rest\Order\DataValidator $dataValidator,
         \Verifone\Payment\Model\Client\Rest\Order\DataGetter $dataGetter,
-        \Verifone\Payment\Model\Session $session
+        \Verifone\Payment\Model\Session $session,
+        \Verifone\Payment\Helper\Payment $paymentHelper
     )
     {
         parent::__construct($scopeConfig, $config);
@@ -67,6 +73,8 @@ class RestClient extends \Verifone\Payment\Model\Client
         $this->_dataValidator = $dataValidator;
         $this->_dataGetter = $dataGetter;
         $this->_session = $session;
+        $this->_paymentHelper = $paymentHelper;
+
 
         $this->_config->prepareConfig();
     }
@@ -155,14 +163,7 @@ class RestClient extends \Verifone\Payment\Model\Client
         $publicKeyFile = $this->_config->getFileContent($config['public-key']);
         $privateKeyFile = $this->_config->getFileContent($config['private-key']);
 
-        $configObject = new BackendConfigurationImpl(
-            $privateKeyFile,
-            $config['merchant'],
-            $config['software'],
-            $config['software-version'],
-            $config['server-url'],
-            $config['rsa-blinding']
-        );
+        $configObject = $this->_createConfigObject($config, $privateKeyFile);
 
         $refundAmount = $amount * 100;
 
@@ -212,22 +213,9 @@ class RestClient extends \Verifone\Payment\Model\Client
         $publicKeyFile = $this->_config->getFileContent($config['public-key']);
         $privateKeyFile = $this->_config->getFileContent($config['private-key']);
 
-        $configObject = new BackendConfigurationImpl(
-            $privateKeyFile,
-            $config['merchant'],
-            $config['software'],
-            $config['software-version'],
-            $config['server-url'],
-            $config['rsa-blinding']
-        );
+        $configObject = $this->_createConfigObject($config, $privateKeyFile);
 
-        $customer = new CustomerImpl(
-            (string)$customerData['firstname'],
-            (string)$customerData['lastname'],
-            (string)$customerData['phone'],
-            (string)$customerData['email'],
-            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : ''
-        );
+        $customer = $this->_createCustomerObject($customerData);
 
         try {
             /**
@@ -266,22 +254,8 @@ class RestClient extends \Verifone\Payment\Model\Client
         $publicKeyFile = $this->_config->getFileContent($config['public-key']);
         $privateKeyFile = $this->_config->getFileContent($config['private-key']);
 
-        $configObject = new BackendConfigurationImpl(
-            $privateKeyFile,
-            $config['merchant'],
-            $config['software'],
-            $config['software-version'],
-            $config['server-url'],
-            $config['rsa-blinding']
-        );
-
-        $customer = new CustomerImpl(
-            (string)$customerData['firstname'],
-            (string)$customerData['lastname'],
-            (string)$customerData['phone'],
-            (string)$customerData['email'],
-            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : ''
-        );
+        $configObject = $this->_createConfigObject($config, $privateKeyFile);
+        $customer = $this->_createCustomerObject($customerData);
 
         $payment = new PaymentInfoImpl('', '', $gateId);
 
@@ -324,15 +298,7 @@ class RestClient extends \Verifone\Payment\Model\Client
         $publicKeyFile = $this->_config->getFileContent($config['public-key']);
         $privateKeyFile = $this->_config->getFileContent($config['private-key']);
 
-
-        $configObject = new BackendConfigurationImpl(
-            $privateKeyFile,
-            $config['merchant'],
-            $config['software'],
-            $config['software-version'],
-            $config['server-url'],
-            $config['rsa-blinding']
-        );
+        $configObject = $this->_createConfigObject($config, $privateKeyFile);
 
         $order = new OrderImpl(
             (string)$data['order_id'],
@@ -343,13 +309,7 @@ class RestClient extends \Verifone\Payment\Model\Client
             (string)$data['total_vat']
         );
 
-        $customer = new CustomerImpl(
-            (string)$customerData['firstname'],
-            (string)$customerData['lastname'],
-            (string)$customerData['phone'],
-            (string)$customerData['email'],
-            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : ''
-        );
+        $customer = $this->_createCustomerObject($customerData);
 
         $paymentInfo = new PaymentInfoImpl(
             $data['locale'],
@@ -398,7 +358,7 @@ class RestClient extends \Verifone\Payment\Model\Client
     public function getPaymentStatus(string $paymentMethod, string $transactionNumber)
     {
 
-        if($paymentMethod == '' || $transactionNumber == '') {
+        if ($paymentMethod == '' || $transactionNumber == '') {
             return null;
         }
 
@@ -408,14 +368,7 @@ class RestClient extends \Verifone\Payment\Model\Client
         $privateKeyFile = $this->_config->getFileContent($config['private-key']);
 
 
-        $configObject = new BackendConfigurationImpl(
-            $privateKeyFile,
-            $config['merchant'],
-            $config['software'],
-            $config['software-version'],
-            $config['server-url'],
-            $config['rsa-blinding']
-        );
+        $configObject = $this->_createConfigObject($config, $privateKeyFile);
 
         $transaction = new TransactionImpl($paymentMethod, $transactionNumber);
 
@@ -431,7 +384,7 @@ class RestClient extends \Verifone\Payment\Model\Client
         /** @var CoreResponse $response */
         $response = $exec->executeService($service, $publicKeyFile);
 
-        if($response->getStatusCode()) {
+        if ($response->getStatusCode()) {
             return $response->getBody();
         } else {
             return null;
@@ -445,14 +398,7 @@ class RestClient extends \Verifone\Payment\Model\Client
         $publicKeyFile = $this->_config->getFileContent($config['public-key']);
         $privateKeyFile = $this->_config->getFileContent($config['private-key']);
 
-        $configObject = new BackendConfigurationImpl(
-            $privateKeyFile,
-            $config['merchant'],
-            $config['software'],
-            $config['software-version'],
-            $config['server-url'],
-            $config['rsa-blinding']
-        );
+        $configObject = $this->_createConfigObject($config, $privateKeyFile);
 
         $order = new OrderImpl($orderIncrementId, '', '', '', '', '', '');
 
@@ -468,11 +414,34 @@ class RestClient extends \Verifone\Payment\Model\Client
         /** @var CoreResponse $response */
         $response = $exec->executeService($service, $publicKeyFile);
 
-        if($response->getStatusCode()) {
+        if ($response->getStatusCode()) {
             return $response->getBody();
         } else {
             return null;
         }
+    }
+
+    protected function _createConfigObject($config, $privateKeyFile, $merchant = null)
+    {
+        return new BackendConfigurationImpl(
+            $privateKeyFile,
+            !is_null($merchant) ? $merchant : $config['merchant'],
+            $config['software'],
+            $config['software-version'],
+            $config['server-url'],
+            $config['rsa-blinding']
+        );
+    }
+
+    protected function _createCustomerObject($customerData)
+    {
+        return new CustomerImpl(
+            $this->_paymentHelper->sanitize($customerData['firstname']),
+            $this->_paymentHelper->sanitize($customerData['lastname']),
+            $this->_paymentHelper->sanitize($customerData['phone']),
+            $this->_paymentHelper->sanitize($customerData['email']),
+            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : ''
+        );
     }
 
 }
