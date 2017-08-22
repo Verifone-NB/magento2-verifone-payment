@@ -212,7 +212,7 @@ class FormClient extends \Verifone\Payment\Model\Client
         $container = new ExecutorContainer();
         $exec = $container->getExecutor(ExecutorContainer::EXECUTOR_TYPE_FRONTEND);
 
-        $form = $exec->executeService($service, $config['payment-url']);
+        $form = $exec->executeService($service, $config['payment-url'], $config['check-node-availability']);
 
         $this->_session->setOrderCreateData($form);
 

@@ -116,6 +116,8 @@ class Config implements ConfigInterface
 
             $saveMaskedPan = $this->_scopeConfig->getValue(Path::XML_PATH_SAVE_MASKED_PAN_NUMBER);
 
+            $checkNodeAvailability = $this->_scopeConfig->getValue(Path::XML_PATH_VALIDATE_URL);
+
             $this->_config = [
                 'private-key' => $privateKeyPath,
                 'public-key' => $publicKeyPath,
@@ -124,7 +126,8 @@ class Config implements ConfigInterface
                 'software-version' => $softwareVersion,
                 'currency' => $currency,
                 'rsa-blinding' => $rsaBlinding,
-                'save-masked-pan' => $saveMaskedPan
+                'save-masked-pan' => $saveMaskedPan,
+                'check-node-availability' => $checkNodeAvailability
             ];
 
             $this->_isConfigSet = true;
