@@ -61,7 +61,7 @@
                         <field id="is_live_mode">1</field>
                     </depends>
                 </field>
-                <field id="validate_url" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="validate_url" translate="label comment" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Check payment node availability</label>
                     <comment>Make a check that payment node is available</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -128,7 +128,7 @@
                         <field id="active">1</field>
                     </depends>
                 </field>
-                <field id="combine_invoice_basket_items" translate="label" type="select" sortOrder="330" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="combine_invoice_basket_items" translate="label comment" type="select" sortOrder="330" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Combine Invoice Basket Items</label>
                     <comment>Currently only available for invoice payment methods</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -138,7 +138,7 @@
                 </field>
 
                 <!-- PAYMENTS CONFIGURATION -->
-                <field id="specificpayments_trigger" translate="button_label" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="specificpayments_trigger" translate="button_label label comment" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label />
                     <button_label>Get Available Payment Methods</button_label>
                     <frontend_model>Verifone\Payment\Block\System\Config\Button\RefreshPayments</frontend_model>
@@ -171,7 +171,7 @@
                 </field>
                 <field id="remember_cc_info" translate="label" type="textarea" sortOrder="450" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Remember me info</label>
-                    <comment>Optional. Note in checkout after "Remember payment method" checkbox - for cards only</comment>
+                    <comment>Optional. Note in checkout after Remember payment method checkbox - for cards only</comment>
                     <depends>
                         <field id="active">1</field>
                     </depends>

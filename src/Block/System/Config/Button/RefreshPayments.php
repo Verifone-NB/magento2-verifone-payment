@@ -100,6 +100,19 @@ class RefreshPayments extends Field
     }
 
     /**
+     * @return \Magento\Framework\Phrase|string
+     */
+    public function getButtonLabel()
+    {
+        if(__($this->_buttonLabel) != $this->_buttonLabel) {
+            // check if button label is already translated or not.
+            return __($this->_buttonLabel);
+        }
+
+        return $this->_buttonLabel;
+    }
+
+    /**
      * Set template to itself
      *
      * @return \Verifone\Payment\Block\System\Config\Button\RefreshPayments

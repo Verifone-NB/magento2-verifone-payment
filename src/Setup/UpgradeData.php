@@ -86,6 +86,10 @@ class UpgradeData implements UpgradeDataInterface
             $this->upgrade006($setup);
         }
 
+        if (version_compare($context->getVersion(), '0.0.7') < 0) {
+            $this->upgrade007($setup);
+        }
+
         $setup->endSetup();
 
     }
@@ -213,5 +217,20 @@ class UpgradeData implements UpgradeDataInterface
             ]);
 
         $attribute->getResource()->save($attribute);
+    }
+
+    public function upgrade007(ModuleDataSetupInterface $setup)
+    {
+        $data = [
+            ['code' => 'oma-saastopankin-verkkomaksu', 'name' => 'OMA_SAASTOPANKIN_VERKKOMAKSU', 'type' => 'BANK']
+        ];
+
+        $tableName = $setup->getTable('verifone_payment_methods');
+
+        if ($setup->getConnection()->isTableExists($tableName) == true) {
+            foreach ($data as $item) {
+                $setup->getConnection()->insert($tableName, $item);
+            }
+        }
     }
 }
