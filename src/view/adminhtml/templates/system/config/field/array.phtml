@@ -40,298 +40,295 @@ $_colspan = $_colspan > 1 ? 'colspan="' . $_colspan . '"' : '';
 </div>
 
 <script>
-    require(['prototype', 'tinymce'], function (Prototype, tinyMCE) {
+  require(['prototype', 'tinymce'], function (Prototype, tinyMCE) {
 
-        //<![CDATA[
-        // create row creator
-        var arrayRow<?php echo $_htmlId ?> = {
-            // define row prototypeJS template
-            template: new Template(
-                '<tr id="#{_id}">'
-                <?php foreach ($this->getColumns() as $columnName => $column):?>
-                + '<td>'
-                + '<?php echo $this->renderCellTemplate($columnName)?>'
-                + '<\/td>'
-                <?php endforeach;?>
-                <?php if ($this->getAddAfter()):?>
-                + '<td><button onclick="" class="scalable add" type="button" id="addAfterBtn#{_id}"><span><span><span><?php echo __('Add after') ?><\/span><\/span><\/span><\/button><\/td>'
-                <?php endif;?>
-                + '<td style="min-width: 150px; text-align: right;">'
-                <?php if ($this->getEditOrder()):?>
-                + '<button onclick="arrayRow<?php echo $_htmlId ?>.editOrder(\'#{_id}\', this)" class="scalable" type="button" id="editOrderBtn#{_id}"><span><span><span><?php echo __('Edit order') ?><\/span><\/span><\/span><\/button>'
-                + '<button style="display: none;" class="scalable" type="button" id="saveOrderBtn#{_id}"><span><span><span><?php echo __('Save order') ?><\/span><\/span><\/span><\/button>'
-                <?php endif;?>
-                + '<button onclick="arrayRow<?php echo $_htmlId ?>.del(\'#{_id}\')" class="scalable delete" type="button"><span><span><span><?php echo __('Delete') ?><\/span><\/span><\/span><\/button>'
-                + '<\/td>'
-                + '<\/tr>'
-                + '<tr class="headings" id="group_description_header#{_id}">'
-                + '<th colspan="4"><?php echo __('Group Description');?><\/th>'
-                + '<\/tr>'
-                + '<tr id="group_description#{_id}">'
-                + '<td colspan="4">'
-                + '<textarea name="groups[verifone_payment][fields][paymentsgroups_array][value][#{_id}][group_description]"'
-                + 'id="textfield_group_description#{_id}" size="10" class="textarea" style="width: 100%">'
-                + '#{group_description}'
-                + '</textarea>'
-                + '<\/td>'
-                + '<\/tr>'
-            ),
+    //<![CDATA[
+    // create row creator
+    var arrayRow<?php echo $_htmlId ?> = {
+      // define row prototypeJS template
+      template: new Template(
+        '<tr id="#{_id}">'
+        <?php foreach ($this->getColumns() as $columnName => $column):?>
+        + '<td>'
+        + '<?php echo $this->renderCellTemplate($columnName)?>'
+        + '<\/td>'
+        <?php endforeach;?>
+        <?php if ($this->getAddAfter()):?>
+        + '<td><button onclick="" class="scalable add" type="button" id="addAfterBtn#{_id}"><span><span><span><?php echo __('Add after') ?><\/span><\/span><\/span><\/button><\/td>'
+        <?php endif;?>
+        + '<td style="min-width: 150px; text-align: right;">'
+        <?php if ($this->getEditOrder()):?>
+        + '<button onclick="arrayRow<?php echo $_htmlId ?>.editOrder(\'#{_id}\', this)" class="scalable" type="button" id="editOrderBtn#{_id}"><span><span><span><?php echo __('Edit order') ?><\/span><\/span><\/span><\/button>'
+        + '<button style="display: none;" class="scalable" type="button" id="saveOrderBtn#{_id}"><span><span><span><?php echo __('Save order') ?><\/span><\/span><\/span><\/button>'
+        <?php endif;?>
+        + '<button onclick="arrayRow<?php echo $_htmlId ?>.del(\'#{_id}\')" class="scalable delete" type="button"><span><span><span><?php echo __('Delete') ?><\/span><\/span><\/span><\/button>'
+        + '<\/td>'
+        + '<\/tr>'
+        + '<tr class="headings" id="group_description_header#{_id}">'
+        + '<th colspan="4"><?php echo __('Group Description');?><\/th>'
+        + '<\/tr>'
+        + '<tr id="group_description#{_id}">'
+        + '<td colspan="4">'
+        + '<textarea name="groups[verifone_payment][fields][paymentsgroups_array][value][#{_id}][group_description]"'
+        + 'id="textfield_group_description#{_id}" size="10" class="textarea" style="width: 100%">'
+        + '#{group_description}'
+        + '</textarea>'
+        + '<\/td>'
+        + '<\/tr>'
+      ),
 
-            rowsCount: 0,
+      rowsCount: 0,
 
-            add: function (templateData, insertAfterId) {
-                // generate default template data
-                if ('' == templateData) {
-                    var d = new Date();
-                    var templateData = {
-                    <?php foreach ($this->getColumns() as $columnName => $column):?>
-                    <?php echo $columnName ?> :
-                    '',
-                    <?php endforeach;?>
-                        _id
-                :
-                    '_' + d.getTime() + '_' + d.getMilliseconds()
-                }
-                }
-
-                // insert before last row
-                if ('' == insertAfterId)
-                {
-                    Element.insert($('addRow<?php echo $_htmlId ?>'), {before: this.template.evaluate(templateData)});
-                }
-
-                // insert after specified row
-                else
-                {
-                    Element.insert($(insertAfterId), {after: this.template.evaluate(templateData)});
-
-                    tinyMCE.init({
-                        mode: "exact",
-                        elements: "textfield_group_description" + templateData._id,
-                        theme: "advanced",
-                        plugins: "style,paste",
-                        theme_advanced_buttons1: "bold,italic,underline,strikethrough,|,styleselect,formatselect,fontsizeselect,,,,,,,",
-                        theme_advanced_buttons2: null,
-                        theme_advanced_buttons3: null,
-                        theme_advanced_buttons4: null,
-                        theme_advanced_toolbar_location: "top",
-                        theme_advanced_path_location: null,
-                        extended_valid_elements: "font[face|size|color|style],span[class|align|style]",
-                        convert_urls: 'false',
-                        force_br_newlines: 'true'
-                    });
-                }
-
-                var $_groupNameTextfieldElement = $(templateData._id).select('#textfield_group_name' + templateData._id).first();
-                var $_groupNameCheckboxElement = $(templateData._id).select('#checkbox_group_name' + templateData._id).first();
-
-                $_groupNameCheckboxElement.observe('change', function () {
-                    $_groupNameTextfieldElement.disabled = false;
-
-                    if (this.checked) {
-                        $_groupNameTextfieldElement.disabled = 'disabled';
-                    }
-                });
-
-                if ($_groupNameTextfieldElement && $_groupNameTextfieldElement.value === '<?php echo $this->getDefaultGroupName(); ?>') {
-                    $_groupNameTextfieldElement.value = '';
-                    $_groupNameTextfieldElement.disabled = 'disabled';
-                    $_groupNameCheckboxElement.checked = 'checked';
-                }
-
-                var $_paymentSelectElement = $(templateData._id).select('#select_payments' + templateData._id).first();
-                var $_paymentSelectElements = $_paymentSelectElement.childElements();
-                var $_payments = $(templateData.payments);
-                if ($_payments) {
-                    $_payments.reverse().each(function (savedElement) {
-                        $_paymentSelectElements.each(function (option) {
-                            if (option.value == savedElement) {
-                                option.selected = true;
-
-                                var $_currentOpt = option.remove();
-
-                                $_paymentSelectElement.insert({
-                                    top: $_currentOpt
-                                });
-
-                                throw $break;
-                            }
-                        });
-                    });
-                }
-
-                <?php if ($this->getAddAfter()):?>
-                Event.observe('addAfterBtn' + templateData._id, 'click', this.add.bind(this, '', templateData._id));
-                <?php endif;?>
-
-                this.rowsCount += 1;
-            },
-
-            del : function (rowId) {
-                $('group_description_header' + rowId).remove();
-                $('group_description' + rowId).remove();
-                $(rowId).remove();
-                this.rowsCount -= 1;
-                if (0 == this.rowsCount) {
-                    this.showButtonOnly();
-                }
-            }
-            ,
-            showButtonOnly : function () {
-                $('grid<?php echo $_htmlId ?>').hide();
-                $('empty<?php echo $_htmlId ?>').show();
-            }
-            ,
-            editOrder : function (rowId, $_editButton) {
-
-                $_editButton.hide();
-                var $_saveButton = $_editButton.next().show();
-
-
-                var $_payments = $('select_payments' + rowId).hide();
-
-                var $_ul = new Element('ul').setStyle({
-                    'min-width': '280px'
-                });
-                $_payments.up().insert($_ul);
-
-                var counter = 0;
-
-                $_payments.childElements().each(function ($_option) {
-                    var $_li = new Element('li', {
-                        'id': $_option.value,
-                        'position': ++counter,
-                        'selected': $_option.selected
-                    })
-                        .update($_option.innerHTML)
-                        .setStyle({
-                            'position': 'relative',
-                            'width': '100%'
-                        });
-
-                    if ($_payments.childElements().length < 2) {
-                        $_ul.insert($_li);
-                        return;
-                    }
-
-                    var $_upElement = new Element('span', {'class': 'arrow-up'})
-                        .observe('click', function (event) {
-                            var $_current = $_upElement.up().remove();
-                            var newPosition = $_current.readAttribute('position') - 1;
-                            if (newPosition) {
-                                var i = 0;
-                                $_ul.select('li').each(function ($_el) {
-                                    if (newPosition == $_el.readAttribute('position')) {
-                                        Effect.Fade($_current, {duration: 1, from: 0.4, to: 1});
-                                        $_current.writeAttribute({position: ++i});
-                                        $_el.insert({before: $_current});
-                                    }
-
-                                    $_el.writeAttribute({position: ++i});
-                                });
-                            } else {
-                                $_ul.select('li').first().insert({before: $_current});
-                            }
-                        })
-                        .setStyle({
-                            'position': 'absolute',
-                            'bottom': '56%',
-                            'right': '5px',
-                            'width': '0',
-                            'height': '0',
-                            'border-style': 'solid',
-                            'border-width': '0 6px 6px 6px',
-                            'border-color': 'transparent transparent #aaa transparent'
-                        });
-
-                    var $_downElement = new Element('span', {'class': 'arrow-down'})
-                        .observe('click', function (event) {
-                            var $_current = $_upElement.up().remove();
-                            var _position = parseInt($_current.readAttribute('position'));
-
-                            if (_position <= $_ul.select('li').length) {
-                                var i = 0;
-                                $_ul.select('li').each(function ($_el) {
-                                    $_el.writeAttribute({position: ++i});
-                                    if (_position == i) {
-                                        Effect.Fade($_current, {duration: 1, from: 0.4, to: 1});
-                                        $_current.writeAttribute({position: ++i});
-                                        $_el.insert({after: $_current});
-                                    }
-                                });
-                            } else {
-                                $_ul.select('li').last().insert({after: $_current});
-                            }
-                        })
-                        .setStyle({
-                            'position': 'absolute',
-                            'top': '56%',
-                            'right': '5px',
-                            'width': '0',
-                            'height': '0',
-                            'border-style': 'solid',
-                            'border-width': '6px 6px 0 6px',
-                            'border-color': '#aaa transparent transparent transparent'
-                        });
-
-                    $_ul.insert($_li.insert($_upElement).insert($_downElement));
-
-                });
-                $_saveButton.observe('click', function () {
-                    $_editButton.show();
-                    $_saveButton.hide();
-                    $_payments.show();
-
-                    $_payments.childElements().each(function ($_el) {
-                        $_el.remove();
-                    });
-                    $_ul.select('li').each(function ($_el) {
-                        $_el.select('span').each(function ($_el) {
-                            $_el.remove();
-                        });
-                        $_payments.insert(new Element('option', {
-                            value: $_el.id,
-                            selected: $_el.readAttribute('selected')
-                        }).update($_el.innerHTML));
-                    });
-
-                    $_ul.remove();
-                });
-            }
-        };
-
-        // bind add action to "Add" button in last row
-        Event.observe('addToEndBtn<?php echo $_htmlId ?>', 'click', arrayRow<?php echo $_htmlId ?>.add.bind(arrayRow<?php echo $_htmlId ?>, '', ''));
-
-        // add existing rows
-        <?php
-        $_addAfterId = "headings{$_htmlId}";
-        foreach ($this->getArrayRows() as $_rowId => $_row) {
-            echo "arrayRow{$_htmlId}.add(" . $_row->toJson() . ", '{$_addAfterId}');\n";
-            $_addAfterId = 'group_description' . $_rowId;
+      add: function (templateData, insertAfterId) {
+        // generate default template data
+        if ('' == templateData) {
+          var d = new Date();
+          var templateData = {
+            <?php foreach ($this->getColumns() as $columnName => $column):?>
+            <?php echo $columnName ?> :
+          '',
+          <?php endforeach;?>
+            _id
+        :
+          '_' + d.getTime() + '_' + d.getMilliseconds()
         }
-        ?>
+        }
 
-        // initialize standalone button
-        $('empty<?php echo $_htmlId ?>').hide();
-        Event.observe('emptyAddBtn<?php echo $_htmlId ?>', 'click', function () {
-            $('grid<?php echo $_htmlId ?>').show();
-            $('empty<?php echo $_htmlId ?>').hide();
-            arrayRow<?php echo $_htmlId ?>.add('', '');
+        // insert before last row
+        if ('' == insertAfterId) {
+          Element.insert($('addRow<?php echo $_htmlId ?>'), {before: this.template.evaluate(templateData)});
+        }
+
+        // insert after specified row
+        else {
+          Element.insert($(insertAfterId), {after: this.template.evaluate(templateData)});
+
+          tinyMCE.init({
+            mode: "exact",
+            elements: "textfield_group_description" + templateData._id,
+            theme: "advanced",
+            plugins: "style,paste",
+            theme_advanced_buttons1: "bold,italic,underline,strikethrough,|,styleselect,formatselect,fontsizeselect,,,,,,,",
+            theme_advanced_buttons2: null,
+            theme_advanced_buttons3: null,
+            theme_advanced_buttons4: null,
+            theme_advanced_toolbar_location: "top",
+            theme_advanced_path_location: null,
+            extended_valid_elements: "font[face|size|color|style],span[class|align|style]",
+            convert_urls: 'false',
+            force_br_newlines: 'true'
+          });
+        }
+
+        var $_groupNameTextfieldElement = $(templateData._id).select('#textfield_group_name' + templateData._id).first();
+        var $_groupNameCheckboxElement = $(templateData._id).select('#checkbox_group_name' + templateData._id).first();
+
+        $_groupNameCheckboxElement.observe('change', function () {
+          $_groupNameTextfieldElement.disabled = false;
+
+          if (this.checked) {
+            $_groupNameTextfieldElement.disabled = 'disabled';
+          }
         });
 
-        // if no rows, hide grid and show button only
-        <?php if (!$this->getArrayRows()):?>
-        arrayRow<?php echo $_htmlId ?>.showButtonOnly();
-        <?php endif;?>
+        if ($_groupNameTextfieldElement && $_groupNameTextfieldElement.value === '<?php echo $this->getDefaultGroupName(); ?>') {
+          $_groupNameTextfieldElement.value = '';
+          $_groupNameTextfieldElement.disabled = 'disabled';
+          $_groupNameCheckboxElement.checked = 'checked';
+        }
 
-        // toggle the grid, if element is disabled (depending on scope)
-        <?php if ($this->getElement()->getDisabled()):?>
-        toggleValueElements({checked: true}, $('grid<?php echo $_htmlId ?>').parentNode);
-        <?php endif;?>
-        //]]>
+        var $_paymentSelectElement = $(templateData._id).select('#select_payments' + templateData._id).first();
+        var $_paymentSelectElements = $_paymentSelectElement.childElements();
+        var $_payments = $(templateData.payments);
+        if ($_payments) {
+          $_payments.reverse().each(function (savedElement) {
+            $_paymentSelectElements.each(function (option) {
+              if (option.value == savedElement) {
+                option.selected = true;
 
-        window.arrayRow<?php echo $_htmlId ?> = arrayRow<?php echo $_htmlId ?>;
+                var $_currentOpt = option.remove();
 
+                $_paymentSelectElement.insert({
+                  top: $_currentOpt
+                });
+
+                throw $break;
+              }
+            });
+          });
+        }
+
+          <?php if ($this->getAddAfter()):?>
+        Event.observe('addAfterBtn' + templateData._id, 'click', this.add.bind(this, '', templateData._id));
+          <?php endif;?>
+
+        this.rowsCount += 1;
+      },
+
+      del: function (rowId) {
+        $('group_description_header' + rowId).remove();
+        $('group_description' + rowId).remove();
+        $(rowId).remove();
+        this.rowsCount -= 1;
+        if (0 == this.rowsCount) {
+          this.showButtonOnly();
+        }
+      }
+      ,
+      showButtonOnly: function () {
+        $('grid<?php echo $_htmlId ?>').hide();
+        $('empty<?php echo $_htmlId ?>').show();
+      }
+      ,
+      editOrder: function (rowId, $_editButton) {
+
+        $_editButton.hide();
+        var $_saveButton = $_editButton.next().show();
+
+
+        var $_payments = $('select_payments' + rowId).hide();
+
+        var $_ul = new Element('ul').setStyle({
+          'min-width': '280px'
+        });
+        $_payments.up().insert($_ul);
+
+        var counter = 0;
+
+        $_payments.childElements().each(function ($_option) {
+          var $_li = new Element('li', {
+            'id': $_option.value,
+            'position': ++counter,
+            'selected': $_option.selected
+          })
+            .update($_option.innerHTML)
+            .setStyle({
+              'position': 'relative',
+              'width': '100%'
+            });
+
+          if ($_payments.childElements().length < 2) {
+            $_ul.insert($_li);
+            return;
+          }
+
+          var $_upElement = new Element('span', {'class': 'arrow-up'})
+            .observe('click', function (event) {
+              var $_current = $_upElement.up().remove();
+              var newPosition = $_current.readAttribute('position') - 1;
+              if (newPosition) {
+                var i = 0;
+                $_ul.select('li').each(function ($_el) {
+                  if (newPosition == $_el.readAttribute('position')) {
+                    Effect.Fade($_current, {duration: 1, from: 0.4, to: 1});
+                    $_current.writeAttribute({position: ++i});
+                    $_el.insert({before: $_current});
+                  }
+
+                  $_el.writeAttribute({position: ++i});
+                });
+              } else {
+                $_ul.select('li').first().insert({before: $_current});
+              }
+            })
+            .setStyle({
+              'position': 'absolute',
+              'bottom': '56%',
+              'right': '5px',
+              'width': '0',
+              'height': '0',
+              'border-style': 'solid',
+              'border-width': '0 6px 6px 6px',
+              'border-color': 'transparent transparent #aaa transparent'
+            });
+
+          var $_downElement = new Element('span', {'class': 'arrow-down'})
+            .observe('click', function (event) {
+              var $_current = $_upElement.up().remove();
+              var _position = parseInt($_current.readAttribute('position'));
+
+              if (_position <= $_ul.select('li').length) {
+                var i = 0;
+                $_ul.select('li').each(function ($_el) {
+                  $_el.writeAttribute({position: ++i});
+                  if (_position == i) {
+                    Effect.Fade($_current, {duration: 1, from: 0.4, to: 1});
+                    $_current.writeAttribute({position: ++i});
+                    $_el.insert({after: $_current});
+                  }
+                });
+              } else {
+                $_ul.select('li').last().insert({after: $_current});
+              }
+            })
+            .setStyle({
+              'position': 'absolute',
+              'top': '56%',
+              'right': '5px',
+              'width': '0',
+              'height': '0',
+              'border-style': 'solid',
+              'border-width': '6px 6px 0 6px',
+              'border-color': '#aaa transparent transparent transparent'
+            });
+
+          $_ul.insert($_li.insert($_upElement).insert($_downElement));
+
+        });
+        $_saveButton.observe('click', function () {
+          $_editButton.show();
+          $_saveButton.hide();
+          $_payments.show();
+
+          $_payments.childElements().each(function ($_el) {
+            $_el.remove();
+          });
+          $_ul.select('li').each(function ($_el) {
+            $_el.select('span').each(function ($_el) {
+              $_el.remove();
+            });
+            $_payments.insert(new Element('option', {
+              value: $_el.id,
+              selected: $_el.readAttribute('selected')
+            }).update($_el.innerHTML));
+          });
+
+          $_ul.remove();
+        });
+      }
+    };
+
+    // bind add action to "Add" button in last row
+    Event.observe('addToEndBtn<?php echo $_htmlId ?>', 'click', arrayRow<?php echo $_htmlId ?>.add.bind(arrayRow<?php echo $_htmlId ?>, '', ''));
+
+    // add existing rows
+      <?php
+      $_addAfterId = "headings{$_htmlId}";
+      foreach ($this->getArrayRows() as $_rowId => $_row) {
+          echo "arrayRow{$_htmlId}.add(" . $_row->toJson() . ", '{$_addAfterId}');\n";
+          $_addAfterId = 'group_description' . $_rowId;
+      }
+      ?>
+
+    // initialize standalone button
+    $('empty<?php echo $_htmlId ?>').hide();
+    Event.observe('emptyAddBtn<?php echo $_htmlId ?>', 'click', function () {
+      $('grid<?php echo $_htmlId ?>').show();
+      $('empty<?php echo $_htmlId ?>').hide();
+      arrayRow<?php echo $_htmlId ?>.add('', '');
     });
+    
+    // toggle the grid, if element is disabled (depending on scope)
+      <?php if ($this->getElement()->getDisabled()):?>
+    toggleValueElements({checked: true}, $('grid<?php echo $_htmlId ?>').parentNode);
+      <?php endif;?>
+    //]]>
+
+    window.arrayRow<?php echo $_htmlId ?> = arrayRow<?php echo $_htmlId ?>;
+
+      <?php if (!$this->getArrayRows()):?>
+    window.arrayRow<?php echo $_htmlId ?>.add('', '');
+      <?php endif;?>
+
+  });
 </script>

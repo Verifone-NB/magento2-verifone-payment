@@ -42,7 +42,14 @@ class Plugin
 
         if ($paymentMethod->getMethod() === \Verifone\Payment\Model\Payment::CODE) {
             $additionalData = $paymentMethod->getAdditionalData();
-            $this->_session->setPaymentMethod(isset($additionalData['payment-method']) ? $additionalData['payment-method'] : null);
+
+            $paymentMethodCode = null;
+
+            if(isset($additionalData['payment-method']) && $additionalData['payment-method'] != \Verifone\Payment\Model\Order\PaymentMethod::DEFAULT_CODE) {
+                $paymentMethodCode = $additionalData['payment-method'];
+            }
+
+            $this->_session->setPaymentMethod($paymentMethodCode);
             $this->_session->setPaymentMethodId(isset($additionalData['payment-method-id']) ? $additionalData['payment-method-id'] : null);
             $this->_session->setSavePaymentMethod(isset($additionalData['save-payment-method']) && $additionalData['save-payment-method'] ? true : false);
         }

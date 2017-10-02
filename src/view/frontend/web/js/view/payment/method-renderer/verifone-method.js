@@ -31,7 +31,7 @@ define(
                 var paymentMethod = jQuery("input[name=payment\\[additional_data\\]\\[payment-method\\]]:checked");
 
                 if(!paymentMethod.length) {
-                    paymentMethod = jQuery("select[name=payment\\[additional_data\\]\\[payment-method\\]] option:selected");
+                    paymentMethod = jQuery("select[name=payment\\[additional_data\\]\\[payment-method\\]] option:selected[value!='']");
                 }
 
                 if (paymentMethod.length) {
@@ -89,7 +89,7 @@ define(
                 return window.checkoutConfig.payment.verifonePayment.paymentMethods;
             },
             getAllowSaveCC: function () {
-                return window.checkoutConfig.payment.verifonePayment.allowSaveCC;
+                return window.checkoutConfig.payment.verifonePayment.allowSaveCC && customer.isLoggedIn();
             },
             getAllowSaveCCInfo: function () {
                 return window.checkoutConfig.payment.verifonePayment.allowSaveCCInfo;

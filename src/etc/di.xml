@@ -42,4 +42,14 @@
         </arguments>
     </virtualType>
 
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="fix22" xsi:type="object">Verifone\Payment\Console\Command\Fix22Command</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Magento\Sales\Model\Order\Email\Sender\OrderSender" type="Verifone\Payment\Model\Order\Email\Sender\OrderSender"/>
+
 </config>

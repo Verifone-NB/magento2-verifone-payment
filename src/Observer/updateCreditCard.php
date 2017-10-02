@@ -30,6 +30,11 @@ class updateCreditCard implements \Magento\Framework\Event\ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
 
+        $success = $observer->getEvent()->getData('_success');
+        if(!$success) {
+            return $this;
+        }
+
         $this->_saved->updatePaymentMethods();
 
         return $this;

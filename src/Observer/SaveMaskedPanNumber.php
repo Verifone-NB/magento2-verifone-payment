@@ -53,6 +53,11 @@ class SaveMaskedPanNumber implements \Magento\Framework\Event\ObserverInterface
             return $this;
         }
 
+        $success = $observer->getEvent()->getData('_success');
+        if(!$success) {
+            return $this;
+        }
+
         $_response = $observer->getEvent()->getData('_response');
 
         /** @var \Verifone\Payment\Model\Client\FormClient $client */

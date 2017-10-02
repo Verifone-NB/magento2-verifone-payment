@@ -112,7 +112,8 @@ abstract class AbstractPayment extends Action
 
                 $this->_eventManager->dispatch('verifone_paymentinterface_send_request_after', [
                     '_class' => get_class($this),
-                    '_response' => $_signedFormData
+                    '_response' => $_signedFormData,
+                    '_success' => true
                 ]);
 
                 $trans_id = preg_replace("/[^0-9]+/", "", $body->getTransactionNumber());
@@ -175,7 +176,8 @@ abstract class AbstractPayment extends Action
 
         $this->_eventManager->dispatch('verifone_paymentinterface_send_request_after', [
             '_class' => get_class($this),
-            '_response' => $_signedFormData
+            '_response' => $_signedFormData,
+            '_success' => false
         ]);
 
         /**
@@ -228,13 +230,10 @@ abstract class AbstractPayment extends Action
             // restore the quote
             $session->restoreQuote();
 
-            $order->cancel();
-
             $history = __('Payment was canceled. Cancel reason: %1', $body->getCancelMessage());
-            $order->addStatusHistoryComment($history, $order->getStatus());
+            $order->registerCancellation($history, $order->getStatus());
+            $order->getResource()->save($order);
         }
-
-        $order->getResource()->save($order);
 
         return $resultRedirect;
     }

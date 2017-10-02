@@ -57,6 +57,11 @@ class FormClient extends \Verifone\Payment\Model\Client
     protected $_paymentHelper;
 
     /**
+     * @var \Magento\Framework\App\ProductMetadataInterface
+     */
+    protected $_productMetadata;
+
+    /**
      * Form constructor.
      *
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
@@ -73,7 +78,8 @@ class FormClient extends \Verifone\Payment\Model\Client
         \Verifone\Payment\Model\Client\Form\Order\DataGetter $dataGetter,
         \Verifone\Payment\Model\Session $session,
         \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Verifone\Payment\Helper\Payment $paymentHelper
+        \Verifone\Payment\Helper\Payment $paymentHelper,
+        \Magento\Framework\App\ProductMetadataInterface $productMetadata
     )
     {
         parent::__construct($scopeConfig, $config);
@@ -83,6 +89,7 @@ class FormClient extends \Verifone\Payment\Model\Client
         $this->_session = $session;
         $this->_eventManager = $eventManager;
         $this->_paymentHelper = $paymentHelper;
+        $this->_productMetadata = $productMetadata;
 
         $this->_config->prepareConfig();
     }
@@ -301,7 +308,13 @@ class FormClient extends \Verifone\Payment\Model\Client
      */
     protected function _parseGroups($string, $isCard = false)
     {
-        $groups = unserialize($string);
+        $version = explode('.', $this->_productMetadata->getVersion());
+
+        if($version[1] >= 2) {
+            $groups = json_decode($string, true);
+        } else {
+            $groups = unserialize($string);
+        }
 
         $parsed = [];
 
