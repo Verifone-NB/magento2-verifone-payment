@@ -21,7 +21,8 @@ class Success extends \Magento\Framework\App\Action\Action
 
         $this->_eventManager->dispatch('verifone_paymentinterface_send_saveCreditCard_after', [
             '_class' => get_class($this),
-            '_response' => $_signedFormData
+            '_response' => $_signedFormData,
+            '_success' => true
         ]);
 
         $this->messageManager->addSuccessMessage(__('Your card has been successfully added.'));

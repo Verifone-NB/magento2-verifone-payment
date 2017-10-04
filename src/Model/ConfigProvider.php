@@ -66,7 +66,7 @@ class ConfigProvider implements ConfigProviderInterface
         if ($payment->isAvailable()) {
             $redirectUrl = $payment->getCheckoutRedirectUrl();
             $quote = $this->_checkoutSession->getQuote();
-            $savedCC = $this->_saved->getSavedPayments();
+            $savedCC = $this->_saved->getSavedPayments(true);
 
             $paymentMethods = $this->_payentMethodHelper->getPaymentMethods();
 

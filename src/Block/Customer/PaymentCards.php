@@ -29,6 +29,11 @@ class PaymentCards extends \Magento\Customer\Block\Account\Dashboard
      */
     protected $_method;
 
+    /**
+     * @var \Magento\Framework\App\ProductMetadataInterface
+     */
+    protected $_productMetadata;
+
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Customer\Model\Session $customerSession,
@@ -37,17 +42,27 @@ class PaymentCards extends \Magento\Customer\Block\Account\Dashboard
         AccountManagementInterface $customerAccountManagement,
         \Verifone\Payment\Helper\Saved $saved,
         \Verifone\Payment\Model\Db\Payment\Method $method,
+        \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         array $data = [])
     {
         parent::__construct($context, $customerSession, $subscriberFactory, $customerRepository, $customerAccountManagement, $data);
 
         $this->_saved = $saved;
         $this->_method = $method;
+        $this->_productMetadata = $productMetadata;
     }
 
     public function getAcceptedCards()
     {
-        $_cardsPaymentsGroupConfig = unserialize($this->_scopeConfig->getValue(Path::XML_PATH_CARD_METHODS));
+        $string = $this->_scopeConfig->getValue(Path::XML_PATH_CARD_METHODS);
+        $version = explode('.', $this->_productMetadata->getVersion());
+
+        if($version[1] >= 2) {
+            $_cardsPaymentsGroupConfig = json_decode($string, true);
+        } else {
+            $_cardsPaymentsGroupConfig = unserialize($string);
+        }
+
         $_cardsPaymentsGroup = reset($_cardsPaymentsGroupConfig);
         if (!isset($_cardsPaymentsGroup['payments'])) {
             return array();
