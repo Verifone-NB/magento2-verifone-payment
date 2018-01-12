@@ -46,6 +46,11 @@ class UpgradeData implements UpgradeDataInterface
     private $_attributeSetFactory;
 
     /**
+     * @var \Magento\Eav\Setup\EavSetupFactory
+     */
+    private $eavSetupFactory;
+
+    /**
      * @param \Magento\Sales\Model\Order\StatusFactory $statusFactory
      */
     public function __construct(
@@ -53,13 +58,18 @@ class UpgradeData implements UpgradeDataInterface
         \Magento\Framework\App\Config\ConfigResource\ConfigInterface  $resourceConfig,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Customer\Setup\CustomerSetupFactory $customerSetupFactory,
-        \Magento\Eav\Model\Entity\Attribute\SetFactory $attributeSetFactory
+        \Magento\Eav\Model\Entity\Attribute\SetFactory $attributeSetFactory,
+        \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory,
+        \Magento\Eav\Model\Config $eavConfig
     ) {
         $this->_statusFactory = $statusFactory;
         $this->_resourceConfig = $resourceConfig;
         $this->_scopeConfig = $scopeConfig;
         $this->_customerSetupFactory = $customerSetupFactory;
         $this->_attributeSetFactory = $attributeSetFactory;
+
+        $this->eavSetupFactory = $eavSetupFactory;
+        $this->eavConfig = $eavConfig;
     }
 
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
@@ -185,38 +195,34 @@ class UpgradeData implements UpgradeDataInterface
 
     public function upgrade006(ModuleDataSetupInterface $setup)
     {
-        /** @var \Magento\Customer\Setup\CustomerSetup $customerSetup */
-        $customerSetup = $this->_customerSetupFactory->create(['setup' => $setup]);
 
-        $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
-        $attributeSetId = $customerEntity->getDefaultAttributeSetId();
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
+        $eavSetup->addAttribute(
+            \Magento\Customer\Model\Customer::ENTITY,
+            'verifone_default_card_id',
+            [
+                'type' => 'varchar',
+                'label' => 'Default Credit Card saved in Verifone API',
+                'input' => 'text',
+                'required' => false,
+                'visible' => true,
+                'user_defined' => false,
+                'sort_order' => 1000,
+                'position' => 1000,
+                'system' => 0,
+                'default_value' => ''
+            ]
+        );
+        $attribute = $this->eavConfig->getAttribute(\Magento\Customer\Model\Customer::ENTITY, 'verifone_default_card_id');
 
-        /** @var \Magento\Eav\Model\Entity\Attribute\Set $attributeSet */
-        $attributeSet = $this->_attributeSetFactory->create();
-        $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
+        // more used_in_forms ['adminhtml_checkout','adminhtml_customer','adminhtml_customer_address','customer_account_edit','customer_address_edit','customer_register_address']
+        $attribute->setData(
+            'used_in_forms',
+            ['adminhtml_customer']
 
-        $customerSetup->addAttribute(\Magento\Customer\Model\Customer::ENTITY, 'verifone_default_card_id', [
-            'type' => 'varchar',
-            'label' => 'Default Credit Card saved in Verifone API',
-            'input' => 'text',
-            'required' => false,
-            'visible' => true,
-            'user_defined' => false,
-            'sort_order' => 1000,
-            'position' => 1000,
-            'system' => 0,
-            'default_value' => ''
-        ]);
-
-        //add attribute to attribute set
-        $attribute = $customerSetup->getEavConfig()->getAttribute(\Magento\Customer\Model\Customer::ENTITY, 'verifone_default_card_id')
-            ->addData([
-                'attribute_set_id' => $attributeSetId,
-                'attribute_group_id' => $attributeGroupId,
-                'used_in_forms' => ['adminhtml_customer'],
-            ]);
-
+        );
         $attribute->getResource()->save($attribute);
+
     }
 
     public function upgrade007(ModuleDataSetupInterface $setup)

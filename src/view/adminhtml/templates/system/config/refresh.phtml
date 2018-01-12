@@ -6,7 +6,7 @@
   require(['prototype'], function () {
 
     //<![CDATA[
-    function refreshPayments() {
+    function refreshVerifonePayments() {
       var validationMessage = $('result');
 
       params = {
@@ -38,14 +38,14 @@
       });
     }
 
-    window.refreshPayments = refreshPayments;
+    window.refreshVerifonePayments = refreshVerifonePayments;
     //]]>
 
   });
 </script>
 <div class="actions actions-refresh-ayments">
     <div id="result" class="message-validation hidden"></div>
-    <button onclick="javascript:refreshPayments(); return false;" class="action-refresh-ayments" type="button" id="<?php echo $block->getHtmlId() ?>">
+    <button onclick="javascript:refreshVerifonePayments(); return false;" class="action-refresh-ayments" type="button" id="<?php echo $block->getHtmlId() ?>">
         <span><?php echo $block->escapeHtml($block->getButtonLabel()) ?></span>
     </button>
 </div>

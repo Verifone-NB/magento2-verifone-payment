@@ -92,7 +92,7 @@ class Payment extends AbstractHelper
             'committed' => \Magento\Sales\Model\Order::STATE_PROCESSING,
             'settled' => \Magento\Sales\Model\Order::STATE_PROCESSING,
             'verified' => \Magento\Sales\Model\Order::STATE_PROCESSING,
-            //'refunded' => \Magento\Sales\Model\Order::Sta,
+//            'refunded' => \Magento\Sales\Model\Order::STATE_CLOSED,
             'authorized' => \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT,
             'cancelled' => \Magento\Sales\Model\Order::STATE_CANCELED,
             //'subscribed' => \Magento\Sales\Model\Order::STATE_PROCESSING,

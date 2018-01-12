@@ -167,8 +167,16 @@ class RestClient extends \Verifone\Payment\Model\Client
 
         $refundAmount = $amount * 100;
 
+        $paymentMethod = $payment->getAdditionalInformation('payment-method');
+        if($paymentMethod === null) {
+            $additionalInformation = $payment->getAdditionalInformation();
+            if(isset($additionalInformation['raw_details_info']['payment-method'])) {
+                $paymentMethod = $additionalInformation['raw_details_info']['payment-method'];
+            }
+        }
+
         $transaction = new TransactionImpl(
-            $payment->getAdditionalInformation('payment-method'),
+            $paymentMethod,
             $order->getExtOrderId(),
             (string)$refundAmount,
             $config['currency']
