@@ -7,8 +7,8 @@
                 <title>Verifone</title>
                 <model>Verifone\Payment\Model\Payment</model>
                 <is_live_mode>0</is_live_mode>
-                <pay_page_public_keyfile>keys/pay-page-public-key.pem</pay_page_public_keyfile>
-                <shop_private_keyfile>keys/shop-private-key.pem</shop_private_keyfile>
+                <pay_page_public_keyfile>keys/demo-merchant-agreement-private.pem</pay_page_public_keyfile>
+                <shop_private_keyfile>keys/verifone-e-commerce-test-public-key.pem</shop_private_keyfile>
                 <pay_page_url_1>https://epayment1.point.fi/pw/payment</pay_page_url_1>
                 <pay_page_url_2>https://epayment2.point.fi/pw/payment</pay_page_url_2>
                 <pay_page_url_3/>
