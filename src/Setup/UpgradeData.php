@@ -100,6 +100,10 @@ class UpgradeData implements UpgradeDataInterface
             $this->upgrade007($setup);
         }
 
+        if (version_compare($context->getVersion(), '0.0.8') < 0) {
+            $this->upgrade008($setup);
+        }
+
         $setup->endSetup();
 
     }
@@ -238,5 +242,25 @@ class UpgradeData implements UpgradeDataInterface
                 $setup->getConnection()->insert($tableName, $item);
             }
         }
+    }
+
+    public function upgrade008(ModuleDataSetupInterface $setup)
+    {
+        $data = [
+            ['code' => 'paypal', 'name' => 'PAYPAL', 'type' => 'INVOICE'],
+            ['code' => 'swish', 'name' => 'SWISH', 'type' => 'ELECTRONIC'],
+            ['code' => 'siirto', 'name' => 'SIIRTO', 'type' => 'ELECTRONIC'],
+            ['code' => 'enterpay-invoice', 'name' => 'ENTERPAY_INVOICE', 'type' => 'INVOICE']
+        ];
+
+        $tableName = $setup->getTable('verifone_payment_methods');
+
+        if ($setup->getConnection()->isTableExists($tableName) == true) {
+            foreach ($data as $item) {
+                $setup->getConnection()->insert($tableName, $item);
+            }
+        }
+
+        $setup->getConnection()->delete($tableName, 'code LIKE "tapiola-verkkomaksu"');
     }
 }
