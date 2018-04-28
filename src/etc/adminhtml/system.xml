@@ -6,7 +6,7 @@
             <group id="verifone_payment" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Verifone Payment</label>
                 <comment>
-                    <![CDATA[<strong>comment</strong>]]>
+                    <![CDATA[<strong></strong>]]>
                 </comment>
                 <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Enabled</label>
