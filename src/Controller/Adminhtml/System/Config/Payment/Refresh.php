@@ -66,10 +66,20 @@ class Refresh extends \Magento\Backend\App\Action
 
         $request = $this->getRequest();
 
+        if($request->getParam('is_live_mode')) {
+            $merchantAgremmentCode = $request->getParam('merchant_agreement_code', null);
+            $shopPrivateKeyfile = $request->getParam('shop_private_keyfile', null);
+            $payPagePublicKeyfile = $request->getParam('pay_page_public_keyfile', null);
+        } else {
+            $merchantAgremmentCode = $request->getParam('merchant_agreement_code_test', null);
+            $shopPrivateKeyfile = $request->getParam('shop_private_keyfile_test', null);
+            $payPagePublicKeyfile = $request->getParam('pay_page_public_keyfile_test', null);
+        }
+
         $paymentMethods = $this->_paymentMethodHelper->refreshPaymentMethods(
-            $request->getParam('merchant_agreement_code', null),
-            $request->getParam('shop_private_keyfile', null),
-            $request->getParam('pay_page_public_keyfile', null)
+            $merchantAgremmentCode,
+            $shopPrivateKeyfile,
+            $payPagePublicKeyfile
         );
 
         if (is_string($paymentMethods)) {

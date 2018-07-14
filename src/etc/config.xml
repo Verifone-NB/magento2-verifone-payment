@@ -7,8 +7,12 @@
                 <title>Verifone</title>
                 <model>Verifone\Payment\Model\Payment</model>
                 <is_live_mode>0</is_live_mode>
+                <merchant_agreement_code>demo-merchant-agreement</merchant_agreement_code>
+                <merchant_agreement_code_test>demo-merchant-agreement</merchant_agreement_code_test>
                 <pay_page_public_keyfile>keys/demo-merchant-agreement-private.pem</pay_page_public_keyfile>
+                <pay_page_public_keyfile_test>keys/demo-merchant-agreement-private.pem</pay_page_public_keyfile_test>
                 <shop_private_keyfile>keys/verifone-e-commerce-test-public-key.pem</shop_private_keyfile>
+                <shop_private_keyfile_test>keys/verifone-e-commerce-test-public-key.pem</shop_private_keyfile_test>
                 <pay_page_url_1>https://epayment1.point.fi/pw/payment</pay_page_url_1>
                 <pay_page_url_2>https://epayment2.point.fi/pw/payment</pay_page_url_2>
                 <pay_page_url_3/>
@@ -30,6 +34,7 @@
                 <group_for_default_view>verifone-default</group_for_default_view>
                 <external_customer_id>0</external_customer_id>
                 <saved_cards_s2s_payment_limit>100.00</saved_cards_s2s_payment_limit>
+                <style_code></style_code>
             </verifone_payment>
         </payment>
     </default>

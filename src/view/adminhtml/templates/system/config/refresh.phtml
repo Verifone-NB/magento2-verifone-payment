@@ -11,8 +11,12 @@
 
       params = {
         merchant_agreement_code: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getMerchantAgreementCodeField(); ?>"]').first().value,
+        merchant_agreement_code_test: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getMerchantAgreementCodeTest(); ?>"]').first().value,
         shop_private_keyfile: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getShopPrivateKeyfileField(); ?>"]').first().value,
-        pay_page_public_keyfile: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getPayPagePublicKeyfileField(); ?>"]').first().value
+        shop_private_keyfile_test: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getShopPrivateKeyfileTest(); ?>"]').first().value,
+        pay_page_public_keyfile: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getPayPagePublicKeyfileField(); ?>"]').first().value,
+        pay_page_public_keyfile_test: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getPayPagePublicKeyfileTest(); ?>"]').first().value,
+        is_live_mode: $$('select[id$="<?php /* @escapeNotVerified */ echo $block->getisLiveMode(); ?>"]').first().value
       };
 
       new Ajax.Request('<?php /* @escapeNotVerified */ echo $block->getAjaxUrl() ?>', {

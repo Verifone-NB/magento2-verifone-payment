@@ -58,10 +58,10 @@ class Config implements ConfigInterface
      * Config constructor.
      *
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Store\Model\StoreManagerInterface         $storeManager
-     * @param \Magento\Framework\App\ProductMetadataInterface    $productMetadata
-     * @param \Magento\Framework\App\Filesystem\DirectoryList    $directoryList
-     * @param \Verifone\Payment\Helper\Payment                   $helper
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
+     * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList
+     * @param \Verifone\Payment\Helper\Payment $helper
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -69,7 +69,8 @@ class Config implements ConfigInterface
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
         \Verifone\Payment\Helper\Payment $helper
-    ) {
+    )
+    {
         $this->_scopeConfig = $scopeConfig;
         $this->_productMetadata = $productMetadata;
         $this->_directoryList = $directoryList;
@@ -104,9 +105,9 @@ class Config implements ConfigInterface
     {
         if (!$this->isConfigSet()) {
 
-            $privateKeyPath = $this->_scopeConfig->getValue(Path::XML_PATH_KEY_SHOP);
-            $publicKeyPath = $this->_scopeConfig->getValue(Path::XML_PATH_KEY_VERIFONE);
-            $merchant = $this->_scopeConfig->getValue(Path::XML_PATH_MERCHANT_CODE);
+            $privateKeyPath = $this->_getTestLiveConfig(Path::XML_PATH_KEY_SHOP);
+            $publicKeyPath = $this->_getTestLiveConfig(Path::XML_PATH_KEY_VERIFONE);
+            $merchant = $this->_getTestLiveConfig(Path::XML_PATH_MERCHANT_CODE);
             $software = 'Magento';
             $softwareVersion = $this->_productMetadata->getVersion();
             $currencyCode = $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
@@ -118,6 +119,8 @@ class Config implements ConfigInterface
 
             $checkNodeAvailability = $this->_scopeConfig->getValue(Path::XML_PATH_VALIDATE_URL);
 
+            $styleCode = $this->_scopeConfig->getValue(Path::XML_PATH_STYLE_CODE);
+
             $this->_config = [
                 'private-key' => $privateKeyPath,
                 'public-key' => $publicKeyPath,
@@ -127,13 +130,23 @@ class Config implements ConfigInterface
                 'currency' => $currency,
                 'rsa-blinding' => $rsaBlinding,
                 'save-masked-pan' => $saveMaskedPan,
-                'check-node-availability' => $checkNodeAvailability
+                'check-node-availability' => $checkNodeAvailability,
+                'style-code' => $styleCode === null ? '' : $styleCode
             ];
 
             $this->_isConfigSet = true;
         }
 
         return true;
+    }
+
+    protected function _getTestLiveConfig($path)
+    {
+        if (!$this->_scopeConfig->getValue(Path::XML_PATH_IS_LIVE_MODE) && !empty($this->_scopeConfig->getValue($path . '_test'))) {
+            return $this->_scopeConfig->getValue($path . '_test');
+        }
+
+        return $this->_scopeConfig->getValue($path);
     }
 
     /**

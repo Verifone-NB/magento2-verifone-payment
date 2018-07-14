@@ -87,12 +87,28 @@
                         <field id="active">1</field>
                     </depends>
                 </field>
+                <field id="merchant_agreement_code_test" translate="label" type="text" sortOrder="201" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Verifone Payment merchant agreement code (Test)</label>
+                    <comment>Required. Verifone Payment agreement code</comment>
+                    <depends>
+                        <field id="active">1</field>
+                        <field id="is_live_mode">0</field>
+                    </depends>
+                </field>
                 <field id="shop_private_keyfile" translate="label" type="text" sortOrder="205" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Shop private key filename</label>
                     <comment>Required. Path and filename of shop secret key file generated with Verifone key pair generator</comment>
                     <validate>required-entry</validate>
                     <depends>
                         <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="shop_private_keyfile_test" translate="label" type="text" sortOrder="206" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Shop private key filename (Test)</label>
+                    <comment>Required. Path and filename of shop secret key file generated with Verifone key pair generator</comment>
+                    <depends>
+                        <field id="active">1</field>
+                        <field id="is_live_mode">0</field>
                     </depends>
                 </field>
                 <field id="pay_page_public_keyfile" translate="label" type="text" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -103,12 +119,27 @@
                         <field id="active">1</field>
                     </depends>
                 </field>
+                <field id="pay_page_public_keyfile_test" translate="label" type="text" sortOrder="211" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Verifone public key filename (Test)</label>
+                    <comment>Required. Path and filename of Verifone public key file</comment>
+                    <depends>
+                        <field id="active">1</field>
+                        <field id="is_live_mode">0</field>
+                    </depends>
+                </field>
 
                 <!-- LOGIC CONFIGURATION -->
                 <field id="skip_confirmation_page" translate="label" type="select" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Skip confirmation page</label>
                     <comment>Return directly to shop after payment</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="style_code" translate="label" type="text" sortOrder="305" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Style code</label>
+                    <comment>Use of custom payment page template needs first to be uploaded and to be approved by Verifone</comment>
                     <depends>
                         <field id="active">1</field>
                     </depends>

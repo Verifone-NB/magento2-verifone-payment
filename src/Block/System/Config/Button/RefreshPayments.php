@@ -17,8 +17,13 @@ class RefreshPayments extends Field
 {
 
     protected $_merchantAgreementCode = 'verifone_payment_merchant_agreement_code';
+    protected $_merchantAgreementCodeTest = 'verifone_payment_merchant_agreement_code_test';
     protected $_shopPrivateKeyfile = 'verifone_payment_shop_private_keyfile';
+    protected $_shopPrivateKeyfileTest = 'verifone_payment_shop_private_keyfile_test';
     protected $_payPagePublicKeyfile = 'verifone_payment_pay_page_public_keyfile';
+    protected $_payPagePublicKeyfileTest = 'verifone_payment_pay_page_public_keyfile_test';
+
+    protected $_isLiveMode = 'verifone_payment_is_live_mode';
 
     protected $_buttonLabel = '';
 
@@ -84,6 +89,70 @@ class RefreshPayments extends Field
     {
         $this->_payPagePublicKeyfile = $payPagePublicKeyfile;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMerchantAgreementCodeTest(): string
+    {
+        return $this->_merchantAgreementCodeTest;
+    }
+
+    /**
+     * @param string $merchantAgreementCodeTest
+     */
+    public function setMerchantAgreementCodeTest(string $merchantAgreementCodeTest)
+    {
+        $this->_merchantAgreementCodeTest = $merchantAgreementCodeTest;
+    }
+
+    /**
+     * @return string
+     */
+    public function getShopPrivateKeyfileTest(): string
+    {
+        return $this->_shopPrivateKeyfileTest;
+    }
+
+    /**
+     * @param string $shopPrivateKeyfileTest
+     */
+    public function setShopPrivateKeyfileTest(string $shopPrivateKeyfileTest)
+    {
+        $this->_shopPrivateKeyfileTest = $shopPrivateKeyfileTest;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPayPagePublicKeyfileTest(): string
+    {
+        return $this->_payPagePublicKeyfileTest;
+    }
+
+    /**
+     * @param string $payPagePublicKeyfileTest
+     */
+    public function setPayPagePublicKeyfileTest(string $payPagePublicKeyfileTest)
+    {
+        $this->_payPagePublicKeyfileTest = $payPagePublicKeyfileTest;
+    }
+
+    /**
+     * @return string
+     */
+    public function getisLiveMode(): string
+    {
+        return $this->_isLiveMode;
+    }
+
+    /**
+     * @param string $isLiveMode
+     */
+    public function setIsLiveMode(string $isLiveMode)
+    {
+        $this->_isLiveMode = $isLiveMode;
     }
 
     /**

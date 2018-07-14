@@ -30,6 +30,7 @@ class Path
     const XML_PATH_VALIDATE_URL = 'payment/verifone_payment/validate_url';
     const XML_PATH_SKIP_CONFIRMATION_PAGE = 'payment/verifone_payment/skip_confirmation_page';
     const XML_PATH_DISABLE_RSA_BLINDING = 'payment/verifone_payment/disable_rsa_blinding';
+    const XML_PATH_STYLE_CODE = 'payment/verifone_payment/style_code';
 
     const XML_PATH_BASKET_ITEM_SENDING = 'payment/verifone_payment/basket_item_sending';
     const XML_PATH_COMBINE_INVOICE_BASKET_ITEMS = 'payment/verifone_payment/combine_invoice_basket_items';

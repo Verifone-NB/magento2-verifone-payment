@@ -150,7 +150,8 @@ class FormClient extends \Verifone\Payment\Model\Client
             $config['software'],
             $this->_paymentHelper->sanitize($config['software-version']),
             $config['skip-confirmation'],
-            $config['rsa-blinding']
+            $config['rsa-blinding'],
+            $config['style-code']
         );
 
         $order = new OrderImpl(
@@ -388,7 +389,8 @@ class FormClient extends \Verifone\Payment\Model\Client
             $config['software'],
             $this->_paymentHelper->sanitize($config['software-version']),
             $config['skip-confirmation'],
-            $config['rsa-blinding']
+            $config['rsa-blinding'],
+            $config['style-config']
         );
 
         $customer = $this->_createCustomerObject($customerData);
