@@ -9,10 +9,10 @@
                 <is_live_mode>0</is_live_mode>
                 <merchant_agreement_code>demo-merchant-agreement</merchant_agreement_code>
                 <merchant_agreement_code_test>demo-merchant-agreement</merchant_agreement_code_test>
-                <pay_page_public_keyfile>keys/demo-merchant-agreement-private.pem</pay_page_public_keyfile>
-                <pay_page_public_keyfile_test>keys/demo-merchant-agreement-private.pem</pay_page_public_keyfile_test>
-                <shop_private_keyfile>keys/verifone-e-commerce-test-public-key.pem</shop_private_keyfile>
-                <shop_private_keyfile_test>keys/verifone-e-commerce-test-public-key.pem</shop_private_keyfile_test>
+                <shop_private_keyfile>keys/demo-merchant-agreement-private.pem</shop_private_keyfile>
+                <shop_private_keyfile_test>keys/demo-merchant-agreement-private.pem</shop_private_keyfile_test>
+                <pay_page_public_keyfile>keys/verifone-e-commerce-test-public-key.pem</pay_page_public_keyfile>
+                <pay_page_public_keyfile_test>keys/verifone-e-commerce-test-public-key.pem</pay_page_public_keyfile_test>
                 <pay_page_url_1>https://epayment1.point.fi/pw/payment</pay_page_url_1>
                 <pay_page_url_2>https://epayment2.point.fi/pw/payment</pay_page_url_2>
                 <pay_page_url_3/>
