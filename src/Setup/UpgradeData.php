@@ -159,6 +159,9 @@ class UpgradeData implements UpgradeDataInterface
         $tableName = $setup->getTable('verifone_payment_methods');
 
         if ($setup->getConnection()->isTableExists($tableName) == true) {
+
+            $setup->getConnection()->truncateTable($tableName);
+
             foreach ($data as $item) {
                 $setup->getConnection()->insert($tableName, $item);
             }
@@ -225,7 +228,12 @@ class UpgradeData implements UpgradeDataInterface
             ['adminhtml_customer']
 
         );
-        $attribute->getResource()->save($attribute);
+
+        try {
+            $attribute->getResource()->save($attribute);
+        } catch (\Exception $e) {
+
+        }
 
     }
 
