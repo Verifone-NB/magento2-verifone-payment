@@ -42,7 +42,6 @@ $_colspan = $_colspan > 1 ? 'colspan="' . $_colspan . '"' : '';
 <script>
   require(['prototype', 'tinymce'], function (Prototype, tinyMCE) {
 
-    //<![CDATA[
     // create row creator
     var arrayRow<?php echo $_htmlId ?> = {
       // define row prototypeJS template
@@ -322,7 +321,6 @@ $_colspan = $_colspan > 1 ? 'colspan="' . $_colspan . '"' : '';
       <?php if ($this->getElement()->getDisabled()):?>
     toggleValueElements({checked: true}, $('grid<?php echo $_htmlId ?>').parentNode);
       <?php endif;?>
-    //]]>
 
     window.arrayRow<?php echo $_htmlId ?> = arrayRow<?php echo $_htmlId ?>;
 
