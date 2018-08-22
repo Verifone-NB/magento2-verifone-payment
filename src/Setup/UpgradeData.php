@@ -51,6 +51,11 @@ class UpgradeData implements UpgradeDataInterface
     private $eavSetupFactory;
 
     /**
+     * @var \Magento\Framework\App\ProductMetadataInterface
+     */
+    private $_productMetadata;
+
+    /**
      * @param \Magento\Sales\Model\Order\StatusFactory $statusFactory
      */
     public function __construct(
@@ -60,7 +65,8 @@ class UpgradeData implements UpgradeDataInterface
         \Magento\Customer\Setup\CustomerSetupFactory $customerSetupFactory,
         \Magento\Eav\Model\Entity\Attribute\SetFactory $attributeSetFactory,
         \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory,
-        \Magento\Eav\Model\Config $eavConfig
+        \Magento\Eav\Model\Config $eavConfig,
+        \Magento\Framework\App\ProductMetadataInterface $productMetadata
     ) {
         $this->_statusFactory = $statusFactory;
         $this->_resourceConfig = $resourceConfig;
@@ -70,6 +76,8 @@ class UpgradeData implements UpgradeDataInterface
 
         $this->eavSetupFactory = $eavSetupFactory;
         $this->eavConfig = $eavConfig;
+
+        $this->_productMetadata = $productMetadata;
     }
 
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
@@ -172,10 +180,19 @@ class UpgradeData implements UpgradeDataInterface
     {
         $payment = $this->_scopeConfig->getValue(Path::XML_PATH_PAYMENT_METHODS);
 
+        $version = explode('.', $this->_productMetadata->getVersion());
+
         if(empty($payment) || !$this->_isJson($payment)) {
+
+            if($version[1] >= 2) {
+                $value = '{"_1450878527843_843":{"position":"100","group_name":"verifone-default","payments":["VerifonePayment"]}}';
+            } else {
+                $value = 'a:1:{s:18:"_1450878527843_843";a:3:{s:8:"position";s:3:"100";s:10:"group_name";s:16:"verifone-default";s:8:"payments";a:1:{i:0;s:15:"VerifonePayment";}}}';
+            }
+
             $this->_resourceConfig->saveConfig(
                 Path::XML_PATH_PAYMENT_METHODS,
-                'a:1:{s:18:"_1450878527843_843";a:3:{s:8:"position";s:3:"100";s:10:"group_name";s:16:"verifone-default";s:8:"payments";a:1:{i:0;s:15:"VerifonePayment";}}}',
+                $value,
                 ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
                 0
             );
@@ -184,9 +201,16 @@ class UpgradeData implements UpgradeDataInterface
         $cards = $this->_scopeConfig->getValue(Path::XML_PATH_CARD_METHODS);
 
         if(empty($cards) || !$this->_isJson($cards)) {
+
+            if($version[1] >= 2) {
+                $value = '{"_1452514030822_822":{"position":"10","group_name":"Verifone Credit Cards","payments":["amex","visa","master-card","diners"]}}';
+            } else {
+                $value = 'a:1:{s:18:"_1452514030822_822";a:3:{s:8:"position";s:2:"10";s:10:"group_name";s:21:"Verifone Credit Cards";s:8:"payments";a:4:{i:0;s:4:"amex";i:1;s:4:"visa";i:2;s:11:"master-card";i:3;s:6:"diners";}}}';
+            }
+
             $this->_resourceConfig->saveConfig(
                 Path::XML_PATH_CARD_METHODS,
-                'a:1:{s:18:"_1452514030822_822";a:3:{s:8:"position";s:2:"10";s:10:"group_name";s:21:"Verifone Credit Cards";s:8:"payments";a:4:{i:0;s:4:"amex";i:1;s:4:"visa";i:2;s:11:"master-card";i:3;s:6:"diners";}}}',
+                $value,
                 ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
                 0
             );
