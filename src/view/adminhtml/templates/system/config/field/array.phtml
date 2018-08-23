@@ -47,19 +47,19 @@ $_colspan = $_colspan > 1 ? 'colspan="' . $_colspan . '"' : '';
       // define row prototypeJS template
       template: new Template(
         '<tr id="#{_id}">'
-        <?php foreach ($this->getColumns() as $columnName => $column):?>
+          <?php foreach ($this->getColumns() as $columnName => $column):?>
         + '<td>'
         + '<?php echo $this->renderCellTemplate($columnName)?>'
         + '<\/td>'
-        <?php endforeach;?>
-        <?php if ($this->getAddAfter()):?>
+          <?php endforeach;?>
+          <?php if ($this->getAddAfter()):?>
         + '<td><button onclick="" class="scalable add" type="button" id="addAfterBtn#{_id}"><span><span><span><?php echo __('Add after') ?><\/span><\/span><\/span><\/button><\/td>'
-        <?php endif;?>
+          <?php endif;?>
         + '<td style="min-width: 150px; text-align: right;">'
-        <?php if ($this->getEditOrder()):?>
+          <?php if ($this->getEditOrder()):?>
         + '<button onclick="arrayRow<?php echo $_htmlId ?>.editOrder(\'#{_id}\', this)" class="scalable" type="button" id="editOrderBtn#{_id}"><span><span><span><?php echo __('Edit order') ?><\/span><\/span><\/span><\/button>'
         + '<button style="display: none;" class="scalable" type="button" id="saveOrderBtn#{_id}"><span><span><span><?php echo __('Save order') ?><\/span><\/span><\/span><\/button>'
-        <?php endif;?>
+          <?php endif;?>
         + '<button onclick="arrayRow<?php echo $_htmlId ?>.del(\'#{_id}\')" class="scalable delete" type="button"><span><span><span><?php echo __('Delete') ?><\/span><\/span><\/span><\/button>'
         + '<\/td>'
         + '<\/tr>'
@@ -316,7 +316,7 @@ $_colspan = $_colspan > 1 ? 'colspan="' . $_colspan . '"' : '';
       $('empty<?php echo $_htmlId ?>').hide();
       arrayRow<?php echo $_htmlId ?>.add('', '');
     });
-    
+
     // toggle the grid, if element is disabled (depending on scope)
       <?php if ($this->getElement()->getDisabled()):?>
     toggleValueElements({checked: true}, $('grid<?php echo $_htmlId ?>').parentNode);

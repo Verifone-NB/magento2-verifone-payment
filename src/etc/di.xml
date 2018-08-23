@@ -45,7 +45,8 @@
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
-                <item name="fix22" xsi:type="object">Verifone\Payment\Console\Command\Fix22Command</item>
+                <item name="verifone_fix22" xsi:type="object">Verifone\Payment\Console\Command\Fix22Command</item>
+                <item name="verifone_recreatePaymentsConfiguration" xsi:type="object">Verifone\Payment\Console\Command\RecreatePaymentsConfigCommand</item>
             </argument>
         </arguments>
     </type>
