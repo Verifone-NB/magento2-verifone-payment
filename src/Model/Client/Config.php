@@ -156,11 +156,28 @@ class Config implements ConfigInterface
      */
     protected function _getFileFullPath($filepath)
     {
+
         if (file_exists($filepath)) {
             return $filepath;
-        } else {
-            return $this->_directoryList->getRoot() . DIRECTORY_SEPARATOR . $filepath;
         }
+
+        if (!$this->_scopeConfig->getValue(Path::XML_PATH_IS_LIVE_MODE)) {
+
+            $replace = '';
+
+            if(strpos($filepath, 'keys') === false) {
+                $replace = 'keys';
+            }
+
+            $dir = str_replace('src/Model/Client', $replace, __DIR__);
+            
+            if(file_exists($dir . DIRECTORY_SEPARATOR . $filepath)) {
+                return $dir . DIRECTORY_SEPARATOR . $filepath;
+            }
+
+        }
+
+        return $this->_directoryList->getRoot() . DIRECTORY_SEPARATOR . $filepath;
     }
 
     /**
