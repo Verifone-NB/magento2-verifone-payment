@@ -1,0 +1,58 @@
+<?php
+// @codingStandardsIgnoreFile
+/** @var \Verifone\Payment\Block\System\Config\Button\KeyGeneration $block */
+?>
+<script>
+  require(['prototype'], function () {
+
+    function generateKeys() {
+      var validationMessage = $('generation-keys-result');
+
+      params = {
+        merchant_agreement_code: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getMerchantAgreementCodeField(); ?>"]').first().value,
+        shop_private_keyfile: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getShopPrivateKeyfileField(); ?>"]').first().value
+      };
+
+      new Ajax.Request('<?php /* @escapeNotVerified */ echo $block->getAjaxUrl() ?>', {
+        parameters: params,
+        onSuccess: function (response) {
+
+          console.log(response);
+
+          var result = '<?php /* @escapeNotVerified */ echo __('Problem with generate new keys.') ?>';
+          try {
+            if (response.responseText.isJSON()) {
+              response = response.responseText.evalJSON();
+              var message = response.message;
+            }
+            if (response.valid === true) {
+              validationMessage.removeClassName('hidden').addClassName('success');
+            } else {
+              validationMessage.removeClassName('hidden').addClassName('error')
+            }
+          } catch (e) {
+            validationMessage.removeClassName('hidden').addClassName('error')
+          }
+          validationMessage.update(message);
+        }
+      });
+    }
+
+    function GenerateKeysTrigger() {
+      if (confirm('<?php echo $this->getConfirmationMessage(); ?>')) {
+        generateKeys();
+      } else {
+        // Do nothing!
+      }
+    }
+
+    window.GenerateKeysTrigger = GenerateKeysTrigger;
+
+  });
+</script>
+<div class="actions actions-keys-generation">
+    <div id="generation-keys-result" class="keys-message-validation hidden"></div>
+    <button onclick="javascript:GenerateKeysTrigger(); return false;" class="action-key-generation" type="button" id="<?php echo $block->getHtmlId() ?>">
+        <span><?php echo $block->escapeHtml($block->getButtonLabel()) ?></span>
+    </button>
+</div>

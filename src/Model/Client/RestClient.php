@@ -28,6 +28,7 @@ use Verifone\Core\Service\Backend\GetPaymentStatusService;
 use Verifone\Core\Service\Backend\GetSavedCreditCardsService;
 use Verifone\Core\Service\Backend\ListTransactionNumbersService;
 use Verifone\Core\Service\Backend\ProcessPaymentService;
+use Verifone\Core\Service\Backend\RefundPaymentService;
 use Verifone\Core\ServiceFactory;
 use Verifone\Payment\Model\Order\Exception;
 
@@ -183,8 +184,10 @@ class RestClient extends \Verifone\Payment\Model\Client
         );
 
         try {
+            /** @var RefundPaymentService $service */
             $service = ServiceFactory::createService($configObject, 'Backend\RefundPaymentService');
             $service->insertTransaction($transaction);
+            $service->insertRefundProduct($transaction);
 
             $container = new ExecutorContainer();
 

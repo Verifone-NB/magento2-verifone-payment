@@ -170,7 +170,7 @@ class Config implements ConfigInterface
             }
 
             $dir = str_replace('src/Model/Client', $replace, __DIR__);
-            
+
             if(file_exists($dir . DIRECTORY_SEPARATOR . $filepath)) {
                 return $dir . DIRECTORY_SEPARATOR . $filepath;
             }

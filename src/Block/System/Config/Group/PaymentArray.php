@@ -55,7 +55,7 @@ class PaymentArray extends \Magento\Config\Block\System\Config\Form\Field\FieldA
 
         $this->addColumn('group_name', array(
             'label' => __('Group name'),
-            'size' => 30,
+            'size' => 20,
             'style' => 'width: auto',
         ));
 
@@ -90,7 +90,7 @@ class PaymentArray extends \Magento\Config\Block\System\Config\Form\Field\FieldA
 
             $column['size'] = $column['size'] > count($payments) ? count($payments) : $column['size'];
 
-            $rendered = '<select name="' . $inputName . '[]" id="select_' . $columnName . '#{_id}" size="' . $column['size'] . '" multiple="multiple">';
+            $rendered = '<select style="width: 200px;" name="' . $inputName . '[]" id="select_' . $columnName . '#{_id}" size="' . $column['size'] . '" multiple="multiple">';
 
             if(!is_null($payments)) {
                 foreach ($payments as $_option) {

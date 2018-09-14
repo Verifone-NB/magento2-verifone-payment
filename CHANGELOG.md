@@ -1,9 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.0.27] 2018.09.14
 ### Added
 - This CHANGELOG file
+- New payment method: AfterPay (Invoice)
+- Functionality for generate new security keys
+
+### Changed
+- Add product into refund requests
+- Update translations
+
+### Fixed
+- Increase size of payment method select in admin panel 
+- Run additional validators before placing the order
 
 ## [0.0.26] 2018.08.28
 ### Added

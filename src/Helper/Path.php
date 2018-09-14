@@ -18,6 +18,10 @@ class Path
     const XML_PATH_KEY_SHOP = 'payment/verifone_payment/shop_private_keyfile';
     const XML_PATH_KEY_VERIFONE = 'payment/verifone_payment/pay_page_public_keyfile';
 
+    const XML_PATH_MERCHANT_CODE_TEST = 'payment/verifone_payment/merchant_agreement_code_test';
+    const XML_PATH_KEY_SHOP_TEST = 'payment/verifone_payment/shop_private_keyfile_test';
+    const XML_PATH_KEY_VERIFONE_TEST = 'payment/verifone_payment/pay_page_public_keyfile_test';
+
     const XML_PATH_IS_LIVE_MODE = 'payment/verifone_payment/is_live_mode';
     const XML_PATH_SERVER_URL = 'payment/verifone_payment/server_url_';
     const XML_PATH_PAYMENT_URL = 'payment/verifone_payment/pay_page_url_';

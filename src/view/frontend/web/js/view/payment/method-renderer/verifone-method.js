@@ -31,7 +31,7 @@ define(
 
                 var paymentMethod = jQuery("input[name=payment\\[additional_data\\]\\[payment-method\\]]:checked");
 
-                if(!paymentMethod.length) {
+                if (!paymentMethod.length) {
                     paymentMethod = jQuery("select[name=payment\\[additional_data\\]\\[payment-method\\]] option:selected[value!='']");
                 }
 
@@ -119,7 +119,7 @@ define(
                         $group.find('.verifone-payment-method-footer').removeClass('hidden');
                     }
 
-                    if($this.attr('type') === 'radio') {
+                    if ($this.attr('type') === 'radio') {
                         $this.attr('checked', true);
                     } else {
                         // its select and we can reenable group
@@ -127,7 +127,7 @@ define(
                         $group.find('select').attr('disabled', false);
                         $group.find('[id*=verifonepayment-mockup_]').attr('checked', true);
 
-                        if($this.find('option:selected').attr('data-code')) {
+                        if ($this.find('option:selected').attr('data-code')) {
                             $group.find('.verifone-payment-saved-wrapper').addClass('hidden');
                         } else {
                             $group.find('.verifone-payment-saved-wrapper').removeClass('hidden');
@@ -147,7 +147,7 @@ define(
                     $group.find('[id*=verifonepayment-mockup_]').attr('checked', true);
                 });
             },
-            disableMethods: function() {
+            disableMethods: function () {
                 // Show/hide save payment box
                 jQuery('.verifone-payment-method-footer').addClass('hidden');
                 jQuery("input[name=payment\\[additional_data\\]\\[save-payment-method\\]]").attr('checked', false);

@@ -87,12 +87,12 @@
                         type="submit"
                         data-bind="
                         click: placeOrder,
-                        attr: {'title': $t('Place Order and Pay with Verifone')},
+                        attr: {'title': $t('Place Order and Pay with Verifone Payment')},
                         enable: (getCode() == isChecked()),
                         css: {disabled: !isPlaceOrderActionAllowed()}
                         "
                         disabled>
-                    <span data-bind="text: $t('Place Order and Pay with Verifone')"></span>
+                    <span data-bind="text: $t('Place Order and Pay with Verifone Payment')"></span>
                 </button>
             </div>
         </div>

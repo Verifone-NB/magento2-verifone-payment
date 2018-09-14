@@ -21,8 +21,8 @@ $_colspan = $_colspan > 1 ? 'colspan="' . $_colspan . '"' : '';
         </tr>
 
         <tr id="addRow<?php echo $_htmlId ?>">
-            <td colspan="<?php echo count($this->getColumns()) ?>"></td>
-            <td <?php echo $_colspan ?> style="min-width: 150px; text-align: right;">
+            <td colspan="<?php echo count($this->getColumns()) - 1 ?>"></td>
+            <td colspan="2" <?php echo $_colspan ?> style="min-width: 150px; text-align: right;">
                 <button style="" onclick="" class="scalable add" type="button" id="addToEndBtn<?php echo $_htmlId ?>">
                     <span><span><span><?php echo $this->getAddButtonLabel() ?></span></span></span>
                 </button>
@@ -55,7 +55,7 @@ $_colspan = $_colspan > 1 ? 'colspan="' . $_colspan . '"' : '';
           <?php if ($this->getAddAfter()):?>
         + '<td><button onclick="" class="scalable add" type="button" id="addAfterBtn#{_id}"><span><span><span><?php echo __('Add after') ?><\/span><\/span><\/span><\/button><\/td>'
           <?php endif;?>
-        + '<td style="min-width: 150px; text-align: right;">'
+        + '<td style="min-width: 110px; text-align: right;">'
           <?php if ($this->getEditOrder()):?>
         + '<button onclick="arrayRow<?php echo $_htmlId ?>.editOrder(\'#{_id}\', this)" class="scalable" type="button" id="editOrderBtn#{_id}"><span><span><span><?php echo __('Edit order') ?><\/span><\/span><\/span><\/button>'
         + '<button style="display: none;" class="scalable" type="button" id="saveOrderBtn#{_id}"><span><span><span><?php echo __('Save order') ?><\/span><\/span><\/span><\/button>'

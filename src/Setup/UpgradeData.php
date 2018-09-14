@@ -112,6 +112,14 @@ class UpgradeData implements UpgradeDataInterface
             $this->upgrade008($setup);
         }
 
+        if (version_compare($context->getVersion(), '0.0.9') < 0) {
+            $this->upgrade009($setup);
+        }
+
+        if (version_compare($context->getVersion(), '0.0.10') < 0) {
+            $this->upgrade0010($setup);
+        }
+
         $setup->endSetup();
 
     }
@@ -294,5 +302,29 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         $setup->getConnection()->delete($tableName, 'code LIKE "tapiola-verkkomaksu"');
+    }
+
+    public function upgrade009(ModuleDataSetupInterface $setup)
+    {
+        $data = [
+            ['code' => 'afterpay-invoice', 'name' => 'AFTERPAY_INVOICE', 'type' => 'INVOICE']
+        ];
+
+        $tableName = $setup->getTable('verifone_payment_methods');
+
+        if ($setup->getConnection()->isTableExists($tableName) == true) {
+            foreach ($data as $item) {
+                $setup->getConnection()->insert($tableName, $item);
+            }
+        }
+    }
+
+    public function upgrade0010()
+    {
+        /** @var \Magento\Sales\Model\Order\Status $status */
+        $status = $this->_statusFactory->create();
+        $status->getResource()->load($status, 'pending_verifone', 'status');
+        $status->setData('label', 'Pending Verifone Payment');
+        $status->getResource()->save($status);
     }
 }

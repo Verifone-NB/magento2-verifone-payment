@@ -339,7 +339,7 @@ class FormClient extends \Verifone\Payment\Model\Client
             $isGroup = true;
         }
 
-        $description = __('You will be redirected to Verifone to complete your order.');
+        $description = __('You will be redirected to Verifone Payment to complete your order.');
         if (isset($group['group_description']) && strlen($group['group_description'])) {
             $description = $group['group_description'];
         }
