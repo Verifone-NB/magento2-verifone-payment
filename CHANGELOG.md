@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.0.28] 2018.09.14
+### Fixed
+- Set unique name for JavaScript function for generate keys
+
 ## [0.0.27] 2018.09.14
 ### Added
 - This CHANGELOG file

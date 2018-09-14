@@ -5,8 +5,8 @@
 <script>
   require(['prototype'], function () {
 
-    function generateKeys() {
-      var validationMessage = $('generation-keys-result');
+    function generateKeysVerifone() {
+      var validationMessage = $('generation-keys-result-verifone');
 
       params = {
         merchant_agreement_code: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getMerchantAgreementCodeField(); ?>"]').first().value,
@@ -38,21 +38,21 @@
       });
     }
 
-    function GenerateKeysTrigger() {
+    function GenerateKeysVerifoneTrigger() {
       if (confirm('<?php echo $this->getConfirmationMessage(); ?>')) {
-        generateKeys();
+          generateKeysVerifone();
       } else {
         // Do nothing!
       }
     }
 
-    window.GenerateKeysTrigger = GenerateKeysTrigger;
+    window.GenerateKeysVerifoneTrigger = GenerateKeysVerifoneTrigger;
 
   });
 </script>
-<div class="actions actions-keys-generation">
-    <div id="generation-keys-result" class="keys-message-validation hidden"></div>
-    <button onclick="javascript:GenerateKeysTrigger(); return false;" class="action-key-generation" type="button" id="<?php echo $block->getHtmlId() ?>">
+<div class="actions actions-keys-generation-verifone">
+    <div id="generation-keys-result-verifone" class="keys-message-validation hidden"></div>
+    <button onclick="javascript:GenerateKeysVerifoneTrigger(); return false;" class="action-key-generation" type="button" id="<?php echo $block->getHtmlId() ?>">
         <span><?php echo $block->escapeHtml($block->getButtonLabel()) ?></span>
     </button>
 </div>
