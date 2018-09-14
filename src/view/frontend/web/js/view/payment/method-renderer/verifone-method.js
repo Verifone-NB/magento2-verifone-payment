@@ -3,9 +3,10 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Customer/js/model/customer',
-        'Magento_Checkout/js/action/place-order'
+        'Magento_Checkout/js/action/place-order',
+        'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function ($, Component, customer, placeOrderAction) {
+    function ($, Component, customer, placeOrderAction, additionalValidators) {
         'use strict';
 
         return Component.extend({
@@ -73,7 +74,7 @@ define(
                     $(loginFormSelector).validation();
                     emailValidationResult = Boolean($(loginFormSelector + ' input[name=username]').valid());
                 }
-                if (emailValidationResult && this.validate()) {
+                if (emailValidationResult && this.validate() && additionalValidators.validate()) {
                     this.isPlaceOrderActionAllowed(false);
                     placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder);
                     $.when(placeOrder).done(function () {
