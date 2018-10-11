@@ -94,7 +94,7 @@ class KeyGeneration extends Field
 
     public function getConfirmationMessage()
     {
-        $msg = "Are you sure you want to generate keys? The private key will be saved in location from configuration field: %s. \\n\\nAfter creating e a new key, remember to copy this key to payment operator configuration settings, otherwise the payment will be broken";
+        $msg = "Are you sure you want to generate keys? The private key will be saved in location from configuration field: %s. \\n\\nAfter creating a new key, remember to copy this key to payment operator configuration settings, otherwise the payment will be broken";
         $field = __('Shop private key filename');
 
         return sprintf($msg, $field);
@@ -125,6 +125,11 @@ class KeyGeneration extends Field
     {
         $element->unsScope()->unsCanUseWebsiteValue()->unsCanUseDefaultValue();
         return parent::render($element);
+    }
+
+    public function getWebsiteId()
+    {
+        return $this->_request->getParam('website', 0);
     }
 
     /**

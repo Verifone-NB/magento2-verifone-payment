@@ -11,6 +11,7 @@
 namespace Verifone\Payment\Controller\Adminhtml\System\Config\Payment;
 
 
+use Magento\Store\Model\ScopeInterface;
 use Verifone\Core\DependencyInjection\CryptUtils\RsaKeyGenerator;
 use Verifone\Payment\Helper\Path;
 
@@ -27,6 +28,18 @@ class GenerateKeys extends \Magento\Backend\App\Action
     protected $_scopeConfig;
 
     /**
+     * Store manager
+     *
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $_storeManager;
+
+    /**
+     * @var \Verifone\Payment\Model\Client\Config
+     */
+    protected $_config;
+
+    /**
      * Refresh constructor.
      *
      * @param \Magento\Backend\App\Action\Context $context
@@ -36,82 +49,141 @@ class GenerateKeys extends \Magento\Backend\App\Action
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-    ) {
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Verifone\Payment\Model\Client\Config $config
+    )
+    {
         parent::__construct($context);
         $this->resultJsonFactory = $resultJsonFactory;
         $this->_scopeConfig = $scopeConfig;
-
+        $this->_config = $config;
+        $this->_storeManager = $storeManager;
     }
 
+
     /**
-     * Dispatch request
-     *
-     * @return \Magento\Framework\Controller\ResultInterface|ResponseInterface
-     * @throws \Magento\Framework\Exception\NotFoundException
+     * @return \Magento\Framework\Controller\ResultInterface
      */
     public function execute()
     {
+        $code = $this->_getWebsiteCode();
+
+        $success = true;
+        $messages = array();
 
         /**
          * @var \Magento\Framework\Controller\Result\Json $resultJson
          */
         $resultJson = $this->resultJsonFactory->create();
 
-        $request = $this->getRequest();
+        // check configuration
+        if (empty($this->_getScopeConfig(Path::XML_PATH_KEY_DIRECTORY, $code))) {
+            $success = false;
+            $messages[] = __('Please configure directory for store generated key.');
+        }
 
-        $merchantAgreementCode = $request->getParam('merchant_agreement_code', null);
-        $shopPrivateKeyfile = $request->getParam('shop_private_keyfile', null);
+        if ($this->_getScopeConfig(Path::XML_PATH_IS_LIVE_MODE, $code)) {
+            if(empty($this->_config->getMerchantAgreement($code))) {
+                $success = false;
+                $messages[] = __('Please provide merchant agreement code');
+            }
 
-        if(
-            $this->_scopeConfig->getValue(Path::XML_PATH_MERCHANT_CODE) != $merchantAgreementCode ||
-            $this->_scopeConfig->getValue(Path::XML_PATH_KEY_SHOP) != $shopPrivateKeyfile
-        ) {
+        } else {
+            if(empty($this->_config->getMerchantAgreement($code))) {
+                $success = false;
+                $messages[] = __('Please provide merchant agreement code for the test');
+            }
+
+            if($this->_config->getMerchantAgreement($code) === $this->_config->getMerchantAgreementDefault($code)) {
+                $success = false;
+                $messages[] = __('You can not generate keys for default test merchant agreement');
+            }
+        }
+
+        if (!$success) {
             return $resultJson->setData(
                 [
                     'valid' => false,
-                    'message' => __('Please save the configuration first, and then try again. '),
+                    'messages' => $messages
                 ]
             );
         }
+
+        $resultGenerate = $this->_generateKeys();
+
+        if ($resultGenerate === true) {
+
+            return $resultJson->setData(
+                [
+                    'valid' => true,
+                    'messages' => [__('Keys are generated correctly. Please refresh page.')]
+                ]
+            );
+
+        }
+
+        $messages[] = __('Problem with generating new keys.');
+
+        return $resultJson->setData(
+            [
+                'valid' => false,
+                'messages' => $messages
+            ]
+        );
+    }
+
+    protected function _generateKeys()
+    {
+        $code = $this->_getWebsiteCode();
+        $directory = $this->_getScopeConfig(Path::XML_PATH_KEY_DIRECTORY, $code);
+
+        if (!is_writable($directory)) {
+            return __('Problem with save keys into directory. Please check configuration.');
+        }
+
+        $merchant = $this->_config->getMerchantAgreement($code);
+
+        $prefix = $directory . DIRECTORY_SEPARATOR . $merchant;
 
         $generator = new RsaKeyGenerator();
         $result = $generator->generate();
 
         if(!$result) {
-            return $resultJson->setData(
-                [
-                    'valid' => false,
-                    'message' => __('Problem with generate new keys.'),
-                ]
-            );
+            return __('Problem with generate new keys.');
         }
 
-        $dir = \dirname($shopPrivateKeyfile);
-        $prefix = $dir . DIRECTORY_SEPARATOR . $merchantAgreementCode;
+        if (\file_put_contents($prefix . '-private.pem', $generator->getPrivateKey()) === false ||
+            \file_put_contents($prefix . '-public.pem', $generator->getPublicKey()) === false) {
 
-        if($this->_scopeConfig->getValue(Path::XML_PATH_KEY_SHOP_TEST) == $shopPrivateKeyfile) {
+            unlink($prefix . '-private.pem');
+            unlink($prefix . '-public.pem');
 
-            $msg = __('Problem with generates new keys. The path for creating the new private key is the same as for test. Please first change configuration for field <strong>%s</strong>, save, and then try again.');
+            return __('Problem with save keys into directory. Please check configuration.');
 
-            return $resultJson->setData(
-                [
-                    'valid' => false,
-                    'message' => sprintf($msg, __('Shop private key filename'))
-                ]
-            );
         }
 
-        \file_put_contents($shopPrivateKeyfile , $generator->getPrivateKey());
-        \file_put_contents($prefix . '-public.pem', $generator->getPublicKey());
+        return true;
+    }
 
-        return $resultJson->setData(
-            [
-                'valid' => true,
-                'message' => __('Keys are generated correctly. Please refresh page.'),
-                'public-key' => $generator->getPublicKey()
-            ]
-        );
+    protected function _getWebsiteCode()
+    {
+        $websiteId = $this->_request->getParam('website');
+        if ($websiteId !== null && (string)$websiteId !== '0') {
+            $code = $this->_storeManager->getWebsite($websiteId)->getCode();
+        } else {
+            $code = null;
+        }
 
+        return $code;
+    }
+
+    protected function _getScopeConfig($path, $websiteCode)
+    {
+        if ($websiteCode !== null) {
+            return $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_WEBSITE, $websiteCode);
+        }
+
+        return $this->_scopeConfig->getValue($path);
     }
 }

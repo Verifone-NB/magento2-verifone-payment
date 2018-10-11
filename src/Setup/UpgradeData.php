@@ -120,6 +120,10 @@ class UpgradeData implements UpgradeDataInterface
             $this->upgrade0010($setup);
         }
 
+        if (version_compare($context->getVersion(), '0.0.11') < 0) {
+            $this->upgrade0011($setup);
+        }
+
         $setup->endSetup();
 
     }
@@ -319,12 +323,29 @@ class UpgradeData implements UpgradeDataInterface
         }
     }
 
-    public function upgrade0010()
+    public function upgrade0010(ModuleDataSetupInterface $setup)
     {
         /** @var \Magento\Sales\Model\Order\Status $status */
         $status = $this->_statusFactory->create();
         $status->getResource()->load($status, 'pending_verifone', 'status');
         $status->setData('label', 'Pending Verifone Payment');
         $status->getResource()->save($status);
+    }
+
+    public function upgrade0011(ModuleDataSetupInterface $setup)
+    {
+        $data = [
+            ['code' => 'mobilepay', 'name' => 'MOBILEPAY', 'type' => 'BANK'],
+            ['code' => 'vipps', 'name' => 'VIPPS', 'type' => 'BANK'],
+            ['code' => 'masterpass', 'name' => 'MASTERPASS', 'type' => 'BANK']
+        ];
+
+        $tableName = $setup->getTable('verifone_payment_methods');
+
+        if ($setup->getConnection()->isTableExists($tableName) == true) {
+            foreach ($data as $item) {
+                $setup->getConnection()->insert($tableName, $item);
+            }
+        }
     }
 }

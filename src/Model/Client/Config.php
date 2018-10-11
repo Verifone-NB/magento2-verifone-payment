@@ -12,6 +12,7 @@
 
 namespace Verifone\Payment\Model\Client;
 
+use Magento\Store\Model\ScopeInterface;
 use Verifone\Payment\Helper\Path as Path;
 
 class Config implements ConfigInterface
@@ -40,9 +41,9 @@ class Config implements ConfigInterface
     protected $_productMetadata;
 
     /**
-     * @var \Magento\Framework\App\Filesystem\DirectoryList
+     * @var \Magento\Framework\Module\Dir\Reader
      */
-    protected $_directoryList;
+    protected $_moduleReader;
 
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
@@ -60,20 +61,20 @@ class Config implements ConfigInterface
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
-     * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList
+     * @param \Magento\Framework\Module\Dir\Reader $reader
      * @param \Verifone\Payment\Helper\Payment $helper
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
-        \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
+        \Magento\Framework\Module\Dir\Reader $reader,
         \Verifone\Payment\Helper\Payment $helper
     )
     {
         $this->_scopeConfig = $scopeConfig;
         $this->_productMetadata = $productMetadata;
-        $this->_directoryList = $directoryList;
+        $this->_moduleReader = $reader;
         $this->_storeManager = $storeManager;
         $this->_helper = $helper;
     }
@@ -105,9 +106,9 @@ class Config implements ConfigInterface
     {
         if (!$this->isConfigSet()) {
 
-            $privateKeyPath = $this->_getTestLiveConfig(Path::XML_PATH_KEY_SHOP);
-            $publicKeyPath = $this->_getTestLiveConfig(Path::XML_PATH_KEY_VERIFONE);
-            $merchant = $this->_getTestLiveConfig(Path::XML_PATH_MERCHANT_CODE);
+            $privateKeyPath = $this->getShopKeyFile();
+            $publicKeyPath = $this->getPaypageKeyFile();
+            $merchant = $this->getMerchantAgreement();
             $software = 'Magento';
             $softwareVersion = $this->_productMetadata->getVersion();
             $currencyCode = $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
@@ -140,44 +141,166 @@ class Config implements ConfigInterface
         return true;
     }
 
-    protected function _getTestLiveConfig($path)
+    public function getMerchantAgreement($code = null)
     {
-        if (!$this->_scopeConfig->getValue(Path::XML_PATH_IS_LIVE_MODE) && !empty($this->_scopeConfig->getValue($path . '_test'))) {
-            return $this->_scopeConfig->getValue($path . '_test');
+
+        if ($this->_getScopeConfig(Path::XML_PATH_IS_LIVE_MODE, $code)) {
+            return $this->_getScopeConfig(Path::XML_PATH_MERCHANT_CODE, $code);
+        }
+
+        if (!empty($this->_getScopeConfig(Path::XML_PATH_MERCHANT_CODE_TEST, $code))) {
+            return $this->_getScopeConfig(Path::XML_PATH_MERCHANT_CODE_TEST, $code);
+        }
+
+        return $this->_getScopeConfig(Path::XML_PATH_MERCHANT_CODE_DEFAULT, $code);
+
+    }
+
+    public function getMerchantAgreementDefault($code = null)
+    {
+        return $this->_getScopeConfig(Path::XML_PATH_MERCHANT_CODE_DEFAULT, $code);
+    }
+
+    ///
+    /// Shop Private Key
+    ///
+    public function getShopKeyFile($code = null)
+    {
+        $customKey = $this->getShopKeyFileCustom($code);
+
+        if (null !== $customKey && file_exists($customKey)) {
+            return $customKey;
+        }
+
+        return $this->getShopKeyFileDefault();
+    }
+
+    public function getShopKeyFileCustom($code = null)
+    {
+
+        $key = $this->getKeyCustom(Path::XML_PATH_KEY_SHOP);
+
+        if (($key === null || !file_exists($key)) && $this->getMerchantAgreement($code) !== $this->getMerchantAgreementDefault($code)) {
+            $directory = $this->_getScopeConfig(Path::XML_PATH_KEY_DIRECTORY, $code);
+            $fileName = $this->getMerchantAgreement($code) . '-private.pem';
+
+            return $directory . DIRECTORY_SEPARATOR . $fileName;
+        } elseif ($key !== null && $this->getMerchantAgreement($code) === $this->getMerchantAgreementDefault($code)) {
+            return null;
+        }
+
+        return $key;
+    }
+
+    public function getShopKeyFileDefault($code = null)
+    {
+        return $this->getKeyDefault(Path::XML_PATH_KEY_SHOP_DEFAULT);
+    }
+
+    ///
+    /// Shop Public Key
+    ///
+    public function getPublicShopKeyFile($code = null)
+    {
+        $customKey = $this->getPublicShopKeyFileCustom($code);
+
+        if (null !== $customKey && file_exists($customKey)) {
+            return $customKey;
+        }
+
+        return $this->getPublicShopKeyFileDefault();
+    }
+
+    public function getPublicShopKeyFileCustom($code = null)
+    {
+        if ($this->getMerchantAgreement($code) !== $this->getMerchantAgreementDefault($code)) {
+            $directory = $this->_getScopeConfig(Path::XML_PATH_KEY_DIRECTORY, $code);
+
+            $fileName = $this->getMerchantAgreement($code) . '-public.pem';
+            return $directory . DIRECTORY_SEPARATOR . $fileName;
+        }
+
+        return null;
+
+    }
+
+    public function getPublicShopKeyFileDefault($code = null)
+    {
+        return $this->getKeyDefault(Path::XML_PATH_KEY_SHOP_PUBLIC_DEFAULT);
+    }
+
+    public function getPublicShopKeyContent($code = null)
+    {
+        return \file_get_contents($this->getPublicShopKeyFile($code));
+    }
+
+    ///
+    /// Payment Service Public Key
+    ///
+    public function getPaypageKeyFile($code = null)
+    {
+        $customKey = $this->getPaypageKeyFileCustom($code, $code);
+
+        if (null !== $customKey && file_exists($customKey)) {
+            return $customKey;
+        }
+
+        if ($this->_getScopeConfig(Path::XML_PATH_IS_LIVE_MODE, $code)) {
+            return $this->getPaypageKeyFileLiveDefault($code);
+        }
+
+        return $this->getPaypageKeyFileDefault();
+    }
+
+    public function getPaypageKeyFileCustom($code = null)
+    {
+        return $this->getKeyCustom(PATH::XML_PATH_KEY_VERIFONE);
+    }
+
+    public function getPaypageKeyFileLiveDefault($code = null)
+    {
+        return $this->getKeyDefault(Path::XML_PATH_KEY_VERIFONE_LIVE_DEFAULT);
+    }
+
+    public function getPaypageKeyFileDefault($code = null)
+    {
+        return $this->getKeyDefault(Path::XML_PATH_KEY_VERIFONE_TEST_DEFAULT);
+    }
+
+    public function getKeyCustom($keyConfigurationPath, $code = null)
+    {
+        $directory = $this->_getScopeConfig(Path::XML_PATH_KEY_DIRECTORY, $code);
+
+        $fileName = '';
+
+        if ($this->_getScopeConfig(Path::XML_PATH_IS_LIVE_MODE, $code)) {
+            $fileName = $this->_getScopeConfig($keyConfigurationPath, $code);
+        } else {
+            if (!empty($this->_getScopeConfig($keyConfigurationPath . '_test', $code))) {
+                $fileName = $this->_getScopeConfig($keyConfigurationPath . '_test', $code);
+            }
+        }
+
+        if (empty($fileName)) {
+            return null;
+        }
+
+        return $directory . DIRECTORY_SEPARATOR . $fileName;
+    }
+
+    public function getKeyDefault($keyConfigurationPath, $code = null)
+    {
+        $moduleDir = $this->_moduleReader->getModuleDir('', 'Verifone_Payment');
+        return $moduleDir . DIRECTORY_SEPARATOR . 'keys' . DIRECTORY_SEPARATOR . $this->_getScopeConfig($keyConfigurationPath, $code);
+    }
+
+    protected function _getScopeConfig($path, $websiteCode)
+    {
+        if ($websiteCode !== null) {
+            return $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_WEBSITE, $websiteCode);
         }
 
         return $this->_scopeConfig->getValue($path);
-    }
-
-    /**
-     * @param string $filepath
-     *
-     * @return string
-     */
-    protected function _getFileFullPath($filepath)
-    {
-
-        if (file_exists($filepath)) {
-            return $filepath;
-        }
-
-        if (!$this->_scopeConfig->getValue(Path::XML_PATH_IS_LIVE_MODE)) {
-
-            $replace = '';
-
-            if(strpos($filepath, 'keys') === false) {
-                $replace = 'keys';
-            }
-
-            $dir = str_replace('src/Model/Client', $replace, __DIR__);
-
-            if(file_exists($dir . DIRECTORY_SEPARATOR . $filepath)) {
-                return $dir . DIRECTORY_SEPARATOR . $filepath;
-            }
-
-        }
-
-        return $this->_directoryList->getRoot() . DIRECTORY_SEPARATOR . $filepath;
     }
 
     /**
@@ -187,7 +310,7 @@ class Config implements ConfigInterface
      */
     public function getFileContent($filepath)
     {
-        return file_get_contents($this->_getFileFullPath($filepath));
+        return file_get_contents($filepath);
     }
 
     /**

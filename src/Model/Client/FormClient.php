@@ -390,7 +390,7 @@ class FormClient extends \Verifone\Payment\Model\Client
             $this->_paymentHelper->sanitize($config['software-version']),
             $config['skip-confirmation'],
             $config['rsa-blinding'],
-            $config['style-config']
+            $config['style-code']
         );
 
         $customer = $this->_createCustomerObject($customerData);

@@ -3,56 +3,61 @@
 /** @var \Verifone\Payment\Block\System\Config\Button\KeyGeneration $block */
 ?>
 <script>
-  require(['prototype'], function () {
+    require(['prototype'], function () {
 
-    function generateKeysVerifone() {
-      var validationMessage = $('generation-keys-result-verifone');
+        function generateKeysVerifone() {
+            var validationMessage = $('generation-keys-result-verifone');
 
-      params = {
-        merchant_agreement_code: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getMerchantAgreementCodeField(); ?>"]').first().value,
-        shop_private_keyfile: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getShopPrivateKeyfileField(); ?>"]').first().value
-      };
+            params = {
+                merchant_agreement_code: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getMerchantAgreementCodeField(); ?>"]').first().value,
+                shop_private_keyfile: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getShopPrivateKeyfileField(); ?>"]').first().value,
+                website: '<?php echo $block->getWebsiteId(); ?>'
+            };
 
-      new Ajax.Request('<?php /* @escapeNotVerified */ echo $block->getAjaxUrl() ?>', {
-        parameters: params,
-        onSuccess: function (response) {
+            new Ajax.Request('<?php /* @escapeNotVerified */ echo $block->getAjaxUrl() ?>', {
+                parameters: params,
+                onSuccess: function (response) {
 
-          console.log(response);
+                    var message = '<?php /* @escapeNotVerified */ echo __('Problem with generate new keys.') ?>';
 
-          var result = '<?php /* @escapeNotVerified */ echo __('Problem with generate new keys.') ?>';
-          try {
-            if (response.responseText.isJSON()) {
-              response = response.responseText.evalJSON();
-              var message = response.message;
-            }
-            if (response.valid === true) {
-              validationMessage.removeClassName('hidden').addClassName('success');
-            } else {
-              validationMessage.removeClassName('hidden').addClassName('error')
-            }
-          } catch (e) {
-            validationMessage.removeClassName('hidden').addClassName('error')
-          }
-          validationMessage.update(message);
+                    try {
+                        if (response.responseText.isJSON()) {
+
+                            var result = response.responseText.evalJSON();
+                            message = result.messages.join('<br/>');
+
+                        }
+
+                        if (result.valid === true) {
+                            validationMessage.removeClassName('hidden').addClassName('success');
+                        } else {
+                            validationMessage.removeClassName('hidden').addClassName('error')
+                        }
+                    } catch (e) {
+                        validationMessage.removeClassName('hidden').addClassName('error')
+                    }
+
+                    validationMessage.update(message);
+                }
+            });
         }
-      });
-    }
 
-    function GenerateKeysVerifoneTrigger() {
-      if (confirm('<?php echo $this->getConfirmationMessage(); ?>')) {
-          generateKeysVerifone();
-      } else {
-        // Do nothing!
-      }
-    }
+        function GenerateKeysVerifoneTrigger() {
+            if (confirm('<?php echo $this->getConfirmationMessage(); ?>')) {
+                generateKeysVerifone();
+            } else {
+                // Do nothing!
+            }
+        }
 
-    window.GenerateKeysVerifoneTrigger = GenerateKeysVerifoneTrigger;
+        window.GenerateKeysVerifoneTrigger = GenerateKeysVerifoneTrigger;
 
-  });
+    });
 </script>
 <div class="actions actions-keys-generation-verifone">
     <div id="generation-keys-result-verifone" class="keys-message-validation hidden"></div>
-    <button onclick="javascript:GenerateKeysVerifoneTrigger(); return false;" class="action-key-generation" type="button" id="<?php echo $block->getHtmlId() ?>">
+    <button onclick="javascript:GenerateKeysVerifoneTrigger(); return false;" class="action-key-generation"
+            type="button" id="<?php echo $block->getHtmlId() ?>">
         <span><?php echo $block->escapeHtml($block->getButtonLabel()) ?></span>
     </button>
 </div>

@@ -7,12 +7,17 @@
                 <title>Verifone Payment</title>
                 <model>Verifone\Payment\Model\Payment</model>
                 <is_live_mode>0</is_live_mode>
-                <merchant_agreement_code>merchant-agreement</merchant_agreement_code>
+                <merchant_agreement_code></merchant_agreement_code>
                 <merchant_agreement_code_test>demo-merchant-agreement</merchant_agreement_code_test>
-                <shop_private_keyfile>keys/merchant-agreement-private.pem</shop_private_keyfile>
-                <shop_private_keyfile_test>keys/demo-merchant-agreement-private.pem</shop_private_keyfile_test>
-                <pay_page_public_keyfile>keys/verifone-e-commerce-test-public-key.pem</pay_page_public_keyfile>
-                <pay_page_public_keyfile_test>keys/verifone-e-commerce-test-public-key.pem</pay_page_public_keyfile_test>
+                <merchant_agreement_code_default>demo-merchant-agreement</merchant_agreement_code_default>
+                <shop_private_keyfile></shop_private_keyfile>
+                <shop_private_keyfile_test>demo-merchant-agreement-private.pem</shop_private_keyfile_test>
+                <shop_private_keyfile_default>demo-merchant-agreement-private.pem</shop_private_keyfile_default>
+                <shop_public_keyfile_default>demo-merchant-agreement-public.pem</shop_public_keyfile_default>
+                <pay_page_public_keyfile>verifone-e-commerce-live-public-key.pem</pay_page_public_keyfile>
+                <pay_page_public_keyfile_live_default>verifone-e-commerce-live-public-key.pem</pay_page_public_keyfile_live_default>
+                <pay_page_public_keyfile_test>verifone-e-commerce-test-public-key.pem</pay_page_public_keyfile_test>
+                <pay_page_public_keyfile_test_default>verifone-e-commerce-test-public-key.pem</pay_page_public_keyfile_test_default>
                 <pay_page_url_1>https://epayment1.point.fi/pw/payment</pay_page_url_1>
                 <pay_page_url_2>https://epayment2.point.fi/pw/payment</pay_page_url_2>
                 <pay_page_url_3/>

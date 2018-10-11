@@ -1,6 +1,17 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.0] 2018.10.12
+### Added
+- New payment methods: MobilePay, Vipps, MasterPass
+- New field to configuration: directory for stored keys
+- Possibility to display summary for configuration
+- Default payment service live key
+
+### Changed
+- Configuration values for shop and payment service keys. 
+  This change require update configuration for fields with key path and filename. 
+
 ## [0.0.28] 2018.09.14
 ### Fixed
 - Set unique name for JavaScript function for generate keys
