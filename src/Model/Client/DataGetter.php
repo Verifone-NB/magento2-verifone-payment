@@ -193,6 +193,25 @@ class DataGetter
         return null;
     }
 
+    public function getAddressData(\Magento\Sales\Model\Order $order)
+    {
+        $address = $order->getShippingAddress();
+
+        if($address === false) {
+            $address = $order->getBillingAddress(); // For downloadable/virtual products
+        }
+
+        $addressData['line-1'] = $address->getStreetLine(1);
+        $addressData['line-2'] = $address->getStreetLine(2) ?: $address->getRegion();
+        $addressData['line-3'] = $address->getStreetLine(2) ? $address->getRegion(): '';
+        $addressData['city'] = $address->getCity();
+        $addressData['postal-code'] = $address->getPostcode();
+        $addressData['country-code'] = $this->_helper->convertCountryCode2Numeric($address->getCountryId());
+
+        return $addressData;
+
+    }
+
     public function getShippingData(\Magento\Sales\Model\Order $order)
     {
         $shippingAmount = (float)$order->getShippingAmount();
@@ -245,12 +264,19 @@ class DataGetter
             $orderItem->setTaxPercent($average);
         }
 
+        $itemGross = $orderItem->getPriceInclTax() * $itemCount;
+
+        $itemTaxPercentage = $orderItem->getTaxPercent();
+
+        $itemNet = $itemGross / (1+($itemTaxPercentage/100)) / $itemCount;
+        $totalNetAmount = round($itemNet,2) * $itemCount;
+
         return [
             'name' => $orderItem->getName(),
             'unit_count' => $itemCount,
-            'unit_cost' => round($orderItem->getPrice(), 2) * 100,
-            'net_amount' => round($orderItem->getPrice(), 2) * 100 * $itemCount,
-            'gross_amount' => round($orderItem->getPriceInclTax(), 2) * 100 * $itemCount,
+            'unit_cost' => round($itemNet, 2) * 100,
+            'net_amount' => $totalNetAmount * 100,
+            'gross_amount' => round($itemGross, 2) * 100,
             'vat_percentage' => round($orderItem->getTaxPercent(), 2) * 100,
             'discount_percentage' => round($orderItem->getDiscountPercent()) * 100
         ];
@@ -290,7 +316,7 @@ class DataGetter
 
         return [
             'name' => $itemName,
-            'unit_count' => $order->getTotalItemCount(),
+            'unit_count' => 1,
             'unit_cost' => $netAmount,
             'net_amount' => $netAmount,
             'gross_amount' => $grossAmount,

@@ -16,6 +16,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Verifone\Core\DependencyInjection\Configuration\Frontend\FrontendConfigurationImpl;
 use Verifone\Core\DependencyInjection\CoreResponse\PaymentResponseImpl;
+use Verifone\Core\DependencyInjection\Service\AddressImpl;
 use Verifone\Core\DependencyInjection\Service\CustomerImpl;
 use Verifone\Core\DependencyInjection\Service\OrderImpl;
 use Verifone\Core\DependencyInjection\Service\PaymentInfoImpl;
@@ -128,6 +129,7 @@ class FormClient extends \Verifone\Payment\Model\Client
         if ($customerData) {
             $data['customer'] = $customerData;
         }
+        $data['address'] = $this->_dataGetter->getAddressData($order);
 
         return $data;
     }
@@ -154,7 +156,7 @@ class FormClient extends \Verifone\Payment\Model\Client
             $config['style-code']
         );
 
-        $order = new OrderImpl(
+        $orderImpl = new OrderImpl(
             (string)$data['order_id'],
             $data['time'],
             (string)$data['currency_code'],
@@ -163,7 +165,8 @@ class FormClient extends \Verifone\Payment\Model\Client
             (string)$data['total_vat']
         );
 
-        $customer = $this->_createCustomerObject($data['customer']);
+        $address = $this->_createAddressObject($data['address']);
+        $customer = $this->_createCustomerObject($data['customer'], $address);
 
         $products = [];
 
@@ -208,7 +211,7 @@ class FormClient extends \Verifone\Payment\Model\Client
         /** @var CreateNewOrderService $service */
         $service = ServiceFactory::createService($configObject, 'Frontend\CreateNewOrderService');
         $service->insertCustomer($customer);
-        $service->insertOrder($order);
+        $service->insertOrder($orderImpl);
         $service->insertPaymentInfo($paymentInfo);
         $service->insertTransaction($transactionInfo);
 
@@ -424,14 +427,32 @@ class FormClient extends \Verifone\Payment\Model\Client
         return $form;
     }
 
-    protected function _createCustomerObject($customerData)
+    /**
+     * @param array $customerData
+     * @param AddressImpl $address
+     * @return CustomerImpl
+     */
+    protected function _createCustomerObject($customerData, $address = null)
     {
         return new CustomerImpl(
             $this->_paymentHelper->sanitize($customerData['firstname']),
             $this->_paymentHelper->sanitize($customerData['lastname']),
             $this->_paymentHelper->sanitize($customerData['phone']),
             $this->_paymentHelper->sanitize($customerData['email']),
-            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : ''
+            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : '',
+            $address
+        );
+    }
+
+    protected function _createAddressObject($addressData)
+    {
+        return new AddressImpl(
+            $this->_paymentHelper->sanitize($addressData['line-1']),
+            $this->_paymentHelper->sanitize($addressData['line-2']),
+            $this->_paymentHelper->sanitize($addressData['line-3']),
+            $this->_paymentHelper->sanitize($addressData['city']),
+            $this->_paymentHelper->sanitize($addressData['postal-code']),
+            $this->_paymentHelper->sanitize($addressData['country-code'])
         );
     }
 }
