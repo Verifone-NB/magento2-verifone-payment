@@ -34,6 +34,10 @@
         <plugin name="verifone_payment_checkout_model_paymentinformationmanagement" type="Verifone\Payment\Model\Checkout\GuestPaymentInformationManagement\Plugin" sortOrder="1" disabled="false" />
     </type>
 
+    <type name="Magento\Sales\Model\Order\Email\Sender\OrderSender">
+        <plugin name="verifone_payment_sales_model_order_email_sender_ordersender" type="Verifone\Payment\Plugin\Sales\Model\Order\Email\Sender\OrderSenderPlugin" />
+    </type>
+
     <virtualType name="Magento\Sales\Model\ResourceModel\Order\Grid">
         <arguments>
             <argument name="columns">
@@ -50,7 +54,5 @@
             </argument>
         </arguments>
     </type>
-
-    <preference for="Magento\Sales\Model\Order\Email\Sender\OrderSender" type="Verifone\Payment\Model\Order\Email\Sender\OrderSender"/>
 
 </config>
