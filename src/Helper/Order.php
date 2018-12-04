@@ -167,6 +167,10 @@ class Order
             ]
         );
 
+        if($order->getData('payment_method_code') !== $paymentMethod) {
+            $order->setData('payment_method_code', $paymentMethod);
+        }
+
         /**
          * @var \Magento\Sales\Model\Order\Payment\Transaction $transaction
          */

@@ -5,13 +5,14 @@
 <script>
     require(['prototype'], function () {
 
-        function generateKeysVerifone() {
+        function generateKeysVerifone(mode) {
             var validationMessage = $('generation-keys-result-verifone');
 
             params = {
                 merchant_agreement_code: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getMerchantAgreementCodeField(); ?>"]').first().value,
                 shop_private_keyfile: $$('input[id$="<?php /* @escapeNotVerified */ echo $block->getShopPrivateKeyfileField(); ?>"]').first().value,
-                website: '<?php echo $block->getWebsiteId(); ?>'
+                website: '<?php echo $block->getWebsiteId(); ?>',
+                mode: mode
             };
 
             new Ajax.Request('<?php /* @escapeNotVerified */ echo $block->getAjaxUrl() ?>', {
@@ -42,9 +43,9 @@
             });
         }
 
-        function GenerateKeysVerifoneTrigger() {
+        function GenerateKeysVerifoneTrigger(mode) {
             if (confirm('<?php echo $this->getConfirmationMessage(); ?>')) {
-                generateKeysVerifone();
+                generateKeysVerifone(mode);
             } else {
                 // Do nothing!
             }
@@ -56,8 +57,22 @@
 </script>
 <div class="actions actions-keys-generation-verifone">
     <div id="generation-keys-result-verifone" class="keys-message-validation hidden"></div>
-    <button onclick="javascript:GenerateKeysVerifoneTrigger(); return false;" class="action-key-generation"
-            type="button" id="<?php echo $block->getHtmlId() ?>">
-        <span><?php echo $block->escapeHtml($block->getButtonLabel()) ?></span>
+
+    <button onclick="javascript:GenerateKeysVerifoneTrigger('live'); return false;" class="scalable action-key-generation" type="button"
+            id="<?php echo $block->getHtmlId() ?>-live">
+        <span id="verifone_generate_key_button"><?php echo $this->escapeHtml($this->getLiveButtonLabel()) ?></span>
     </button>
+    <p class="note">
+        <?php echo $this->getLiveDescription(); ?>
+    </p>
+    <br/>
+
+    <button onclick="javascript:GenerateKeysVerifoneTrigger('test'); return false;" class="scalable action-key-generation" type="button"
+            id="<?php echo $block->getHtmlId() ?>-test">
+        <span id="verifone_generate_key_button"><?php echo $this->escapeHtml($this->getTestButtonLabel()) ?></span>
+    </button>
+    <p class="note">
+        <?php echo $this->getTestDescription(); ?>
+    </p>
+
 </div>

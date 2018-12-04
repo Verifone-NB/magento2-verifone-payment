@@ -25,18 +25,18 @@ class Config extends \Verifone\Payment\Model\Client\Config
      * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
      * @param \Magento\Framework\Module\Dir\Reader $reader,
      * @param \Verifone\Payment\Helper\Payment $helper
-     * @param \Magento\Framework\UrlInterface $urlBuilder
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         \Magento\Framework\Module\Dir\Reader $reader,
-        \Verifone\Payment\Helper\Payment $helper
+        \Verifone\Payment\Helper\Payment $helper,
+        \Verifone\Payment\Helper\Keys $keysHelper
     )
     {
 
-        parent::__construct($scopeConfig, $storeManager, $productMetadata, $reader, $helper);
+        parent::__construct($scopeConfig, $storeManager, $productMetadata, $reader, $helper, $keysHelper);
 
     }
 

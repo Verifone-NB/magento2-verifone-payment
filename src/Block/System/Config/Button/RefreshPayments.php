@@ -20,8 +20,6 @@ class RefreshPayments extends Field
     protected $_merchantAgreementCodeTest = 'verifone_payment_merchant_agreement_code_test';
     protected $_shopPrivateKeyfile = 'verifone_payment_shop_private_keyfile';
     protected $_shopPrivateKeyfileTest = 'verifone_payment_shop_private_keyfile_test';
-    protected $_payPagePublicKeyfile = 'verifone_payment_pay_page_public_keyfile';
-    protected $_payPagePublicKeyfileTest = 'verifone_payment_pay_page_public_keyfile_test';
 
     protected $_isLiveMode = 'verifone_payment_is_live_mode';
 
@@ -73,25 +71,6 @@ class RefreshPayments extends Field
     }
 
     /**
-     * @return null
-     */
-    public function getPayPagePublicKeyfileField()
-    {
-        return $this->_payPagePublicKeyfile;
-    }
-
-    /**
-     * @param null $payPagePublicKeyfile
-     *
-     * @return $this
-     */
-    public function setPayPagePublicKeyfileField($payPagePublicKeyfile)
-    {
-        $this->_payPagePublicKeyfile = $payPagePublicKeyfile;
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getMerchantAgreementCodeTest(): string
@@ -121,22 +100,6 @@ class RefreshPayments extends Field
     public function setShopPrivateKeyfileTest(string $shopPrivateKeyfileTest)
     {
         $this->_shopPrivateKeyfileTest = $shopPrivateKeyfileTest;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPayPagePublicKeyfileTest(): string
-    {
-        return $this->_payPagePublicKeyfileTest;
-    }
-
-    /**
-     * @param string $payPagePublicKeyfileTest
-     */
-    public function setPayPagePublicKeyfileTest(string $payPagePublicKeyfileTest)
-    {
-        $this->_payPagePublicKeyfileTest = $payPagePublicKeyfileTest;
     }
 
     /**

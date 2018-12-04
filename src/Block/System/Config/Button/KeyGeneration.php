@@ -94,10 +94,10 @@ class KeyGeneration extends Field
 
     public function getConfirmationMessage()
     {
-        $msg = "Are you sure you want to generate keys? The private key will be saved in location from configuration field: %s. \\n\\nAfter creating a new key, remember to copy this key to payment operator configuration settings, otherwise the payment will be broken";
-        $field = __('Shop private key filename');
+        $msg1 = __('Are you sure you want to generate keys? The keys are stored in database.');
+        $msg2 = __('After creating a new key, remember to copy this key to payment operator configuration settings, otherwise the payment will be broken');
 
-        return sprintf($msg, $field);
+        return sprintf("%s\\n\\n%s", $msg1, $msg2);
     }
 
     /**
@@ -152,5 +152,25 @@ class KeyGeneration extends Field
         );
 
         return $this->_toHtml();
+    }
+
+    public function getTestDescription()
+    {
+        return __('Uses preset keys by default, only needed if using custom test agreements');
+    }
+
+    public function getTestButtonLabel()
+    {
+        return __('Generate test keys');
+    }
+
+    public function getLiveDescription()
+    {
+        return __('When you generate live keys, you will need to upload the new public key to Verifone Payment portal');
+    }
+
+    public function getLiveButtonLabel()
+    {
+        return __('Generate live keys');
     }
 }

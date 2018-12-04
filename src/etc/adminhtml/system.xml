@@ -34,7 +34,7 @@
                     </depends>
                 </field>
 
-                <!-- CONNECT CONFIGURATION -->
+                <!-- AUTHENTICATION CONFIGURATION -->
                 <field id="is_live_mode" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Module on live mode</label>
                     <source_model>Verifone\Payment\Model\Config\Source\LiveMode</source_model>
@@ -44,7 +44,65 @@
                         <field id="active">1</field>
                     </depends>
                 </field>
-                <field id="pay_page_url_1" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="merchant_agreement_code" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Verifone Payment merchant agreement code</label>
+                    <comment>Required. Verifone Payment agreement code</comment>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="merchant_agreement_code_test" translate="label" type="text" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Verifone Payment merchant agreement code (Test)</label>
+                    <comment>Required. Verifone Payment agreement code</comment>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="key_handling_mode" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Payment service key handling</label>
+                    <source_model>Verifone\Payment\Model\Config\Source\HandlingMode</source_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="regenerate_keys_trigger" translate="button_label label comment" sortOrder="125" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label />
+                    <button_label>Generate new keys</button_label>
+                    <frontend_model>Verifone\Payment\Block\System\Config\Button\KeyGeneration</frontend_model>
+                    <depends>
+                        <field id="active">1</field>
+                        <field id="key_handling_mode">0</field>
+                    </depends>
+                </field>
+                <field id="keyfile_directory" translate="label" type="text" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Directory for store keys</label>
+                    <comment>Required. A path to the directory for generated files</comment>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="active">1</field>
+                        <field id="key_handling_mode">1</field>
+                    </depends>
+                </field>
+                <field id="shop_private_keyfile" translate="label" type="text" sortOrder="155" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Shop private key filename</label>
+                    <comment>Filename of shop secret key file generated with Verifone Payment key pair generator</comment>
+                    <depends>
+                        <field id="active">1</field>
+                        <field id="key_handling_mode">1</field>
+                    </depends>
+                </field>
+                <field id="shop_private_keyfile_test" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Shop private key filename (Test)</label>
+                    <comment>Filename of shop secret key file generated with Verifone Payment key pair generator</comment>
+                    <depends>
+                        <field id="active">1</field>
+                        <field id="key_handling_mode">1</field>
+                    </depends>
+                </field>
+
+                <!-- CONNECT CONFIGURATION -->
+                <field id="pay_page_url_1" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Pay page URL 1</label>
                     <comment>Required. URL to the payment system</comment>
                     <validate>required-entry</validate>
@@ -53,7 +111,7 @@
                         <field id="is_live_mode">1</field>
                     </depends>
                 </field>
-                <field id="pay_page_url_2" translate="label" type="text" sortOrder="111" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="pay_page_url_2" translate="label" type="text" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Pay page URL 2</label>
                     <comment>Optional. Second redundant URL to the payment system</comment>
                     <depends>
@@ -61,7 +119,7 @@
                         <field id="is_live_mode">1</field>
                     </depends>
                 </field>
-                <field id="pay_page_url_3" translate="label" type="text" sortOrder="112" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="pay_page_url_3" translate="label" type="text" sortOrder="220" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Pay page URL 3</label>
                     <comment>Optional. Third redundant URL to the payment system</comment>
                     <depends>
@@ -69,84 +127,13 @@
                         <field id="is_live_mode">1</field>
                     </depends>
                 </field>
-                <field id="validate_url" translate="label comment" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="validate_url" translate="label comment" type="select" sortOrder="230" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Check payment node availability</label>
                     <comment>Make a check that payment node is available</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <depends>
                         <field id="active">1</field>
                         <field id="is_live_mode">1</field>
-                    </depends>
-                </field>
-                <field id="delayed_success_url" translate="label" type="label" sortOrder="112" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Delayed success url</label>
-                    <frontend_model>Verifone\Payment\Block\System\Config\DelayedSuccessUrl</frontend_model>
-                    <depends>
-                        <field id="active">1</field>
-                    </depends>
-                </field>
-
-                <!-- AUTHENTICATION CONFIGURATION -->
-                <field id="merchant_agreement_code" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Verifone Payment merchant agreement code</label>
-                    <comment>Required. Verifone Payment agreement code</comment>
-                    <validate>required-entry</validate>
-                    <depends>
-                        <field id="active">1</field>
-                    </depends>
-                </field>
-                <field id="merchant_agreement_code_test" translate="label" type="text" sortOrder="201" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Verifone Payment merchant agreement code (Test)</label>
-                    <comment>Required. Verifone Payment agreement code</comment>
-                    <depends>
-                        <field id="active">1</field>
-                        <field id="is_live_mode">0</field>
-                    </depends>
-                </field>
-                <field id="keyfile_directory" translate="label" type="text" sortOrder="205" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Directory for store keys</label>
-                    <comment>Required. A path to the directory for generated files</comment>
-                    <validate>required-entry</validate>
-                    <depends>
-                        <field id="active">1</field>
-                    </depends>
-                </field>
-                <field id="shop_private_keyfile" translate="label" type="text" sortOrder="205" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Shop private key filename</label>
-                    <comment>Filename of shop secret key file generated with Verifone Payment key pair generator</comment>
-                    <depends>
-                        <field id="active">1</field>
-                    </depends>
-                </field>
-                <field id="shop_private_keyfile_test" translate="label" type="text" sortOrder="206" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Shop private key filename (Test)</label>
-                    <comment>Filename of shop secret key file generated with Verifone Payment key pair generator</comment>
-                    <depends>
-                        <field id="active">1</field>
-                        <field id="is_live_mode">0</field>
-                    </depends>
-                </field>
-                <field id="pay_page_public_keyfile" translate="label" type="text" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Verifone Payment public key filename</label>
-                    <comment>Filename of Verifone Payment public key file</comment>
-                    <depends>
-                        <field id="active">1</field>
-                    </depends>
-                </field>
-                <field id="pay_page_public_keyfile_test" translate="label" type="text" sortOrder="211" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Verifone Payment public key filename (Test)</label>
-                    <comment>Filename of Verifone Payment public key file</comment>
-                    <depends>
-                        <field id="active">1</field>
-                        <field id="is_live_mode">0</field>
-                    </depends>
-                </field>
-                <field id="regenerate_keys_trigger" translate="button_label label comment" sortOrder="220" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label />
-                    <button_label>Generate new keys</button_label>
-                    <frontend_model>Verifone\Payment\Block\System\Config\Button\KeyGeneration</frontend_model>
-                    <depends>
-                        <field id="active">1</field>
                     </depends>
                 </field>
 

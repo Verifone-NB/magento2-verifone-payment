@@ -84,6 +84,10 @@ table.verifone_summary td.summary-value pre {
     margin: 0;
 }
 
+table.verifone_summary tr.border-bottom td {
+    border-bottom: 1px dashed #999999;
+}
+
 .success {
     color: #080;
     font-weight: bold;

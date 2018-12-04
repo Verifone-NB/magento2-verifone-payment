@@ -40,18 +40,35 @@ class GenerateKeys extends \Magento\Backend\App\Action
     protected $_config;
 
     /**
+     * @var \Verifone\Payment\Helper\Keys
+     */
+    protected $_keyHelper;
+
+    protected $_cacheTypeList;
+
+    protected $_cacheFrontendPool;
+
+    /**
      * Refresh constructor.
      *
      * @param \Magento\Backend\App\Action\Context $context
      * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param \Verifone\Payment\Model\Client\Config $config
+     * @param \Verifone\Payment\Helper\Keys $keys
+     * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
+     * @param \Magento\Framework\App\Cache\Frontend\Pool $cacheFrontendPool
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Verifone\Payment\Model\Client\Config $config
+        \Verifone\Payment\Model\Client\Config $config,
+        \Verifone\Payment\Helper\Keys $keys,
+        \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
+        \Magento\Framework\App\Cache\Frontend\Pool $cacheFrontendPool
     )
     {
         parent::__construct($context);
@@ -59,46 +76,29 @@ class GenerateKeys extends \Magento\Backend\App\Action
         $this->_scopeConfig = $scopeConfig;
         $this->_config = $config;
         $this->_storeManager = $storeManager;
+        $this->_keyHelper = $keys;
+        $this->_cacheTypeList = $cacheTypeList;
+        $this->_cacheFrontendPool = $cacheFrontendPool;
     }
 
 
-    /**
-     * @return \Magento\Framework\Controller\ResultInterface
-     */
     public function execute()
     {
-        $code = $this->_getWebsiteCode();
 
         $success = true;
-        $messages = array();
+        $messages = [];
+
+        $code = $this->_getWebsiteCode();
+        $mode = $this->getRequest()->getParam('mode');
 
         /**
          * @var \Magento\Framework\Controller\Result\Json $resultJson
          */
         $resultJson = $this->resultJsonFactory->create();
 
-        // check configuration
-        if (empty($this->_getScopeConfig(Path::XML_PATH_KEY_DIRECTORY, $code))) {
+        if (empty($mode)) {
             $success = false;
-            $messages[] = __('Please configure directory for store generated key.');
-        }
-
-        if ($this->_getScopeConfig(Path::XML_PATH_IS_LIVE_MODE, $code)) {
-            if(empty($this->_config->getMerchantAgreement($code))) {
-                $success = false;
-                $messages[] = __('Please provide merchant agreement code');
-            }
-
-        } else {
-            if(empty($this->_config->getMerchantAgreement($code))) {
-                $success = false;
-                $messages[] = __('Please provide merchant agreement code for the test');
-            }
-
-            if($this->_config->getMerchantAgreement($code) === $this->_config->getMerchantAgreementDefault($code)) {
-                $success = false;
-                $messages[] = __('You can not generate keys for default test merchant agreement');
-            }
+            $messages[] = __('Problem with generating new keys. ') . __('Please refresh the page and try again.');
         }
 
         if (!$success) {
@@ -112,58 +112,55 @@ class GenerateKeys extends \Magento\Backend\App\Action
 
         $resultGenerate = $this->_generateKeys();
 
-        if ($resultGenerate === true) {
+        if ($resultGenerate !== false) {
+            $resultStoreKey = $this->_keyHelper->storeKeysIntoDatabase($this->_getScopeId(), $mode, $resultGenerate);
 
-            return $resultJson->setData(
-                [
-                    'valid' => true,
-                    'messages' => [__('Keys are generated correctly. Please refresh page.')]
-                ]
-            );
+            if ($resultStoreKey === true) {
+                $messages[] = __('Keys are generated correctly. Please refresh the page.');
 
+                $types = array('config', 'layout', 'block_html');
+                foreach ($types as $type) {
+                    $this->_cacheTypeList->cleanType($type);
+                }
+                foreach ($this->_cacheFrontendPool as $cacheFrontend) {
+                    $cacheFrontend->getBackend()->clean();
+                }
+
+                return $resultJson->setData(
+                    [
+                        'valid' => true,
+                        'messages' => $messages
+                    ]
+                );
+            }
+
+            $success = false;
+            $messages[] = $resultStoreKey;
+
+        } else {
+            $success = false;
+            $messages[] = __('Problem with generating new keys.');
         }
-
-        $messages[] = __('Problem with generating new keys.');
 
         return $resultJson->setData(
             [
-                'valid' => false,
+                'valid' => $success,
                 'messages' => $messages
             ]
         );
+
     }
 
     protected function _generateKeys()
     {
-        $code = $this->_getWebsiteCode();
-        $directory = $this->_getScopeConfig(Path::XML_PATH_KEY_DIRECTORY, $code);
-
-        if (!is_writable($directory)) {
-            return __('Problem with save keys into directory. Please check configuration.');
-        }
-
-        $merchant = $this->_config->getMerchantAgreement($code);
-
-        $prefix = $directory . DIRECTORY_SEPARATOR . $merchant;
-
         $generator = new RsaKeyGenerator();
         $result = $generator->generate();
 
-        if(!$result) {
-            return __('Problem with generate new keys.');
+        if (!$result) {
+            return false;
         }
 
-        if (\file_put_contents($prefix . '-private.pem', $generator->getPrivateKey()) === false ||
-            \file_put_contents($prefix . '-public.pem', $generator->getPublicKey()) === false) {
-
-            unlink($prefix . '-private.pem');
-            unlink($prefix . '-public.pem');
-
-            return __('Problem with save keys into directory. Please check configuration.');
-
-        }
-
-        return true;
+        return $generator;
     }
 
     protected function _getWebsiteCode()
@@ -176,6 +173,16 @@ class GenerateKeys extends \Magento\Backend\App\Action
         }
 
         return $code;
+    }
+
+    protected function _getScopeId()
+    {
+        $websiteId = $this->_request->getParam('website');
+        if ($websiteId !== null && (string)$websiteId !== '0') {
+            return $websiteId;
+        }
+
+        return null;
     }
 
     protected function _getScopeConfig($path, $websiteCode)

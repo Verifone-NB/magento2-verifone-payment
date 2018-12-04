@@ -1,6 +1,23 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] 2018.12.04
+### Added
+- Possibility to configure simple and advanced mode for key handling
+- New fields in configuration
+- Possibility to generate new keys for test and live
+- Possibility to store keys in database
+
+### Changed
+- Removed a preference and replaced it with an around plugin to preserve existing plugins.
+- Logic for fetch keys - from a file and a database
+- Update translation file
+
+### Fixed
+- One click request address data
+- Display "Check payment status" just for pending orders
+- Set payment method selected in payment service, not in shop.
+
 ## [0.1.0] 2018.10.12
 ### Added
 - New payment methods: MobilePay, Vipps, MasterPass
@@ -15,7 +32,7 @@ All notable changes to this project will be documented in this file.
   
 ### Fixed
 - Problem with rounding prices.
-- Problem with create combined item.
+- Problem with creates a combined item.
 
 ## [0.0.28] 2018.09.14
 ### Fixed

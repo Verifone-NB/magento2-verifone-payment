@@ -12,6 +12,8 @@
 namespace Verifone\Payment\Plugin\Block\Adminhtml\Order;
 
 
+use Verifone\Payment\Helper\Path;
+
 class View
 {
 
@@ -20,19 +22,30 @@ class View
      */
     protected $_urlBuilder;
 
-    public function __construct(\Magento\Framework\UrlInterface $urlBuilder)
+    protected $_scopeConfig;
+
+    public function __construct(
+        \Magento\Framework\UrlInterface $urlBuilder,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+    )
     {
         $this->_urlBuilder = $urlBuilder;
+        $this->_scopeConfig = $scopeConfig;
     }
 
-    public function beforeGetOrderId(\Magento\Sales\Block\Adminhtml\Order\View $subject)
+    public
+    function beforeGetOrderId(\Magento\Sales\Block\Adminhtml\Order\View $subject)
     {
 
         $order = $subject->getOrder();
 
         $paymentMethod = $order->getPayment()->getMethod();
 
-        if($paymentMethod != \Verifone\Payment\Model\Payment::CODE) {
+        if ($paymentMethod != \Verifone\Payment\Model\Payment::CODE) {
+            return null;
+        }
+
+        if($order->getStatus() !== $this->_scopeConfig->getValue(Path::XML_PATH_ORDER_STATUS_NEW)) {
             return null;
         }
 

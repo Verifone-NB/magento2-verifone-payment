@@ -23,12 +23,13 @@ class Path
     const XML_PATH_KEY_VERIFONE_TEST = 'payment/verifone_payment/pay_page_public_keyfile_test';
 
     const XML_PATH_MERCHANT_CODE_DEFAULT = 'payment/verifone_payment/merchant_agreement_code_default';
-    const XML_PATH_KEY_SHOP_DEFAULT = 'payment/verifone_payment/shop_private_keyfile_test';
+    const XML_PATH_KEY_SHOP_DEFAULT = 'payment/verifone_payment/shop_private_keyfile_default';
     const XML_PATH_KEY_VERIFONE_LIVE_DEFAULT = 'payment/verifone_payment/pay_page_public_keyfile_live_default';
     const XML_PATH_KEY_VERIFONE_TEST_DEFAULT = 'payment/verifone_payment/pay_page_public_keyfile_test_default';
 
     const XML_PATH_KEY_SHOP_PUBLIC_DEFAULT = 'payment/verifone_payment/shop_public_keyfile_default';
 
+    const XML_PATH_KEY_MODE = 'payment/verifone_payment/key_handling_mode';
     const XML_PATH_KEY_DIRECTORY = 'payment/verifone_payment/keyfile_directory';
 
     const XML_PATH_IS_LIVE_MODE = 'payment/verifone_payment/is_live_mode';

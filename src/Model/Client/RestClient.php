@@ -108,15 +108,15 @@ class RestClient extends \Verifone\Payment\Model\Client
     {
         $config = $this->_config->getConfig();
 
-        if (is_null($merchant)) {
+        if (null === $merchant) {
             $merchant = $config['merchant'];
         }
 
-        if (is_null($publicKey)) {
+        if (null === $publicKey) {
             $publicKey = $config['public-key'];
         }
 
-        if (is_null($privateKey)) {
+        if (null === $privateKey) {
             $privateKey = $config['private-key'];
         }
 
@@ -321,8 +321,7 @@ class RestClient extends \Verifone\Payment\Model\Client
             (string)$data['total_vat']
         );
 
-        $address = $this->_dataGetter->getAddressData($order);
-
+        $address = $this->_createAddressObject($this->_dataGetter->getAddressData($order));
         $customer = $this->_createCustomerObject($customerData, $address);
 
         $paymentInfo = new PaymentInfoImpl(
