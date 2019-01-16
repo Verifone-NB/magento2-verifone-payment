@@ -124,6 +124,11 @@ class UpgradeData implements UpgradeDataInterface
             $this->upgrade0011($setup);
         }
 
+        if (version_compare($context->getVersion(), '0.1.2') < 0) {
+            $this->upgrade012($setup);
+        }
+
+
         $setup->endSetup();
 
     }
@@ -146,7 +151,7 @@ class UpgradeData implements UpgradeDataInterface
     public function upgrade003(ModuleDataSetupInterface $setup)
     {
         $data = [
-            ['code' => 'VerifonePayment', 'name' => 'VerifonePayment - All in one', 'type' => 'ALL', 'active' => '1'],
+            ['code' => 'VerifonePayment', 'name' => 'VerifonePayment - All in One', 'type' => 'ALL', 'active' => '1'],
             ['code' => 'visa', 'name' => 'VISA', 'type' => 'CARD'],
             ['code' => 'master-card', 'name' => 'MASTER_CARD', 'type' => 'CARD'],
             ['code' => 's-pankki-verkkomaksu', 'name' => 'S_PANKKI_VERKKOMAKSU', 'type' => 'BANK'],
@@ -347,5 +352,12 @@ class UpgradeData implements UpgradeDataInterface
                 $setup->getConnection()->insert($tableName, $item);
             }
         }
+    }
+
+    public function upgrade012(ModuleDataSetupInterface $setup)
+    {
+        $tableName = $setup->getTable('verifone_payment_methods');
+
+        $setup->getConnection()->update($tableName, ['name' => 'All In One'], 'type LIKE "ALL"');
     }
 }

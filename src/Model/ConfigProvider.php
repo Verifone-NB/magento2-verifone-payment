@@ -66,13 +66,21 @@ class ConfigProvider implements ConfigProviderInterface
         if ($payment->isAvailable()) {
             $redirectUrl = $payment->getCheckoutRedirectUrl();
             $quote = $this->_checkoutSession->getQuote();
-            $savedCC = $this->_saved->getSavedPayments(true);
+
+            if($this->_payentMethodHelper->allowSaveCC()) {
+                $savedCC = $this->_saved->getSavedPayments(true);
+            } else {
+                $savedCC = [];
+            }
 
             $paymentMethods = $this->_payentMethodHelper->getPaymentMethods();
 
             if($this->_payentMethodHelper->allowSaveCC()) {
                 foreach ($paymentMethods as $key => $methods) {
                     if($methods['isCard']) {
+                        if (!isset($paymentMethods[$key]['methods'])) {
+                            break;
+                        }
                         $paymentMethods[$key]['methods'] = array_merge($this->_prepareSavedCards($savedCC), $paymentMethods[$key]['methods']);
                         break;
                     }

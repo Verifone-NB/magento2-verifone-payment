@@ -1,6 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.2] 2019.01.16
+### Added
+- Logic for prevent against process 2 payment responses at same time.
+
+### Changed
+- Hidden selector for payment method when just All In One available
+- Change name for All in One payment method (typo)
+- Fetch saved payment method just when action is allowed in configuration
+
+### Fixed
+- Payment additional_information is overwritten when adding a new order transaction
+- Exception when no payment method select for card group
+
 ## [0.1.1] 2018.12.04
 ### Added
 - Possibility to configure simple and advanced mode for key handling

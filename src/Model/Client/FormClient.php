@@ -347,13 +347,21 @@ class FormClient extends \Verifone\Payment\Model\Client
             $description = $group['group_description'];
         }
 
+        if($isCard && (!isset($group['payments']) || count($group['payments']) === 0)) {
+            $isGroup = false;
+        }
+
+        if(!$isCard && count($group['payments']) === 1) {
+            $isGroup = false;
+        }
+
         return [
             'isGroup' => $isGroup,
             'position' => isset($group['position']) ? $group['position'] : 0,
             'name' => $name,
             'description' => $description,
             'isCard' => $isCard,
-            'payments' => $group['payments']
+            'payments' => isset($group['payments']) ? $group['payments'] : []
         ];
     }
 

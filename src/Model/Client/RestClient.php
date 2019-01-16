@@ -170,10 +170,14 @@ class RestClient extends \Verifone\Payment\Model\Client
         $refundAmount = $amount * 100;
 
         $paymentMethod = $payment->getAdditionalInformation('payment-method');
-        if($paymentMethod === null) {
+        if ($paymentMethod === null) {
             $additionalInformation = $payment->getAdditionalInformation();
-            if(isset($additionalInformation['raw_details_info']['payment-method'])) {
-                $paymentMethod = $additionalInformation['raw_details_info']['payment-method'];
+
+            if (isset($additionalInformation[\Verifone\Payment\Model\Payment::ADDITIONAL_INFO]['payment-method'])) {
+                $paymentMethod = $additionalInformation[\Verifone\Payment\Model\Payment::ADDITIONAL_INFO]['payment-method'];
+            } elseif (isset($additionalInformation[\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS]['payment-method'])) {
+                // backward compatibility
+                $paymentMethod = $additionalInformation[\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS]['payment-method'];
             }
         }
 

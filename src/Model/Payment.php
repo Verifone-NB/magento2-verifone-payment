@@ -18,6 +18,7 @@ use Magento\Payment\Model\Method\AbstractMethod;
 class Payment extends AbstractMethod
 {
     const CODE = 'verifone_payment';
+    const ADDITIONAL_INFO = 'verifone_payment_info';
 
     /**
      * @var string

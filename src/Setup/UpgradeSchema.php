@@ -38,6 +38,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->upgrade006($setup);
         }
 
+        if (version_compare($context->getVersion(), '0.1.2') < 0) {
+            $this->upgrade012($setup);
+        }
+
         $setup->endSetup();
     }
 
@@ -189,5 +193,26 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 'comment' => 'Masked Pan Number'
             ]
         );
+    }
+
+    public function upgrade012(SchemaSetupInterface $setup)
+    {
+        $tableName = $setup->getTable('verifone_order_process_status');
+
+        $table = $setup->getConnection()->newTable($tableName)->addColumn(
+            'order_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            20,
+            ['nullable' => false, 'primary' => true],
+            'Order Increment Id'
+        )->addColumn(
+            'under_process',
+            \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+            null,
+            ['nullable' => false,],
+            'Order process status'
+        );
+
+        $setup->getConnection()->createTable($table);
     }
 }

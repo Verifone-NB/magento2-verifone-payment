@@ -148,17 +148,11 @@ class Order
          */
         $payment = $order->getPayment();
 
-        $payment->setAdditionalInformation(
-            [
-                \Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS =>
-                    [
-                        'payment-method' => $paymentMethod
-                    ]
-            ]
-        );
+        $payment->setAdditionalInformation(\Verifone\Payment\Model\Payment::ADDITIONAL_INFO, ['payment-method' => $paymentMethod]);
+
         $payment->setIsTransactionClosed(0);
         $payment->setTransactionId($transactionId);
-        $payment->setTransactionAdditionalInfo(\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS,
+        $payment->setTransactionAdditionalInfo(\Verifone\Payment\Model\Payment::ADDITIONAL_INFO,
             [
                 'ext_order_id' => $extOrderId,
                 'date_of_check' => $date,
@@ -167,7 +161,7 @@ class Order
             ]
         );
 
-        if($order->getData('payment_method_code') !== $paymentMethod) {
+        if ($order->getData('payment_method_code') !== $paymentMethod) {
             $order->setData('payment_method_code', $paymentMethod);
         }
 
@@ -369,7 +363,7 @@ class Order
                 }
             }
 
-            if($totalPaid >= $order->getTotalDue()) {
+            if ($totalPaid >= $order->getTotalDue()) {
                 break;
             }
 
@@ -378,19 +372,19 @@ class Order
         if (!empty($transaction) && $update) {
             $state = $this->_paymentHelper->getOrderStatusFromMap($transaction->getCode());
 
-            if($state == $order->getState()){
+            if ($state == $order->getState()) {
                 return true;
             }
 
             if ($status = $state) {
                 $comment = __('Order status is now [%1] because payment for this order was found.', $state);
 
-                if(in_array($state, array(
+                if (in_array($state, array(
                     \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT,
                     'pending_verifone'
-                ))){
+                ))) {
                     $comment = __('Order status is now [%1] because payment for this order was NOT found.', $state);
-                } elseif($state == \Magento\Sales\Model\Order::STATE_CANCELED) {
+                } elseif ($state == \Magento\Sales\Model\Order::STATE_CANCELED) {
                     $comment = __('Order status is now [cancel] because payment for this order was cancelled');
                 }
 
@@ -418,7 +412,7 @@ class Order
 
         $diff = $date->diff($orderDate);
 
-        if($diff->days > 0 || $diff->h > 1 || $diff->i < 15 || $diff->i > 60) {
+        if ($diff->days > 0 || $diff->h > 1 || $diff->i < 15 || $diff->i > 60) {
             return false;
         }
 
@@ -437,12 +431,12 @@ class Order
         $paymentTransaction = $collection->addFieldToFilter('transaction_id', array('eq' => $transaction->getTransactionNumber()))->getFirstItem();
 
         // if exists then update
-        if($paymentTransaction && $paymentTransaction->getId()) {
+        if ($paymentTransaction && $paymentTransaction->getId()) {
 
             $paymentTransaction
                 ->setTxnId($transaction->getTransactionNumber())
                 ->setTxnType($this->_paymentHelper->getTransactionTypeFromMap($transaction->getCode()))
-                ->setAdditionalInformation(\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS,
+                ->setAdditionalInformation(\Verifone\Payment\Model\Payment::ADDITIONAL_INFO,
                     [
                         'ext_order_id' => $trans_id,
                         'date_of_check' => $date,
@@ -456,7 +450,7 @@ class Order
 
         $state = $this->_paymentHelper->getOrderStatusFromMap($transaction->getCode());
 
-        if($state == \Magento\Sales\Model\Order::STATE_CANCELED) {
+        if ($state == \Magento\Sales\Model\Order::STATE_CANCELED) {
             $this->_cancelTransacion(
                 $order,
                 $transaction->getTransactionNumber()
@@ -483,7 +477,8 @@ class Order
     protected function _cancelTransacion(
         \Magento\Sales\Model\Order $order,
         $transactionId
-    ) {
+    )
+    {
         if ($transactionId) {
 
             $payment = $order->getPayment();

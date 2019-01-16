@@ -12,12 +12,16 @@ define(
         return Component.extend({
             defaults: {
                 redirectAfterPlaceOrder: false,
-                template: 'Verifone_Payment/payment/verifone-form'
+                template: 'Verifone_Payment/payment/verifone-form',
+                code: 'verifone_payment'
             },
             initialize: function () {
                 var self = this;
                 this._super();
                 this.observerOnPaymentMethod();
+            },
+            getCode: function() {
+                return this.code;
             },
             getData: function () {
                 return {
@@ -89,6 +93,10 @@ define(
             getPaymentMethods: function () {
                 return window.checkoutConfig.payment.verifonePayment.paymentMethods;
             },
+            isOnlyOnePaymentMethod: function () {
+                var methods = this.getPaymentMethods();
+                return (methods[0].payments.length + methods[1].payments.length) === 1;
+            },
             getAllowSaveCC: function () {
                 return window.checkoutConfig.payment.verifonePayment.allowSaveCC && customer.isLoggedIn();
             },
@@ -145,6 +153,22 @@ define(
                     $group.find('select').attr('disabled', false);
                     $group.find('.verifone-payment-method-footer').removeClass('hidden');
                     $group.find('[id*=verifonepayment-mockup_]').attr('checked', true);
+                });
+
+                jQuery('#co-payment-form').on('change', '[name=payment\\[method\\]]', function () {
+
+                    var $this = jQuery(this);
+
+                    if(jQuery('#verifone_payment').is(':checked')) {
+                        if($obj.isOnlyOnePaymentMethod()) {
+                            jQuery('#verifone-payment-method-VerifonePayment').attr('checked', true);
+                            jQuery('#verifone-payment-method-VerifonePayment').closest('.verifone-payment-method-group').addClass('hidden');
+                        }
+                    } else {
+                        if($obj.isOnlyOnePaymentMethod()) {
+                            jQuery('#verifone-payment-method-VerifonePayment').attr('checked', false);
+                        }
+                    }
                 });
             },
             disableMethods: function () {

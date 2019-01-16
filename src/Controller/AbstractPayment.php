@@ -23,6 +23,9 @@ use Verifone\Payment\Model\Order\Exception;
 abstract class AbstractPayment extends Action
 {
 
+    const RETRY_DELAY_IN_SECONDS = 2;
+    const RETRY_MAX_ATTEMPTS = 5;
+
     /**
      * @var \Verifone\Payment\Helper\Order
      */
@@ -39,6 +42,11 @@ abstract class AbstractPayment extends Action
     protected $_session;
 
     /**
+     * @var \Verifone\Payment\Model\ResourceModel\Db\Order\Process\Status
+     */
+    protected $_orderLocker;
+
+    /**
      * AbstractPayment constructor.
      * @param Context $context
      * @param \Verifone\Payment\Helper\Order $order
@@ -48,14 +56,15 @@ abstract class AbstractPayment extends Action
         Context $context,
         \Verifone\Payment\Helper\Order $order,
         \Verifone\Payment\Model\ClientFactory $clientFactory,
-        \Magento\Checkout\Model\Session $session
+        \Magento\Checkout\Model\Session $session,
+        \Verifone\Payment\Model\ResourceModel\Db\Order\Process\Status $status
     ) {
         parent::__construct($context);
 
         $this->_order = $order;
         $this->_clientFactory = $clientFactory;
         $this->_session = $session;
-
+        $this->_orderLocker = $status;
     }
 
     protected function _handleSuccess($delayedSuccess = false)
@@ -81,6 +90,30 @@ abstract class AbstractPayment extends Action
          * @var \Magento\Sales\Model\Order $order
          */
         $order = $this->_order->loadOrderByIncrementId($orderNumber);
+
+        if($delayedSuccess === false && $order->getState() === \Magento\Sales\Model\Order::STATE_PROCESSING ) {
+            $redirectUrl = 'checkout/onepage/success';
+            $resultRedirect->setPath($redirectUrl);
+            return $resultRedirect;
+        }
+
+        $attempts = 0;
+        while(!$this->_orderLocker->lockOrder($orderNumber) && $attempts < self::RETRY_MAX_ATTEMPTS) {
+            sleep(self::RETRY_DELAY_IN_SECONDS);
+            ++$attempts;
+        }
+
+        // Check if order status changed during a while
+        if($attempts > 0 && $attempts < self::RETRY_MAX_ATTEMPTS ) {
+            $orderTmp = $this->_order->loadOrderByIncrementId($orderNumber);
+
+            if($delayedSuccess === false && $orderTmp->getState() === \Magento\Sales\Model\Order::STATE_PROCESSING ) {
+                $redirectUrl = 'checkout/onepage/success';
+                $resultRedirect->setPath($redirectUrl);
+                return $resultRedirect;
+            }
+
+        }
 
         try {
             /** @var CoreResponse $validate */
@@ -138,6 +171,8 @@ abstract class AbstractPayment extends Action
                 $this->_session->setPaymentMethod(null);
                 $this->_session->setPaymentMethodId(null);
                 $this->_session->setSavePaymentMethod(null);
+
+                $this->_orderLocker->unlockOrder($orderNumber);
 
                 if ($delayedSuccess) {
                     // no session, i.e. late POST from the payment system. We must signal 200 OK.
