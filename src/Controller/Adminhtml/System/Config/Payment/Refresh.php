@@ -90,7 +90,7 @@ class Refresh extends \Magento\Backend\App\Action
         return $resultJson->setData(
             [
                 'valid' => 1,
-                'message' => __('Refresh succeed. Please refresh your web browser.'),
+                'message' => __('Payment methods fetched. Please refresh your web browser.'),
                 'methods' => [
                     'bank' => $banks,
                     'card' => $cards

@@ -40,7 +40,7 @@ $_colspan = $_colspan > 1 ? 'colspan="' . $_colspan . '"' : '';
 </div>
 
 <script>
-  require(['prototype', 'tinymce'], function (Prototype, tinyMCE) {
+  require(['prototype'], function (Prototype) {
 
     // create row creator
     var arrayRow<?php echo $_htmlId ?> = {
@@ -101,22 +101,6 @@ $_colspan = $_colspan > 1 ? 'colspan="' . $_colspan . '"' : '';
         // insert after specified row
         else {
           Element.insert($(insertAfterId), {after: this.template.evaluate(templateData)});
-
-          tinyMCE.init({
-            mode: "exact",
-            elements: "textfield_group_description" + templateData._id,
-            theme: "advanced",
-            plugins: "style,paste",
-            theme_advanced_buttons1: "bold,italic,underline,strikethrough,|,styleselect,formatselect,fontsizeselect,,,,,,,",
-            theme_advanced_buttons2: null,
-            theme_advanced_buttons3: null,
-            theme_advanced_buttons4: null,
-            theme_advanced_toolbar_location: "top",
-            theme_advanced_path_location: null,
-            extended_valid_elements: "font[face|size|color|style],span[class|align|style]",
-            convert_urls: 'false',
-            force_br_newlines: 'true'
-          });
         }
 
         var $_groupNameTextfieldElement = $(templateData._id).select('#textfield_group_name' + templateData._id).first();

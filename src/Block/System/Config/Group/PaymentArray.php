@@ -56,7 +56,7 @@ class PaymentArray extends \Magento\Config\Block\System\Config\Form\Field\FieldA
         $this->addColumn('group_name', array(
             'label' => __('Group name'),
             'size' => 20,
-            'style' => 'width: auto',
+            'style' => 'width: 275px',
         ));
 
         $this->addColumn('payments', array(

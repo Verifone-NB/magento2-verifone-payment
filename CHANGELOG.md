@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] 2019.01.30
+### Changed
+- Small changes in labels and descriptions for in the configuration form
+- Updated translations
+
+### Fixed
+- Compatibility with Magento 2.3 - remove tinymce editor from the group description field
+
 ## [0.1.2] 2019.01.16
 ### Added
 - Logic for prevent against process 2 payment responses at same time.
