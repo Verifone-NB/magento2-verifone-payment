@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] 2019.02.11
+### Fixed
+- Fix for Magento 2.3 CsrfValidator and backwards-compatibility to prior Magento 2 versions
+- Fix for refresh saved payment methods page.
+
 ## [0.1.3] 2019.01.30
 ### Changed
 - Small changes in labels and descriptions for in the configuration form

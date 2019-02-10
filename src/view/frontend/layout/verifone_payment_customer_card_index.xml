@@ -7,7 +7,7 @@
     </head>
     <body>
         <referenceContainer name="content">
-            <block class="Verifone\Payment\Block\Customer\PaymentCards" name="verifonepayment.customer.paymentcards" template="Verifone_Payment::customer/paymentcards.phtml" />
+            <block class="Verifone\Payment\Block\Customer\PaymentCards" name="verifonepayment.customer.paymentcards" template="Verifone_Payment::customer/paymentcards.phtml" cacheable="false"/>
         </referenceContainer>
     </body>
 </page>

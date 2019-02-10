@@ -14,6 +14,7 @@ namespace Verifone\Payment\Controller;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Request\Http;
 use Verifone\Core\Converter\Response\CoreResponseConverter;
 use Verifone\Core\DependencyInjection\CoreResponse\PaymentResponseImpl;
 use Verifone\Core\DependencyInjection\Transporter\CoreResponse;
@@ -65,6 +66,26 @@ abstract class AbstractPayment extends Action
         $this->_clientFactory = $clientFactory;
         $this->_session = $session;
         $this->_orderLocker = $status;
+
+        // Fix for Magento 2.3 CsrfValidator and backwards-compatibility to prior Magento 2 versions
+        if(interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
+            $request = $this->getRequest();
+            if ($request instanceof Http && $request->isPost()) {
+                $request->setParam('ajax', true);
+            }
+        }
+    }
+
+    protected function _unsetAjax()
+    {
+        // Response validation thrown error when $_POST contains other fields than return from payment service
+        // Before validation, ajax parameter must be unset.
+        if(interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
+            $request = $this->getRequest();
+            if ($request instanceof Http && $request->isPost()) {
+                $request->setParam('ajax', null);
+            }
+        }
     }
 
     protected function _handleSuccess($delayedSuccess = false)
@@ -116,6 +137,7 @@ abstract class AbstractPayment extends Action
         }
 
         try {
+            $this->_unsetAjax();
             /** @var CoreResponse $validate */
             $parsedResponse = $client->validateAndParseResponse($_request->getParams(), $order);
 
@@ -221,6 +243,7 @@ abstract class AbstractPayment extends Action
         $order = $this->_order->loadOrderByIncrementId($orderNumber);
 
         try {
+            $this->_unsetAjax();
             /** @var CoreResponse $validate */
             $parsedResponse = $client->validateAndParseResponse($_request->getParams(), $order);
 
