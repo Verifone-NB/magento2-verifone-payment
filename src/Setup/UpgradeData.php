@@ -60,14 +60,15 @@ class UpgradeData implements UpgradeDataInterface
      */
     public function __construct(
         \Magento\Sales\Model\Order\StatusFactory $statusFactory,
-        \Magento\Framework\App\Config\ConfigResource\ConfigInterface  $resourceConfig,
+        \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Customer\Setup\CustomerSetupFactory $customerSetupFactory,
         \Magento\Eav\Model\Entity\Attribute\SetFactory $attributeSetFactory,
         \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory,
         \Magento\Eav\Model\Config $eavConfig,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata
-    ) {
+    )
+    {
         $this->_statusFactory = $statusFactory;
         $this->_resourceConfig = $resourceConfig;
         $this->_scopeConfig = $scopeConfig;
@@ -199,12 +200,18 @@ class UpgradeData implements UpgradeDataInterface
 
         $version = explode('.', $this->_productMetadata->getVersion());
 
-        if(empty($payment) || !$this->_isJson($payment)) {
+        if (empty($payment) || !$this->_isJson($payment)) {
 
-            if($version[1] >= 2) {
-                $value = '{"_1450878527843_843":{"position":"100","group_name":"verifone-default","payments":["VerifonePayment"]}}';
+            $dataP['_1450878527843_843'] = [
+                'position' => '100',
+                'group_name' => 'verifone-default',
+                'payments' => ['VerifonePayment']
+            ];
+
+            if ($version[1] >= 2) {
+                $value = \json_encode($dataP);
             } else {
-                $value = 'a:1:{s:18:"_1450878527843_843";a:3:{s:8:"position";s:3:"100";s:10:"group_name";s:16:"verifone-default";s:8:"payments";a:1:{i:0;s:15:"VerifonePayment";}}}';
+                $value = \serialize($dataP);
             }
 
             $this->_resourceConfig->saveConfig(
@@ -217,12 +224,18 @@ class UpgradeData implements UpgradeDataInterface
 
         $cards = $this->_scopeConfig->getValue(Path::XML_PATH_CARD_METHODS);
 
-        if(empty($cards) || !$this->_isJson($cards)) {
+        if (empty($cards) || !$this->_isJson($cards)) {
 
-            if($version[1] >= 2) {
-                $value = '{"_1452514030822_822":{"position":"10","group_name":"Verifone Credit Cards","payments":["amex","visa","master-card","diners"]}}';
+            $dataC['_1452514030822_822'] = [
+                'position' => '10',
+                'group_name' => 'Verifone Credit Cards',
+                'payments' => ['amex', 'visa', 'master-card', 'diners']
+            ];
+
+            if ($version[1] >= 2) {
+                $value = \json_encode($dataC);
             } else {
-                $value = 'a:1:{s:18:"_1452514030822_822";a:3:{s:8:"position";s:2:"10";s:10:"group_name";s:21:"Verifone Credit Cards";s:8:"payments";a:4:{i:0;s:4:"amex";i:1;s:4:"visa";i:2;s:11:"master-card";i:3;s:6:"diners";}}}';
+                $value = \serialize($dataC);
             }
 
             $this->_resourceConfig->saveConfig(

@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.5] 2019.03.11
+### Changed
+- Small improvements for create the default payment groups
+
+### Fixed
+- Typo in discount product name
+- Missing discount product when combined basket items option is enabled
+
 ## [0.1.4] 2019.02.11
 ### Fixed
 - Fix for Magento 2.3 CsrfValidator and backwards-compatibility to prior Magento 2 versions

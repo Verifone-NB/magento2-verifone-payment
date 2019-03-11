@@ -38,11 +38,16 @@ class RecreatePaymentsConfigCommand extends Command
 
         $version = explode('.', $productMetadata->getVersion());
 
+        $dataP['_1450878527843_843'] = [
+            'position' => '100',
+            'group_name' => 'verifone-default',
+            'payments' => ['VerifonePayment']
+        ];
 
         if ($version[1] >= 2) {
-            $value = '{"_1450878527843_843":{"position":"100","group_name":"verifone-default","payments":["VerifonePayment"]}}';
+            $value = \json_encode($dataP);
         } else {
-            $value = 'a:1:{s:18:"_1450878527843_843";a:3:{s:8:"position";s:3:"100";s:10:"group_name";s:16:"verifone-default";s:8:"payments";a:1:{i:0;s:15:"VerifonePayment";}}}';
+            $value = \serialize($dataP);
         }
 
         $resourceConfig->saveConfig(
@@ -52,10 +57,16 @@ class RecreatePaymentsConfigCommand extends Command
             0
         );
 
+        $dataC['_1452514030822_822'] = [
+            'position' => '10',
+            'group_name' => 'Verifone Credit Cards',
+            'payments' => ['amex', 'visa', 'master-card', 'diners']
+        ];
+
         if ($version[1] >= 2) {
-            $value = '{"_1452514030822_822":{"position":"10","group_name":"Verifone Credit Cards","payments":["amex","visa","master-card","diners"]}}';
+            $value = \json_encode($dataC);
         } else {
-            $value = 'a:1:{s:18:"_1452514030822_822";a:3:{s:8:"position";s:2:"10";s:10:"group_name";s:21:"Verifone Credit Cards";s:8:"payments";a:4:{i:0;s:4:"amex";i:1;s:4:"visa";i:2;s:11:"master-card";i:3;s:6:"diners";}}}';
+            $value = \serialize($dataC);
         }
 
         $resourceConfig->saveConfig(

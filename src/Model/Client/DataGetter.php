@@ -155,18 +155,16 @@ class DataGetter
 
         }
 
-        if (!$this->_isCombineBasketItems()) {
-            $discountAmount = $this->_getOrderGrossAmount($order) - $itemsGrossPrice;
-            if (abs($discountAmount) >= 1) {
-                $discountProduct = $this->_getBasketDiscountData($order, $this->_getOrderGrossAmount($order), $itemsGrossPrice,
-                    $this->_getOrderNetAmount($order), $itemsNetPrice);
-
-                $products[] = $discountProduct;
-            }
-        }
-
         if ($this->_isCombineBasketItems()) {
             $products[] = $this->_getCombinedBasketItemsData($order, $itemsGrossPrice, $itemsNetPrice);
+        }
+
+        $discountAmount = $this->_getOrderGrossAmount($order) - $itemsGrossPrice;
+        if (abs($discountAmount) >= 1) {
+            $discountProduct = $this->_getBasketDiscountData($order, $this->_getOrderGrossAmount($order), $itemsGrossPrice,
+                $this->_getOrderNetAmount($order), $itemsNetPrice);
+
+            $products[] = $discountProduct;
         }
 
         return $products;
@@ -290,7 +288,6 @@ class DataGetter
         $itemsNetPrice
     )
     {
-
 
         return [
             'name' => $this->_getDiscountName($order),
@@ -444,6 +441,6 @@ class DataGetter
             return $order->getDiscountDescription();
         }
 
-        return __('Discocunt')->getText();
+        return __('Discount')->getText();
     }
 }

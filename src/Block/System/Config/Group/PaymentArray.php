@@ -88,6 +88,9 @@ class PaymentArray extends \Magento\Config\Block\System\Config\Form\Field\FieldA
         if ($columnName == 'payments') {
             $payments = $this->_renderPayments();
 
+            if($payments !== null && $column['size'] > \count($payments)) {
+                $column['size'] = \count($payments);
+            }
             $column['size'] = $column['size'] > count($payments) ? count($payments) : $column['size'];
 
             $rendered = '<select style="width: 200px;" name="' . $inputName . '[]" id="select_' . $columnName . '#{_id}" size="' . $column['size'] . '" multiple="multiple">';
