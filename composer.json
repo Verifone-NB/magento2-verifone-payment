@@ -3,7 +3,7 @@
   "description": "Verifone integration for Magento 2",
   "require": {
     "php": "~7.0.0|~7.1.0",
-    "verifone/core": "1.0.*"
+    "verifone/core": "~1.0.12"
   },
   "type": "magento2-module",
   "autoload": {

@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] 2019.05.11
+### Changed
+- Updated required version of Core library in the composer.json
+
 ## [0.1.5] 2019.03.11
 ### Changed
 - Small improvements for create the default payment groups
