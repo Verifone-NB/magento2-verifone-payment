@@ -44,7 +44,7 @@ class Config extends \Magento\Sales\Model\Order\Config
      *
      * @return string
      */
-    public function getStateDefaultStatus($state)
+    public function getStateDefaultStatus($state):?string
     {
         switch ($state) {
             case Order::STATE_PENDING_PAYMENT:
