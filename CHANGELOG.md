@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.7] 2019.06.02
+### Added
+- Support for PHP 7.2.x
+
+### Removed
+- Support for PHP 7.0.x
+
+### Fixed
+- Problem with missing return type in Magento 2.3.1
+
 ## [0.1.6] 2019.05.11
 ### Changed
 - Updated required version of Core library in the composer.json
