@@ -128,6 +128,10 @@ class Method extends AbstractModel implements \Magento\Framework\DataObject\Iden
             return array_merge($this->_toArray, $this->_cardToArray);
         }
 
+        if($this->_toArray === null) {
+            return [];
+        }
+
         return $this->_toArray;
     }
 
@@ -145,6 +149,10 @@ class Method extends AbstractModel implements \Magento\Framework\DataObject\Iden
                     'label' => $item->getName()
                 ];
             }
+        }
+
+        if($this->_cardToArray === null) {
+            return [];
         }
 
         return $this->_cardToArray;

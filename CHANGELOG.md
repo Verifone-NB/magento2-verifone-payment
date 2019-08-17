@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.8] 2019.08.18
+### Fixed
+- Problem with wrong object type (with PHP 7.2.x)
+
 ## [0.1.7] 2019.06.02
 ### Added
 - Support for PHP 7.2.x
