@@ -71,7 +71,9 @@ abstract class AbstractPayment extends Action
         if(interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
-                $request->setParam('ajax', true);
+                /** @var \Zend\Http\Headers $headers */
+                $headers = $request->getHeaders();
+                $headers->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
             }
         }
     }
@@ -83,7 +85,9 @@ abstract class AbstractPayment extends Action
         if(interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
-                $request->setParam('ajax', null);
+                $headers = $request->getHeaders();
+                $header = $headers->get('X_REQUESTED_WITH');
+                $headers->removeHeader($header);
             }
         }
     }

@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.9] 2019.10.25
+### Fixed
+- Problem with return after pay in Magento 2.3.2
+
 ## [0.1.8] 2019.08.18
 ### Fixed
 - Problem with wrong object type (with PHP 7.2.x)
