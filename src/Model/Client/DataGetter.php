@@ -191,23 +191,43 @@ class DataGetter
         return null;
     }
 
-    public function getAddressData(\Magento\Sales\Model\Order $order)
+    protected function _getAddressData(\Magento\Sales\Api\Data\OrderAddressInterface $address)
     {
-        $address = $order->getShippingAddress();
-
-        if($address === false) {
-            $address = $order->getBillingAddress(); // For downloadable/virtual products
-        }
-
         $addressData['line-1'] = $address->getStreetLine(1);
         $addressData['line-2'] = $address->getStreetLine(2) ?: $address->getRegion();
         $addressData['line-3'] = $address->getStreetLine(2) ? $address->getRegion(): '';
         $addressData['city'] = $address->getCity();
         $addressData['postal-code'] = $address->getPostcode();
         $addressData['country-code'] = $this->_helper->convertCountryCode2Numeric($address->getCountryId());
+        $addressData['first-name'] = $address->getFirstname();
+        $addressData['last-name'] = $address->getLastname();
+        $addressData['phone-number'] = $address->getTelephone();
+        $addressData['email'] = $address->getEmail();
 
         return $addressData;
 
+    }
+
+    public function getBillingAddressData(\Magento\Sales\Model\Order $order)
+    {
+        $address = $order->getBillingAddress();
+
+        if($address) {
+            return $this->_getAddressData($address);
+        }
+
+        return null;
+    }
+
+    public function getDeliveryAddressData(\Magento\Sales\Model\Order $order)
+    {
+        $address = $order->getShippingAddress();
+
+        if($address) {
+            return $this->_getAddressData($address);
+        }
+
+        return null;
     }
 
     public function getShippingData(\Magento\Sales\Model\Order $order)

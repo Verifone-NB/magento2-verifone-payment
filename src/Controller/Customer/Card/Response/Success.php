@@ -25,7 +25,9 @@ class Success extends \Magento\Framework\App\Action\Action
         if(interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
-                $request->setParam('ajax', true);
+                /** @var \Zend\Http\Headers $headers */
+                $headers = $request->getHeaders();
+                $headers->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
             }
         }
     }

@@ -462,8 +462,8 @@ class RestClient extends \Verifone\Payment\Model\Client
             $this->_paymentHelper->sanitize($customerData['lastname']),
             $this->_paymentHelper->sanitize($customerData['phone']),
             $this->_paymentHelper->sanitize($customerData['email']),
-            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : '',
-            $address
+            $address,
+            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : ''
         );
     }
 

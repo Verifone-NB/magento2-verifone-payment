@@ -12,6 +12,7 @@
 namespace Verifone\Payment\Controller\Payment;
 
 use Magento\Framework\App\Action\Action;
+use Verifone\Core\Exception\MissingBillingAddressException;
 use Verifone\Payment\Model\Order\Exception;
 
 class Form extends Action
@@ -114,6 +115,14 @@ class Form extends Action
                 return $resultPage;
 
             } catch (Exception $e) {
+                $this->_logger->critical($e);
+                $redirectUrl = 'verifone_payment/payment/cancel';
+                $redirectParams = ['exception' => '1'];
+            } catch (MissingBillingAddressException $e) {
+                $this->_logger->critical($e);
+                $redirectUrl = 'verifone_payment/payment/cancel';
+                $redirectParams = ['exception' => '1'];
+            } catch (\Exception $e) {
                 $this->_logger->critical($e);
                 $redirectUrl = 'verifone_payment/payment/cancel';
                 $redirectParams = ['exception' => '1'];

@@ -129,7 +129,8 @@ class FormClient extends \Verifone\Payment\Model\Client
         if ($customerData) {
             $data['customer'] = $customerData;
         }
-        $data['address'] = $this->_dataGetter->getAddressData($order);
+        $data['address'] = $this->_dataGetter->getBillingAddressData($order);
+        $data['delivery_address'] = $this->_dataGetter->getDeliveryAddressData($order);
 
         return $data;
     }
@@ -167,6 +168,12 @@ class FormClient extends \Verifone\Payment\Model\Client
 
         $address = $this->_createAddressObject($data['address']);
         $customer = $this->_createCustomerObject($data['customer'], $address);
+
+        if (!empty($data['delivery_address'])) {
+            $deliveryAddress = $this->_createAddressObject($data['delivery_address']);
+        } else {
+            $deliveryAddress = null;
+        }
 
         $products = [];
 
@@ -214,6 +221,10 @@ class FormClient extends \Verifone\Payment\Model\Client
         $service->insertOrder($orderImpl);
         $service->insertPaymentInfo($paymentInfo);
         $service->insertTransaction($transactionInfo);
+
+        if ($deliveryAddress) {
+            $service->insertDeliveryAddress($deliveryAddress);
+        }
 
         foreach ($products as $product) {
             $service->insertProduct($product);
@@ -314,7 +325,7 @@ class FormClient extends \Verifone\Payment\Model\Client
     {
         $version = explode('.', $this->_productMetadata->getVersion());
 
-        if($version[1] >= 2) {
+        if ($version[1] >= 2) {
             $groups = json_decode($string, true);
         } else {
             $groups = unserialize($string);
@@ -347,11 +358,11 @@ class FormClient extends \Verifone\Payment\Model\Client
             $description = $group['group_description'];
         }
 
-        if($isCard && (!isset($group['payments']) || count($group['payments']) === 0)) {
+        if ($isCard && (!isset($group['payments']) || count($group['payments']) === 0)) {
             $isGroup = false;
         }
 
-        if(!$isCard && count($group['payments']) === 1) {
+        if (!$isCard && count($group['payments']) === 1) {
             $isGroup = false;
         }
 
@@ -370,7 +381,7 @@ class FormClient extends \Verifone\Payment\Model\Client
      * @param $group2
      * @return int
      */
-    static function sortGroups($group1, $group2)
+    static public function sortGroups($group1, $group2)
     {
         if ($group1['position'] == $group2['position']) {
             return 0;
@@ -404,7 +415,9 @@ class FormClient extends \Verifone\Payment\Model\Client
             $config['style-code']
         );
 
-        $customer = $this->_createCustomerObject($customerData);
+        $address = $this->_createAddressObject($customerData['address']);
+
+        $customer = $this->_createCustomerObject($customerData, $address);
 
         $order = new OrderImpl(
             'addNewCard',
@@ -447,20 +460,29 @@ class FormClient extends \Verifone\Payment\Model\Client
             $this->_paymentHelper->sanitize($customerData['lastname']),
             $this->_paymentHelper->sanitize($customerData['phone']),
             $this->_paymentHelper->sanitize($customerData['email']),
-            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : '',
-            $address
+            $address,
+            isset($customerData['external_id']) && $customerData['external_id'] ? (string)$customerData['external_id'] : ''
         );
     }
 
     protected function _createAddressObject($addressData)
     {
+
+        if ($addressData === null) {
+            return null;
+        }
+
         return new AddressImpl(
             $this->_paymentHelper->sanitize($addressData['line-1']),
             $this->_paymentHelper->sanitize($addressData['line-2']),
             $this->_paymentHelper->sanitize($addressData['line-3']),
             $this->_paymentHelper->sanitize($addressData['city']),
             $this->_paymentHelper->sanitize($addressData['postal-code']),
-            $this->_paymentHelper->sanitize($addressData['country-code'])
+            $this->_paymentHelper->sanitize($addressData['country-code']),
+            $this->_paymentHelper->sanitize($addressData['first-name']),
+            $this->_paymentHelper->sanitize($addressData['last-name']),
+            $this->_paymentHelper->sanitize($addressData['phone-number']),
+            $this->_paymentHelper->sanitize($addressData['email'])
         );
     }
 }

@@ -67,6 +67,19 @@ class DataGetter extends \Verifone\Payment\Model\Client\DataGetter
                 'locale' => $this->_resolver->getLocale()
             ];
 
+            $addressData['line-1'] = $billingAddress->getStreetLine(1);
+            $addressData['line-2'] = $billingAddress->getStreetLine(2) ?: $billingAddress->getRegion();
+            $addressData['line-3'] = $billingAddress->getStreetLine(2) ? $billingAddress->getRegion(): '';
+            $addressData['city'] = $billingAddress->getCity();
+            $addressData['postal-code'] = $billingAddress->getPostcode();
+            $addressData['country-code'] = $this->_helper->convertCountryCode2Numeric($billingAddress->getCountryId());
+            $addressData['first-name'] = $billingAddress->getFirstname();
+            $addressData['last-name'] = $billingAddress->getLastname();
+            $addressData['phone-number'] = $billingAddress->getTelephone();
+            $addressData['email'] = $billingAddress->getEmail();
+
+            $customerData['address'] = $addressData;
+
             if ($this->_scopeConfig->getValue(Path::XML_PATH_EXTERNAL_CUSTOMER_ID)) {
                 $customerData['external_id'] = $customer->getData($this->_scopeConfig->getValue(Path::XML_PATH_EXTERNAL_CUSTOMER_ID_FIELD));
             }

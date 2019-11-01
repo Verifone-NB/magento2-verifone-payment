@@ -1,9 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.10] 2019.11.01
+### Changed
+- Add billing address into payment request - PSD/2 regulation
+
+### Removed
+- Possibility to pay with saved credit card by S2S request - PSD/2 regulation
+
+### Fixed
+- Problem with a return after add card request in Magento >= 2.3.2
+
 ## [0.1.9] 2019.10.25
 ### Fixed
-- Problem with return after pay in Magento 2.3.2
+- Problem with a return after pay in Magento >= 2.3.2
 
 ## [0.1.8] 2019.08.18
 ### Fixed
