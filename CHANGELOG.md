@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.11] 2019.11.07
+### Fixed
+- Problem with wrong version of the Core library
+
 ## [0.1.10] 2019.11.01
 ### Changed
 - Add billing address into payment request - PSD/2 regulation
