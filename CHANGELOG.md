@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.12] 2019.11.11
+### Added
+- Support for PHP 7.3
+
+### Fixed
+- Problem with undefined index, when no payment method selected
+
 ## [0.1.11] 2019.11.07
 ### Fixed
 - Problem with wrong version of the Core library

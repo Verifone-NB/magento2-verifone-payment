@@ -362,7 +362,7 @@ class FormClient extends \Verifone\Payment\Model\Client
             $isGroup = false;
         }
 
-        if (!$isCard && count($group['payments']) === 1) {
+        if (!$isCard && isset($group['payments']) && count($group['payments']) === 1) {
             $isGroup = false;
         }
 
