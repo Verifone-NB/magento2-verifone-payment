@@ -32,7 +32,7 @@
 "MOBILEPAY","MobilePay"
 "VIPPS","VIPPS"
 "MASTERPASS","MasterPass"
-"ENTERPAY_INVOICE", "Collector Lasku"
+"ENTERPAY_INVOICE", "Enterpay"
 "Problem with retrieve payment methods. %1","Maksutapojen haussa tapahtui virhe. %1"
 "Refresh succeed. Please refresh your web browser.","Päivitys suoritettu. Ole hyvä ja päivitä vielä tämä sivu selaimen reload-painikkeella."
 "Get Available Payment Methods","Hae saatavilla olevat maksutavat"

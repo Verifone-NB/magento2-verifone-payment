@@ -32,7 +32,7 @@
 "MOBILEPAY","MobilePay"
 "VIPPS","VIPPS"
 "MASTERPASS","MasterPass"
-"ENTERPAY_INVOICE", "Collector Lasku"
+"ENTERPAY_INVOICE", "Enterpay"
 "Problem with retrieve payment methods. %1","Problem with retrieve payment methods. %1"
 "Payment methods retrieved correctly. Please save configuration for apply.","Payment methods retrieved correctly. Please save configuration for apply."
 "Get Available Payment Methods","Get Available Payment Methods"
