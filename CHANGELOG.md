@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.1.14] 2020.09.17
+### Added
+- Support for PHP 7.4
+
 ## [0.1.13] 2020.09.02
 ### Fixed
 - Wrong label for Enterpay payment method

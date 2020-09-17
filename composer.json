@@ -2,7 +2,7 @@
   "name": "verifone/module-payment",
   "description": "Verifone integration for Magento 2",
   "require": {
-    "php": "~7.1.0|~7.2.0|~7.3.0",
+    "php": "^7.1.0",
     "verifone/core": "~1.1.0"
   },
   "type": "magento2-module",
