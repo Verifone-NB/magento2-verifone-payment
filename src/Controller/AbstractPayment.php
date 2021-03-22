@@ -87,7 +87,9 @@ abstract class AbstractPayment extends Action
             if ($request instanceof Http && $request->isPost()) {
                 $headers = $request->getHeaders();
                 $header = $headers->get('X_REQUESTED_WITH');
-                $headers->removeHeader($header);
+                if ($header) {
+                    $headers->removeHeader($header);
+                }
             }
         }
     }
