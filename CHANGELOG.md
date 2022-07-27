@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] 2022.07.27
+### Added
+- Support for Magento 2.4.4
+
 ## [0.1.14] 2020.09.17
 ### Added
 - Support for PHP 7.4
