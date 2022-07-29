@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] 2022.07.29
+### Fixed
+- Problem with Logger method declaration
+
 ## [0.2.0] 2022.07.27
 ### Added
 - Support for Magento 2.4.4
